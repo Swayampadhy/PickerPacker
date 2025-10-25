@@ -4,8 +4,6 @@
 use windows::Win32::UI::WindowsAndMessaging::{MessageBoxA, MB_OK};
 use windows::core::{PSTR, s};
 use std::ffi::c_void;
-
-#[cfg(feature = "ShellcodeExecuteDefault")]
 mod execution;
 
 #[cfg(feature = "embedded")]
@@ -14,11 +12,8 @@ const ENCPAYLOAD: &[u8] = &[];  // replace with the encrypted payload data
 fn main() {
 
     /*
-    
     For the Operator, Write some benign code that is to be executed
      */
-
-        // TODO: Add all the code snippets here, that you want to use in the loader with corresponding feature flags
 
         #[cfg(feature = "messagebox")]
         unsafe {

