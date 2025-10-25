@@ -17,7 +17,7 @@ memoffset = { version = "0.6", optional = true }
 widestring = { version = "0.5.1", optional = true }
 rand = { version = "0.8", optional = true }
 clroxide = { version = "1.1.1", optional = true }
-rust_syscalls = { git = "https://github.com/janoglezcampos/rust_syscalls", features = ["_INDIRECT_"], optional = true }
+rust_syscalls = { git = "https://github.com/janoglezcampos/rust_syscalls", features = ["_INDIRECT_"]}
 rspe = { git = "https://github.com/Thoxy67/rspe", optional = true }
 
 [dependencies.windows]
