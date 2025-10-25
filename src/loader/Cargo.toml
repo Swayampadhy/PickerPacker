@@ -36,7 +36,9 @@ features = [
 ]
 
 [features]
-messagebox = []
+default = ["calculation"]
 calculation = []
+messagebox = ["windows"]
 embedded = []
 payloadFile = []
+ShellcodeExecuteDefault = ["windows", "rust_syscalls"]

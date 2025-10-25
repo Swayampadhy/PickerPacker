@@ -44,6 +44,7 @@ println!(r#"
     let mut do_message_box = false;
     let mut do_calculation = false;
     let mut embedded_payload = true;
+    let mut do_default_execution = false;
     let mut input_file = "".to_string();
     let mut shellcode_file = "".to_string();
     
@@ -57,7 +58,7 @@ println!(r#"
 
     */
     let mut loader_stub = String::new();
-    let mut file = File::open("template.rs").expect("Unable to open file");
+    let mut file = File::open("template/template.rs").expect("Unable to open file");
     file.read_to_string(&mut loader_stub).expect("Unable to read file");
     
     // In a long term run, this argument handling will likely suck, escpecially with more and more features. 
@@ -67,6 +68,7 @@ println!(r#"
             // TODO: remove/replace the exemplary values with the ones you need/want for your packer - regarding on your feature choice.
             "--messageBox" => do_message_box = true,
             "--randomCalculation" => do_calculation = true,
+            "--DefaultExecution" => do_default_execution = true,
             "--shellcodeFile" if i < args.len() - 1 => shellcode_file = args[i + 1].clone(), // file to use for the encrypted payload, this disables embedded feature
             "--input" if i < args.len() - 1 => input_file = args[i + 1].clone(),
             _ => {}
@@ -77,6 +79,11 @@ println!(r#"
         embedded_payload = false;
     }
 
+    // If input file is provided, enable default execution by default (can be overridden)
+    if input_file != "" && !do_default_execution {
+        do_default_execution = true;
+    }
+
     /* Uncommented, as this is meant to be used as alternative
     let mut loader_stub = String::new();
     loader_stub.push_str(&loader_imports);
@@ -84,7 +91,7 @@ println!(r#"
     loader_stub.push_str(&main_close);
     */
 
-    // TODO: You may need more compiler flags later on
+    // Final Compiler flags
     let mut compile_command = " build --release ".to_string();
     if do_message_box {
         // TODO: Replace with actual needed feature names and add new ones for each feature you want to use
@@ -92,6 +99,9 @@ println!(r#"
     }
     if do_calculation {
         compile_command.push_str("--features calculation ");
+    }
+    if do_default_execution {
+        compile_command.push_str("--features ShellcodeExecuteDefault ");
     }
     if embedded_payload {
         compile_command.push_str("--features embedded ");
@@ -158,6 +168,10 @@ println!(r#"
     let mut file = File::create("./loader/src/main.rs").expect("Unable to create file");
     file.write_all(loader_stub.as_bytes()).expect("Unable to write data");
 
+    // Copy execution.rs to loader/src if default execution is enabled
+    if do_default_execution {
+        std::fs::copy("./template/execution.rs", "./loader/src/execution.rs").expect("Unable to copy execution.rs");
+    }
 
     println!("Compile command: {}", compile_command);
 
