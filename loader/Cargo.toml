@@ -1,9 +1,7 @@
-# To change a lot 
-
 [package]
 name = "PickerPacker"
 version = "0.1.0"
-author = "Leek0gg"
+authors = ["Leek0gg"]
 edition = "2024"
 
 [profile.release]
