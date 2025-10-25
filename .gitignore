@@ -25,3 +25,7 @@ target
 
 /target
 shellcode.bin
+loader/src/execution.rs
+loader/src/main.rs
+PickerPacker.exe
+loader/Cargo.lock

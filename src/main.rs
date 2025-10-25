@@ -131,8 +131,6 @@ println!(r#"
             loader_stub = loader_stub.replace("const ENCPAYLOAD: &[u8] = &[];", "");
             // Than, you should also write the encrypted content to disk, so that the operator (you?) can place it accordingly with the loader before execution.
         }
-        
-        compile_command.push_str("--features embedded ");
     }
     else
     {
