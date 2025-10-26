@@ -86,7 +86,7 @@ fn main() {
                 Ok(dest_path) => {
                     println!("[+] Packed executable created: {}", dest_path);
                     
-                    if config.tinyaes || config.ctaes {
+                    if config.encrypt.is_some() {
                         println!("\n[!] Remember to run with: PickerPacker_Packed.exe --key {} --iv {}", 
                                  config.aes_key(), config.aes_iv());
                     }
@@ -96,10 +96,10 @@ fn main() {
                     println!("[!] Original location:");
                     
                     #[cfg(target_os = "windows")]
-                    println!("    .\\loader\\target\\x86_64-pc-windows-msvc\\release\\loader.exe");
+                    println!("    .\\loader\\target\\x86_64-pc-windows-msvc\\release\\PickerPacker.exe");
                     
                     #[cfg(target_os = "linux")]
-                    println!("    ./loader/target/x86_64-pc-windows-gnu/release/loader.exe");
+                    println!("    ./loader/target/x86_64-pc-windows-gnu/release/PickerPacker.exe");
                 }
             }
         }

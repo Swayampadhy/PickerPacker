@@ -18,9 +18,19 @@ pub struct TemplateModule {
 /// Registry of all available template modules
 pub const TEMPLATE_MODULES: &[TemplateModule] = &[
     TemplateModule {
-        name: "execution",
-        source_file: "./template/execution.rs",
-        dest_file: "./loader/src/execution.rs",
+        name: "execution_mod",
+        source_file: "./template/execution/mod.rs",
+        dest_file: "./loader/src/execution/mod.rs",
+    },
+    TemplateModule {
+        name: "execution_execution",
+        source_file: "./template/execution/execution.rs",
+        dest_file: "./loader/src/execution/execution.rs",
+    },
+    TemplateModule {
+        name: "execution_injection",
+        source_file: "./template/execution/injection.rs",
+        dest_file: "./loader/src/execution/injection.rs",
     },
     TemplateModule {
         name: "aes",
@@ -71,12 +81,10 @@ pub fn build_compile_command(config: &PackerConfig) -> String {
     }
     
     compile_command.push_str(&format!("--features {} ", config.execution_method.feature_name()));
+    compile_command.push_str(&format!("--features {} ", config.injection_method.feature_name()));
     
-    if config.tinyaes {
-        compile_command.push_str("--features TinyAES ");
-    }
-    if config.ctaes {
-        compile_command.push_str("--features CTAES ");
+    if let Some(encryption) = config.encrypt {
+        compile_command.push_str(&format!("--features {} ", encryption.feature_name()));
     }
     
     compile_command.push_str("--features embedded ");
@@ -89,6 +97,7 @@ pub fn build_compile_command(config: &PackerConfig) -> String {
 pub fn setup_loader_directory() -> Result<(), std::io::Error> {
     std::fs::create_dir_all("loader")?;
     std::fs::create_dir_all("loader/src")?;
+    std::fs::create_dir_all("loader/src/execution")?;
     Ok(())
 }
 
@@ -101,8 +110,8 @@ fn copy_template_module(module: &TemplateModule) -> Result<(), std::io::Error> {
 /// Check if a module should be included based on configuration
 fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
     match module_name {
-        "execution" => true,
-        "aes" => config.tinyaes || config.ctaes,
+        "execution_mod" | "execution_execution" | "execution_injection" => true,
+        "aes" => config.encrypt.is_some(),
         _ => false,
     }
 }
@@ -138,13 +147,13 @@ pub fn display_feature_summary(config: &PackerConfig) {
     }
     if config.random_calculation {
         features.push("Random Calculation");
-    }    
-    features.push(config.execution_method.display_name());
-    if config.tinyaes {
-        features.push("TinyAES Encryption");
     }
-    if config.ctaes {
-        features.push("CTAES Encryption");
+    
+    features.push(config.execution_method.display_name());
+    features.push(config.injection_method.display_name());
+    
+    if let Some(encryption) = config.encrypt {
+        features.push(encryption.display_name());
     }
     features.push("Embedded Payload");
     
@@ -161,9 +170,11 @@ pub fn display_feature_summary(config: &PackerConfig) {
 
 /// Check if additional files should be copied based on feature
 fn should_copy_additional_file(feature: &str, config: &PackerConfig) -> bool {
+    use crate::config::EncryptionMethod;
+    
     match feature {
-        "tinyaes" => config.tinyaes,
-        "ctaes" => config.ctaes,
+        "tinyaes" => config.encrypt == Some(EncryptionMethod::TinyAES),
+        "ctaes" => config.encrypt == Some(EncryptionMethod::CTAES),
         _ => false,
     }
 }

