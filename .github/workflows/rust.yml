@@ -20,13 +20,13 @@ jobs:
             runs_on: windows-latest
             target: x86_64-pc-windows-msvc
             binary_suffix: .exe
-            release_name: PickerPacker.exe
+            zip_name: PickerPacker_Windows.zip
             
           - os_name: Linux
             runs_on: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             binary_suffix: ''
-            release_name: PickerPacker
+            zip_name: PickerPacker_Linux.zip
 
     steps:
       - name: Checkout code
@@ -43,19 +43,35 @@ jobs:
       - name: Build binary
         run: cargo build --release --locked --target ${{ matrix.target }}
 
-      - name: Rename binary
+      - name: Prepare release directory
         shell: bash
         run: |
-          # Source binary location
-          BINARY_PATH="target/${{ matrix.target }}/release/PickerPacker${{ matrix.binary_suffix }}"
+          # Create a directory for packaging
+          mkdir -p release_package
           
-          # Copy with release name
-          cp "${BINARY_PATH}" "${{ matrix.release_name }}"
+          # Copy the binary
+          cp "target/${{ matrix.target }}/release/PickerPacker${{ matrix.binary_suffix }}" release_package/
+          
+          # Copy template and loader folders
+          cp -r template release_package/
+          cp -r loader release_package/
+
+      - name: Create zip file (Windows)
+        if: matrix.os_name == 'Windows'
+        run: |
+          Compress-Archive -Path release_package/* -DestinationPath ${{ matrix.zip_name }}
+
+      - name: Create zip file (Linux)
+        if: matrix.os_name == 'Linux'
+        run: |
+          cd release_package
+          zip -r ../${{ matrix.zip_name }} *
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ matrix.release_name }}
+          files: ${{ matrix.zip_name }}
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           draft: false
           prerelease: false
         env:
