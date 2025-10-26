@@ -7,6 +7,56 @@ use std::fs::File;
 use std::io::prelude::*;
 use crate::config::PackerConfig;
 
+// ============================================================================
+// Template Module Registry
+// ============================================================================
+
+/// Represents a template module that can be included in the loader
+#[derive(Debug)]
+pub struct TemplateModule {
+    pub name: &'static str,
+    pub source_file: &'static str,
+    pub dest_file: &'static str,
+    pub description: &'static str,
+}
+
+/// Registry of all available template modules
+pub const TEMPLATE_MODULES: &[TemplateModule] = &[
+    TemplateModule {
+        name: "execution",
+        source_file: "./template/execution.rs",
+        dest_file: "./loader/src/execution.rs",
+        description: "Shellcode execution via syscalls",
+    },
+    TemplateModule {
+        name: "aes",
+        source_file: "./template/aes.rs",
+        dest_file: "./loader/src/aes.rs",
+        description: "AES-256-CBC encryption/decryption",
+    },
+];
+
+/// Additional files that need to be copied for specific features
+#[derive(Debug)]
+pub struct AdditionalFile {
+    pub feature: &'static str,
+    pub source: &'static str,
+    pub dest: &'static str,
+}
+
+pub const ADDITIONAL_FILES: &[AdditionalFile] = &[
+    AdditionalFile {
+        feature: "tinyaes",
+        source: "./template/TinyAES.c",
+        dest: "./loader/TinyAES.c",
+    },
+    AdditionalFile {
+        feature: "tinyaes",
+        source: "./template/build.rs",
+        dest: "./loader/build.rs",
+    },
+];
+
 pub fn build_compile_command(config: &PackerConfig) -> String {
     let mut compile_command = " build --release ".to_string();
     
@@ -54,20 +104,91 @@ pub fn setup_loader_directory() -> Result<(), std::io::Error> {
     Ok(())
 }
 
-pub fn copy_template_files(config: &PackerConfig) -> Result<(), std::io::Error> {
-    // Copy execution module if default execution is enabled
-    if config.should_use_default_execution() {
-        std::fs::copy("./template/execution.rs", "./loader/src/execution.rs")?;
-    }
-    
-    // Copy AES-related files if TinyAES is enabled
-    if config.tinyaes {
-        std::fs::copy("./template/aes.rs", "./loader/src/aes.rs")?;
-        std::fs::copy("./template/TinyAES.c", "./loader/TinyAES.c")?;
-        std::fs::copy("./template/build.rs", "./loader/build.rs")?;
-    }
-    
+/// Copy a single template module file
+fn copy_template_module(module: &TemplateModule) -> Result<(), std::io::Error> {
+    println!("[*] Copying module: {} ({})", module.name, module.description);
+    std::fs::copy(module.source_file, module.dest_file)?;
     Ok(())
+}
+
+/// Check if a module should be included based on configuration
+fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
+    match module_name {
+        "execution" => config.should_use_default_execution(),
+        "aes" => config.tinyaes,
+        _ => false,
+    }
+}
+
+/// Copy all required template modules based on enabled features
+pub fn copy_template_files(config: &PackerConfig) -> Result<(), std::io::Error> {
+    println!("[*] Copying required template modules...");
+    
+    let mut module_count = 0;
+    
+    // Copy modules based on configuration
+    for module in TEMPLATE_MODULES {
+        if should_include_module(module.name, config) {
+            copy_template_module(module)?;
+            module_count += 1;
+        }
+    }
+    
+    // Copy additional files (like C source, build scripts)
+    let mut file_count = 0;
+    for file in ADDITIONAL_FILES {
+        if should_copy_additional_file(file.feature, config) {
+            println!("[*] Copying additional file: {} -> {}", file.source, file.dest);
+            std::fs::copy(file.source, file.dest)?;
+            file_count += 1;
+        }
+    }
+    
+    println!("[+] Copied {} module(s) and {} additional file(s)", module_count, file_count);
+    Ok(())
+}
+
+/// Display summary of enabled features and modules
+pub fn display_feature_summary(config: &PackerConfig) {
+    println!("\n[*] ===== Feature Summary =====");
+    
+    let mut features = Vec::new();
+    
+    if config.message_box {
+        features.push("MessageBox");
+    }
+    if config.random_calculation {
+        features.push("Random Calculation");
+    }
+    if config.should_use_default_execution() {
+        features.push("Default Execution (Syscalls)");
+    }
+    if config.tinyaes {
+        features.push("TinyAES Encryption");
+    }
+    if config.embedded_payload() {
+        features.push("Embedded Payload");
+    } else {
+        features.push("External Payload File");
+    }
+    
+    if features.is_empty() {
+        println!("[*] No additional features enabled");
+    } else {
+        for feature in features {
+            println!("[+] {}", feature);
+        }
+    }
+    
+    println!("[*] ============================\n");
+}
+
+/// Check if additional files should be copied based on feature
+fn should_copy_additional_file(feature: &str, config: &PackerConfig) -> bool {
+    match feature {
+        "tinyaes" => config.tinyaes,
+        _ => false,
+    }
 }
 
 pub fn write_loader_stub(loader_stub: &str) -> Result<(), std::io::Error> {

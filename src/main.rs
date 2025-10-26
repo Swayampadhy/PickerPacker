@@ -15,7 +15,8 @@ use utils::{print_banner, load_template, read_payload_file};
 use payload::{process_payload, embed_payload};
 use builder::{
     build_compile_command, setup_loader_directory, copy_template_files, 
-    write_loader_stub, compile_loader, move_and_rename_executable
+    write_loader_stub, compile_loader, move_and_rename_executable,
+    display_feature_summary
 };
 
 // ============================================================================
@@ -27,6 +28,9 @@ fn main() {
 
     // Parse command-line arguments with clap
     let config = PackerConfig::from_args();
+    
+    // Display enabled features
+    display_feature_summary(&config);
 
     println!("[*] Loading loader template...");
     let mut loader_stub = match load_template() {
