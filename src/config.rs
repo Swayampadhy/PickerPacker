@@ -4,7 +4,6 @@
 
 use clap::Parser;
 
-/// PickerPacker - Rust-Powered Customizable Packer
 #[derive(Parser, Debug)]
 #[command(
     name = "PickerPacker",
@@ -34,11 +33,15 @@ pub struct PackerConfig {
     #[arg(long)]
     pub tinyaes: bool,
 
+    /// Enable CTAES encryption
+    #[arg(long)]
+    pub ctaes: bool,
+
     /// AES encryption key (64 hex characters / 32 bytes)
     #[arg(
         long,
         value_name = "HEX",
-        required_if_eq("tinyaes", "true"),
+        required_if_eq_any([("tinyaes", "true"), ("ctaes", "true")]),
         value_parser = validate_aes_key
     )]
     pub key: Option<String>,
@@ -47,7 +50,7 @@ pub struct PackerConfig {
     #[arg(
         long,
         value_name = "HEX",
-        required_if_eq("tinyaes", "true"),
+        required_if_eq_any([("tinyaes", "true"), ("ctaes", "true")]),
         value_parser = validate_aes_iv
     )]
     pub iv: Option<String>,
@@ -81,11 +84,6 @@ impl PackerConfig {
     /// Get AES IV as string
     pub fn aes_iv(&self) -> String {
         self.iv.clone().unwrap_or_default()
-    }
-
-    /// Get shellcode file path
-    pub fn shellcode_file_path(&self) -> String {
-        self.shellcode_file.clone().unwrap_or_default()
     }
 }
 

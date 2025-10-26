@@ -60,5 +60,3 @@ pub fn shellcode_execute_default(bytes_to_load: Vec<u8>) -> bool
     }
     return true;
 }
-
-

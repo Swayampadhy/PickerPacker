@@ -32,7 +32,6 @@ fn main() {
     // Display enabled features
     display_feature_summary(&config);
 
-    println!("[*] Loading loader template...");
     let mut loader_stub = match load_template() {
         Ok(stub) => stub,
         Err(e) => {
@@ -55,19 +54,15 @@ fn main() {
 
     let processed_payload = process_payload(payload_data, &config);
 
-    println!("[*] Embedding payload into loader...");
     embed_payload(&mut loader_stub, &processed_payload, &config);
 
     let compile_command = build_compile_command(&config);
-    println!("[*] Compile command: cargo{}", compile_command);
 
-    println!("[*] Setting up loader directory...");
     if let Err(e) = setup_loader_directory() {
         eprintln!("[-] Failed to setup loader directory: {}", e);
         std::process::exit(1);
     }
 
-    println!("[*] Copying template files...");
     if let Err(e) = copy_template_files(&config) {
         eprintln!("[-] Failed to copy template files: {}", e);
         std::process::exit(1);
@@ -82,7 +77,7 @@ fn main() {
     println!("[*] Compiling loader...");
     match compile_loader(&compile_command) {
         Ok(_) => {
-            println!("\n[+] Compilation successful!");
+            println!("[+] Compilation successful!");
             
             // Move and rename the executable
             println!("[*] Moving executable to root directory...");
@@ -90,7 +85,7 @@ fn main() {
                 Ok(dest_path) => {
                     println!("[+] Packed executable created: {}", dest_path);
                     
-                    if config.tinyaes {
+                    if config.tinyaes || config.ctaes {
                         println!("\n[!] Remember to run with: PickerPacker_Packed.exe --key {} --iv {}", 
                                  config.aes_key(), config.aes_iv());
                     }

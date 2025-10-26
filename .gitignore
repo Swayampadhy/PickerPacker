@@ -34,3 +34,4 @@ loader/src/aes.rs
 loader/build.rs
 loader/TinyAES.c
 PickerPacker_Packed.exe
+test_shellcode.bin

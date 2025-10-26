@@ -1,13 +1,19 @@
-#[cfg(feature = "TinyAES")]
 fn main() {
-    cc::Build::new()
-        .file("TinyAES.c")
-        .compile("tinyaes");
+    #[cfg(feature = "TinyAES")]
+    {
+        cc::Build::new()
+            .file("TinyAES.c")
+            .compile("tinyaes");
+        
+        println!("cargo:rerun-if-changed=TinyAES.c");
+    }
     
-    println!("cargo:rerun-if-changed=TinyAES.c");
-}
-
-#[cfg(not(feature = "TinyAES"))]
-fn main() {
-    // Do nothing if TinyAES feature is not enabled
+    #[cfg(feature = "CTAES")]
+    {
+        cc::Build::new()
+            .file("CtAes.c")
+            .compile("ctaes");
+        
+        println!("cargo:rerun-if-changed=CtAes.c");
+    }
 }

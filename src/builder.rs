@@ -6,7 +6,6 @@ use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use crate::config::PackerConfig;
-
 // ============================================================================
 // Template Module Registry
 // ============================================================================
@@ -17,7 +16,6 @@ pub struct TemplateModule {
     pub name: &'static str,
     pub source_file: &'static str,
     pub dest_file: &'static str,
-    pub description: &'static str,
 }
 
 /// Registry of all available template modules
@@ -26,13 +24,11 @@ pub const TEMPLATE_MODULES: &[TemplateModule] = &[
         name: "execution",
         source_file: "./template/execution.rs",
         dest_file: "./loader/src/execution.rs",
-        description: "Shellcode execution via syscalls",
     },
     TemplateModule {
         name: "aes",
         source_file: "./template/aes.rs",
         dest_file: "./loader/src/aes.rs",
-        description: "AES-256-CBC encryption/decryption",
     },
 ];
 
@@ -55,6 +51,16 @@ pub const ADDITIONAL_FILES: &[AdditionalFile] = &[
         source: "./template/build.rs",
         dest: "./loader/build.rs",
     },
+    AdditionalFile {
+        feature: "ctaes",
+        source: "./template/CtAes.c",
+        dest: "./loader/CtAes.c",
+    },
+    AdditionalFile {
+        feature: "ctaes",
+        source: "./template/build.rs",
+        dest: "./loader/build.rs",
+    },
 ];
 
 pub fn build_compile_command(config: &PackerConfig) -> String {
@@ -72,6 +78,9 @@ pub fn build_compile_command(config: &PackerConfig) -> String {
     if config.tinyaes {
         compile_command.push_str("--features TinyAES ");
     }
+    if config.ctaes {
+        compile_command.push_str("--features CTAES ");
+    }
     if config.embedded_payload() {
         compile_command.push_str("--features embedded ");
     } else {
@@ -83,15 +92,11 @@ pub fn build_compile_command(config: &PackerConfig) -> String {
     // Detect OS and set appropriate compilation target
     #[cfg(target_os = "linux")]
     {
-        println!("[*] Detected OS: Linux");
-        println!("[*] Cross-compiling for Windows target: x86_64-pc-windows-gnu");
         compile_command.push_str(" --target x86_64-pc-windows-gnu");
     }
     
     #[cfg(target_os = "windows")]
     {
-        println!("[*] Detected OS: Windows");
-        println!("[*] Compiling for Windows target: x86_64-pc-windows-msvc");
         compile_command.push_str(" --target x86_64-pc-windows-msvc");
     }
     
@@ -106,7 +111,6 @@ pub fn setup_loader_directory() -> Result<(), std::io::Error> {
 
 /// Copy a single template module file
 fn copy_template_module(module: &TemplateModule) -> Result<(), std::io::Error> {
-    println!("[*] Copying module: {} ({})", module.name, module.description);
     std::fs::copy(module.source_file, module.dest_file)?;
     Ok(())
 }
@@ -115,36 +119,28 @@ fn copy_template_module(module: &TemplateModule) -> Result<(), std::io::Error> {
 fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
     match module_name {
         "execution" => config.should_use_default_execution(),
-        "aes" => config.tinyaes,
+        "aes" => config.tinyaes || config.ctaes,
         _ => false,
     }
 }
 
 /// Copy all required template modules based on enabled features
 pub fn copy_template_files(config: &PackerConfig) -> Result<(), std::io::Error> {
-    println!("[*] Copying required template modules...");
-    
-    let mut module_count = 0;
     
     // Copy modules based on configuration
     for module in TEMPLATE_MODULES {
         if should_include_module(module.name, config) {
             copy_template_module(module)?;
-            module_count += 1;
         }
     }
     
     // Copy additional files (like C source, build scripts)
-    let mut file_count = 0;
     for file in ADDITIONAL_FILES {
         if should_copy_additional_file(file.feature, config) {
-            println!("[*] Copying additional file: {} -> {}", file.source, file.dest);
             std::fs::copy(file.source, file.dest)?;
-            file_count += 1;
         }
     }
     
-    println!("[+] Copied {} module(s) and {} additional file(s)", module_count, file_count);
     Ok(())
 }
 
@@ -165,6 +161,9 @@ pub fn display_feature_summary(config: &PackerConfig) {
     }
     if config.tinyaes {
         features.push("TinyAES Encryption");
+    }
+    if config.ctaes {
+        features.push("CTAES Encryption");
     }
     if config.embedded_payload() {
         features.push("Embedded Payload");
@@ -187,6 +186,7 @@ pub fn display_feature_summary(config: &PackerConfig) {
 fn should_copy_additional_file(feature: &str, config: &PackerConfig) -> bool {
     match feature {
         "tinyaes" => config.tinyaes,
+        "ctaes" => config.ctaes,
         _ => false,
     }
 }
@@ -208,13 +208,12 @@ pub fn compile_loader(compile_command: &str) -> Result<(), Box<dyn std::error::E
         .env("RUSTFLAGS", "-A warnings")
         .args(compile_command.split_whitespace())
         .output()?;
-
-    println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
     
     if output.status.success() {
         Ok(())
     } else {
-        println!("[-] Failed to compile!\r\n\r\n");
+        eprintln!("[-] Compilation failed!\n");
+        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
         let error_message = String::from_utf8_lossy(&output.stderr);
         Err(Box::new(std::io::Error::new(
             std::io::ErrorKind::Other,

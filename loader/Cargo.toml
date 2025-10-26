@@ -37,10 +37,11 @@ features = [
 ]
 
 [features]
-default = ["calculation", "payloadFile"]
+default = ["calculation"]
 calculation = []
 payloadFile = []
 messagebox = ["windows"]
 embedded = []
 ShellcodeExecuteDefault = ["windows"]
 TinyAES = ["cc"]
+CTAES = ["cc"]
