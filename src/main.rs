@@ -17,7 +17,6 @@ use builder::{
     build_compile_command, setup_loader_directory, copy_template_files, 
     write_loader_stub, compile_loader, move_and_rename_executable
 };
-use std::env;
 
 // ============================================================================
 // Main Function
@@ -26,14 +25,8 @@ use std::env;
 fn main() {
     print_banner();
 
-    let args: Vec<String> = env::args().collect();
-    let mut config = PackerConfig::new();
-    config.parse_args(&args);
-
-    if let Err(e) = config.validate() {
-        eprintln!("{}", e);
-        std::process::exit(1);
-    }
+    // Parse command-line arguments with clap
+    let config = PackerConfig::from_args();
 
     println!("[*] Loading loader template...");
     let mut loader_stub = match load_template() {
@@ -44,8 +37,8 @@ fn main() {
         }
     };
 
-    println!("[*] Reading payload from: {}", config.input_file);
-    let payload_data = match read_payload_file(&config.input_file) {
+    println!("[*] Reading payload from: {}", config.input);
+    let payload_data = match read_payload_file(&config.input) {
         Ok(data) => {
             println!("[+] Payload read successfully ({} bytes)", data.len());
             data
@@ -93,9 +86,9 @@ fn main() {
                 Ok(dest_path) => {
                     println!("[+] Packed executable created: {}", dest_path);
                     
-                    if config.do_tinyaes {
+                    if config.tinyaes {
                         println!("\n[!] Remember to run with: PickerPacker_Packed.exe --key {} --iv {}", 
-                                 config.aes_key, config.aes_iv);
+                                 config.aes_key(), config.aes_iv());
                     }
                 }
                 Err(e) => {

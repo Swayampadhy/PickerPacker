@@ -10,19 +10,19 @@ use crate::config::PackerConfig;
 pub fn build_compile_command(config: &PackerConfig) -> String {
     let mut compile_command = " build --release ".to_string();
     
-    if config.do_message_box {
+    if config.message_box {
         compile_command.push_str("--features messagebox ");
     }
-    if config.do_calculation {
+    if config.random_calculation {
         compile_command.push_str("--features calculation ");
     }
-    if config.do_default_execution {
+    if config.should_use_default_execution() {
         compile_command.push_str("--features ShellcodeExecuteDefault ");
     }
-    if config.do_tinyaes {
+    if config.tinyaes {
         compile_command.push_str("--features TinyAES ");
     }
-    if config.embedded_payload {
+    if config.embedded_payload() {
         compile_command.push_str("--features embedded ");
     } else {
         compile_command.push_str("--features payloadFile ");
@@ -56,12 +56,12 @@ pub fn setup_loader_directory() -> Result<(), std::io::Error> {
 
 pub fn copy_template_files(config: &PackerConfig) -> Result<(), std::io::Error> {
     // Copy execution module if default execution is enabled
-    if config.do_default_execution {
+    if config.should_use_default_execution() {
         std::fs::copy("./template/execution.rs", "./loader/src/execution.rs")?;
     }
     
     // Copy AES-related files if TinyAES is enabled
-    if config.do_tinyaes {
+    if config.tinyaes {
         std::fs::copy("./template/aes.rs", "./loader/src/aes.rs")?;
         std::fs::copy("./template/TinyAES.c", "./loader/TinyAES.c")?;
         std::fs::copy("./template/build.rs", "./loader/build.rs")?;

@@ -1,7 +1,7 @@
 use rust_syscalls::syscall;
 // =======================================================================================================
 //
-// DEFAULT SHELLCODE EXECUTION USING NTWriteVritualMemory
+// (DEFAULT) SHELLCODE EXECUTION USING NTWriteVritualMemory
 //
 // =======================================================================================================
 

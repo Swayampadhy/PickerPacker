@@ -14,6 +14,7 @@ strip = true        # Automatically strip symbols from the binary.
 [dependencies]
 obfstr = "0.3.0"
 rand = "0.8"
+clap = { version = "4.5", features = ["derive"] }
 
 [build-dependencies]
 cc = "1.0"
