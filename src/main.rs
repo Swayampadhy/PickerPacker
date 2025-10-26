@@ -15,7 +15,7 @@ use utils::{print_banner, load_template, read_payload_file};
 use payload::{process_payload, embed_payload};
 use builder::{
     build_compile_command, setup_loader_directory, copy_template_files, 
-    write_loader_stub, compile_loader
+    write_loader_stub, compile_loader, move_and_rename_executable
 };
 use std::env;
 
@@ -85,18 +85,29 @@ fn main() {
     println!("[*] Compiling loader...");
     match compile_loader(&compile_command) {
         Ok(_) => {
-            println!("`n[+] Compilation successful!");
-            println!("[+] Output binary location:");
+            println!("\n[+] Compilation successful!");
             
-            #[cfg(target_os = "windows")]
-            println!("    .\\target\\x86_64-pc-windows-msvc\\release\\loader.exe");
-            
-            #[cfg(target_os = "linux")]
-            println!("    ./target/x86_64-pc-windows-gnu/release/loader.exe");
-            
-            if config.do_tinyaes {
-                println!("`n[!] Remember to run with: PickerPacker.exe --key {} --iv {}", 
-                         config.aes_key, config.aes_iv);
+            // Move and rename the executable
+            println!("[*] Moving executable to root directory...");
+            match move_and_rename_executable() {
+                Ok(dest_path) => {
+                    println!("[+] Packed executable created: {}", dest_path);
+                    
+                    if config.do_tinyaes {
+                        println!("\n[!] Remember to run with: PickerPacker_Packed.exe --key {} --iv {}", 
+                                 config.aes_key, config.aes_iv);
+                    }
+                }
+                Err(e) => {
+                    eprintln!("[-] Failed to move executable: {}", e);
+                    println!("[!] Original location:");
+                    
+                    #[cfg(target_os = "windows")]
+                    println!("    .\\loader\\target\\x86_64-pc-windows-msvc\\release\\loader.exe");
+                    
+                    #[cfg(target_os = "linux")]
+                    println!("    ./loader/target/x86_64-pc-windows-gnu/release/loader.exe");
+                }
             }
         }
         Err(e) => {

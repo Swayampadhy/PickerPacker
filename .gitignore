@@ -30,3 +30,7 @@ loader/src/main.rs
 PickerPacker.exe
 loader/Cargo.lock
 src/main.rs.bak
+loader/src/aes.rs
+loader/build.rs
+loader/TinyAES.c
+PickerPacker_Packed.exe

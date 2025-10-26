@@ -101,3 +101,19 @@ pub fn compile_loader(compile_command: &str) -> Result<(), Box<dyn std::error::E
         )))
     }
 }
+
+pub fn move_and_rename_executable() -> Result<String, std::io::Error> {
+    // Determine the source path based on OS
+    #[cfg(target_os = "windows")]
+    let source_path = "./loader/target/x86_64-pc-windows-msvc/release/PickerPacker.exe";
+    
+    #[cfg(target_os = "linux")]
+    let source_path = "./loader/target/x86_64-pc-windows-gnu/release/PickerPacker.exe";
+    
+    let dest_path = "./PickerPacker_Packed.exe";
+    
+    // Copy the file to the root directory with new name
+    std::fs::copy(source_path, dest_path)?;
+    
+    Ok(dest_path.to_string())
+}
