@@ -53,11 +53,7 @@ pub fn process_payload(data: Vec<u8>, config: &PackerConfig) -> Vec<u8> {
     }
 }
 
-pub fn embed_payload(loader_stub: &mut String, payload: &[u8], config: &PackerConfig) {
-    if config.embedded_payload() {
-        let replacement = format!("const ENCPAYLOAD: &[u8] = &{:?};", payload);
-        *loader_stub = loader_stub.replace("const ENCPAYLOAD: &[u8] = &[];", &replacement);
-    } else {
-        *loader_stub = loader_stub.replace("const ENCPAYLOAD: &[u8] = &[];", "");
-    }
+pub fn embed_payload(loader_stub: &mut String, payload: &[u8], _config: &PackerConfig) {
+    let replacement = format!("const ENCPAYLOAD: &[u8] = &{:?};", payload);
+    *loader_stub = loader_stub.replace("const ENCPAYLOAD: &[u8] = &[];", &replacement);
 }

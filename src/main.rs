@@ -75,6 +75,7 @@ fn main() {
     }
 
     println!("[*] Compiling loader...");
+    println!("[*] Compile command: cargo{}", compile_command);
     match compile_loader(&compile_command) {
         Ok(_) => {
             println!("[+] Compilation successful!");

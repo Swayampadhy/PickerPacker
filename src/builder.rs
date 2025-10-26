@@ -69,21 +69,17 @@ pub fn build_compile_command(config: &PackerConfig) -> String {
     if config.random_calculation {
         compile_command.push_str("--features calculation ");
     }
-    if config.should_use_default_execution() {
-        compile_command.push_str("--features ShellcodeExecuteDefault ");
-    }
+    
+    compile_command.push_str(&format!("--features {} ", config.execution_method.feature_name()));
+    
     if config.tinyaes {
         compile_command.push_str("--features TinyAES ");
     }
     if config.ctaes {
         compile_command.push_str("--features CTAES ");
     }
-    if config.embedded_payload() {
-        compile_command.push_str("--features embedded ");
-    } else {
-        compile_command.push_str("--features payloadFile ");
-    }
     
+    compile_command.push_str("--features embedded ");
     compile_command.push_str(" --manifest-path ./loader/Cargo.toml");
     compile_command.push_str(" --target x86_64-pc-windows-msvc");
     
@@ -105,7 +101,7 @@ fn copy_template_module(module: &TemplateModule) -> Result<(), std::io::Error> {
 /// Check if a module should be included based on configuration
 fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
     match module_name {
-        "execution" => config.should_use_default_execution(),
+        "execution" => true,
         "aes" => config.tinyaes || config.ctaes,
         _ => false,
     }
@@ -142,21 +138,15 @@ pub fn display_feature_summary(config: &PackerConfig) {
     }
     if config.random_calculation {
         features.push("Random Calculation");
-    }
-    if config.should_use_default_execution() {
-        features.push("Default Execution (Syscalls)");
-    }
+    }    
+    features.push(config.execution_method.display_name());
     if config.tinyaes {
         features.push("TinyAES Encryption");
     }
     if config.ctaes {
         features.push("CTAES Encryption");
     }
-    if config.embedded_payload() {
-        features.push("Embedded Payload");
-    } else {
-        features.push("External Payload File");
-    }
+    features.push("Embedded Payload");
     
     if features.is_empty() {
         println!("[*] No additional features enabled");
@@ -210,17 +200,8 @@ pub fn compile_loader(compile_command: &str) -> Result<(), Box<dyn std::error::E
 }
 
 pub fn move_and_rename_executable() -> Result<String, std::io::Error> {
-    // Determine the source path based on OS
-    #[cfg(target_os = "windows")]
     let source_path = "./loader/target/x86_64-pc-windows-msvc/release/PickerPacker.exe";
-    
-    #[cfg(target_os = "linux")]
-    let source_path = "./loader/target/x86_64-pc-windows-gnu/release/PickerPacker.exe";
-    
     let dest_path = "./PickerPacker_Packed.exe";
-    
-    // Copy the file to the root directory with new name
     std::fs::copy(source_path, dest_path)?;
-    
     Ok(dest_path.to_string())
 }

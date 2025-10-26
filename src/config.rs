@@ -2,7 +2,31 @@
 // Configuration Module
 // ============================================================================
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum ExecutionMethod {
+    #[value(name = "default")]
+    Default,
+    #[value(name = "fiber")]
+    Fiber,
+}
+
+impl ExecutionMethod {
+    pub fn feature_name(&self) -> &'static str {
+        match self {
+            ExecutionMethod::Default => "ShellcodeExecuteDefault",
+            ExecutionMethod::Fiber => "ShellcodeExecuteFiber",
+        }
+    }
+
+    pub fn display_name(&self) -> &'static str {
+        match self {
+            ExecutionMethod::Default => "Default Execution (Syscalls)",
+            ExecutionMethod::Fiber => "Fiber Execution",
+        }
+    }
+}
 
 #[derive(Parser, Debug)]
 #[command(
@@ -17,6 +41,10 @@ pub struct PackerConfig {
     #[arg(short, long, required = true, value_name = "FILE")]
     pub input: String,
 
+    /// Shellcode execution method to use
+    #[arg(long, value_enum, default_value = "default")]
+    pub execution_method: ExecutionMethod,
+
     /// Enable MessageBox feature in loader
     #[arg(long)]
     pub message_box: bool,
@@ -24,10 +52,6 @@ pub struct PackerConfig {
     /// Enable random calculation feature in loader
     #[arg(long)]
     pub random_calculation: bool,
-
-    /// Enable default shellcode execution method
-    #[arg(long)]
-    pub default_execution: bool,
 
     /// Enable TinyAES encryption
     #[arg(long)]
@@ -54,26 +78,12 @@ pub struct PackerConfig {
         value_parser = validate_aes_iv
     )]
     pub iv: Option<String>,
-
-    /// External shellcode file (disables embedding)
-    #[arg(long, value_name = "FILE")]
-    pub shellcode_file: Option<String>,
 }
 
 impl PackerConfig {
     /// Create configuration from command-line arguments
     pub fn from_args() -> Self {
         PackerConfig::parse()
-    }
-
-    /// Check if payload should be embedded
-    pub fn embedded_payload(&self) -> bool {
-        self.shellcode_file.is_none()
-    }
-
-    /// Check if default execution should be enabled
-    pub fn should_use_default_execution(&self) -> bool {
-        self.default_execution || !self.input.is_empty()
     }
 
     /// Get AES key as string
