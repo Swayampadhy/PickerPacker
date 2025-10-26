@@ -15,9 +15,9 @@ use utils::{print_banner, load_template, read_payload_file};
 use payload::{process_payload, embed_payload};
 use builder::{
     build_compile_command, setup_loader_directory, copy_template_files, 
-    write_loader_stub, compile_loader
+    write_loader_stub, compile_loader, move_and_rename_executable,
+    display_feature_summary
 };
-use std::env;
 
 // ============================================================================
 // Main Function
@@ -26,16 +26,12 @@ use std::env;
 fn main() {
     print_banner();
 
-    let args: Vec<String> = env::args().collect();
-    let mut config = PackerConfig::new();
-    config.parse_args(&args);
+    // Parse command-line arguments with clap
+    let config = PackerConfig::from_args();
+    
+    // Display enabled features
+    display_feature_summary(&config);
 
-    if let Err(e) = config.validate() {
-        eprintln!("{}", e);
-        std::process::exit(1);
-    }
-
-    println!("[*] Loading loader template...");
     let mut loader_stub = match load_template() {
         Ok(stub) => stub,
         Err(e) => {
@@ -44,8 +40,8 @@ fn main() {
         }
     };
 
-    println!("[*] Reading payload from: {}", config.input_file);
-    let payload_data = match read_payload_file(&config.input_file) {
+    println!("[*] Reading payload from: {}", config.input);
+    let payload_data = match read_payload_file(&config.input) {
         Ok(data) => {
             println!("[+] Payload read successfully ({} bytes)", data.len());
             data
@@ -58,19 +54,15 @@ fn main() {
 
     let processed_payload = process_payload(payload_data, &config);
 
-    println!("[*] Embedding payload into loader...");
     embed_payload(&mut loader_stub, &processed_payload, &config);
 
     let compile_command = build_compile_command(&config);
-    println!("[*] Compile command: cargo{}", compile_command);
 
-    println!("[*] Setting up loader directory...");
     if let Err(e) = setup_loader_directory() {
         eprintln!("[-] Failed to setup loader directory: {}", e);
         std::process::exit(1);
     }
 
-    println!("[*] Copying template files...");
     if let Err(e) = copy_template_files(&config) {
         eprintln!("[-] Failed to copy template files: {}", e);
         std::process::exit(1);
@@ -83,20 +75,32 @@ fn main() {
     }
 
     println!("[*] Compiling loader...");
+    println!("[*] Compile command: cargo{}", compile_command);
     match compile_loader(&compile_command) {
         Ok(_) => {
-            println!("`n[+] Compilation successful!");
-            println!("[+] Output binary location:");
+            println!("[+] Compilation successful!");
             
-            #[cfg(target_os = "windows")]
-            println!("    .\\target\\x86_64-pc-windows-msvc\\release\\loader.exe");
-            
-            #[cfg(target_os = "linux")]
-            println!("    ./target/x86_64-pc-windows-gnu/release/loader.exe");
-            
-            if config.do_tinyaes {
-                println!("`n[!] Remember to run with: PickerPacker.exe --key {} --iv {}", 
-                         config.aes_key, config.aes_iv);
+            // Move and rename the executable
+            println!("[*] Moving executable to root directory...");
+            match move_and_rename_executable() {
+                Ok(dest_path) => {
+                    println!("[+] Packed executable created: {}", dest_path);
+                    
+                    if config.encrypt.is_some() {
+                        println!("\n[!] Remember to run with: PickerPacker_Packed.exe --key {} --iv {}", 
+                                 config.aes_key(), config.aes_iv());
+                    }
+                }
+                Err(e) => {
+                    eprintln!("[-] Failed to move executable: {}", e);
+                    println!("[!] Original location:");
+                    
+                    #[cfg(target_os = "windows")]
+                    println!("    .\\loader\\target\\x86_64-pc-windows-msvc\\release\\PickerPacker.exe");
+                    
+                    #[cfg(target_os = "linux")]
+                    println!("    ./loader/target/x86_64-pc-windows-gnu/release/PickerPacker.exe");
+                }
             }
         }
         Err(e) => {

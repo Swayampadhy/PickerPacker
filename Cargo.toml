@@ -12,8 +12,7 @@ panic = "abort"     # Abort on panic
 strip = true        # Automatically strip symbols from the binary.
 
 [dependencies]
-obfstr = "0.3.0"
-rand = "0.8"
+clap = { version = "4.5", default-features = false, features = ["derive", "std", "help", "usage", "error-context"] }
 
 [build-dependencies]
 cc = "1.0"
