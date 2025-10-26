@@ -50,7 +50,7 @@ jobs:
           BINARY_PATH="target/${{ matrix.platform.target }}/release/PickerPacker${{ matrix.platform.binary-suffix }}"
           
           # New name with version
-          RELEASE_NAME="PickerPacker${{ matrix.platform.binary-suffix }}-${VERSION}"
+          RELEASE_NAME="PickerPacker-${VERSION}${{ matrix.platform.binary-suffix }}"
           
           # Copy and rename
           cp "${BINARY_PATH}" "${RELEASE_NAME}"
