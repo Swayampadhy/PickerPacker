@@ -1,0 +1,44 @@
+// ============================================================================
+// Payload Processing Module
+// ============================================================================
+
+use crate::aes::{hex_to_bytes, aes_encrypt_payload};
+use crate::config::PackerConfig;
+
+pub fn process_payload(data: Vec<u8>, config: &PackerConfig) -> Vec<u8> {
+    if config.do_tinyaes {
+        println!("[*] Encrypting payload with AES-256-CBC");
+        
+        let key_bytes = hex_to_bytes(&config.aes_key).expect("Invalid key format");
+        let iv_bytes = hex_to_bytes(&config.aes_iv).expect("Invalid IV format");
+        
+        if key_bytes.len() != 32 {
+            panic!("Key must be exactly 32 bytes");
+        }
+        if iv_bytes.len() != 16 {
+            panic!("IV must be exactly 16 bytes");
+        }
+        
+        match aes_encrypt_payload(&data, &key_bytes, &iv_bytes) {
+            Some(encrypted) => {
+                println!("[+] Payload encrypted successfully ({} bytes)", encrypted.len());
+                println!("[!] IMPORTANT: The final executable will require --key and --iv arguments:");
+                println!("    Usage: PickerPacker.exe --key {} --iv {}", config.aes_key, config.aes_iv);
+                encrypted
+            }
+            None => panic!("Failed to encrypt payload"),
+        }
+    } else {
+        data
+    }
+}
+
+pub fn embed_payload(loader_stub: &mut String, payload: &[u8], config: &PackerConfig) {
+    if config.embedded_payload {
+        let replacement = format!("const ENCPAYLOAD: &[u8] = &{:?};", payload);
+        *loader_stub = loader_stub.replace("const ENCPAYLOAD: &[u8] = &[];", &replacement);
+    } else {
+        println!("[*] Shellcode file: {}", config.shellcode_file);
+        *loader_stub = loader_stub.replace("const ENCPAYLOAD: &[u8] = &[];", "");
+    }
+}

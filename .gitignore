@@ -24,3 +24,9 @@ target
 # Added by cargo
 
 /target
+shellcode.bin
+loader/src/execution.rs
+loader/src/main.rs
+PickerPacker.exe
+loader/Cargo.lock
+src/main.rs.bak

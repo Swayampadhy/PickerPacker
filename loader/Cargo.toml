@@ -1,9 +1,7 @@
-# To change a lot 
-
 [package]
 name = "PickerPacker"
 version = "0.1.0"
-author = "Leek0gg"
+authors = ["Leek0gg"]
 edition = "2024"
 
 [profile.release]
@@ -14,16 +12,20 @@ panic = "abort"     # Abort on panic
 strip = true        # Automatically strip symbols from the binary.
 
 [dependencies]
-obfstr = "0.3.0"
-memoffset = "0.6"
-widestring = "0.5.1"
-rand = "0.8"
-clroxide = "1.1.1"
-rust_syscalls = {git = "https://github.com/janoglezcampos/rust_syscalls", features = ["_INDIRECT_"]}
-rspe = { git = "https://github.com/Thoxy67/rspe"}
+rust_syscalls = { git = "https://github.com/janoglezcampos/rust_syscalls", features = ["_INDIRECT_"]}
+obfstr = { version = "0.3.0", optional = true }
+memoffset = { version = "0.6", optional = true }
+widestring = { version = "0.5.1", optional = true }
+rand = { version = "0.8", optional = true }
+clroxide = { version = "1.1.1", optional = true }
+rspe = { git = "https://github.com/Thoxy67/rspe", optional = true }
+
+[build-dependencies]
+cc = { version = "1.0", optional = true }
 
 [dependencies.windows]
 version = "0.54"
+optional = true
 features = [
     "Win32_System_SystemInformation",
     "Win32_System_Threading",
@@ -35,7 +37,10 @@ features = [
 ]
 
 [features]
-messagebox = []
+default = ["calculation", "payloadFile"]
 calculation = []
-embedded = []
 payloadFile = []
+messagebox = ["windows"]
+embedded = []
+ShellcodeExecuteDefault = ["windows"]
+TinyAES = ["cc"]
