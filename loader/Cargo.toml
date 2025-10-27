@@ -35,6 +35,23 @@ features = [
     "Win32_UI_WindowsAndMessaging",
 ]
 
+[dependencies.windows-sys]
+version = "0.59"
+optional = true
+features = [
+    "Win32_Foundation",
+    "Win32_System_Threading",
+    "Win32_Globalization",
+    "Win32_System_LibraryLoader",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_StationsAndDesktops",
+    "Win32_Security_Cryptography",
+    "Win32_Graphics_Gdi",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_Security",
+]
+
 [features]
 default = ["calculation"]
 calculation = []
@@ -43,6 +60,16 @@ messagebox = ["windows"]
 embedded = []
 ShellcodeExecuteDefault = ["windows"]
 ShellcodeExecuteFiber = ["windows"]
+ShellcodeExecuteCreateTimerQueueTimer = ["windows", "windows-sys"]
+ShellcodeExecuteEnumUILanguages = ["windows", "windows-sys"]
+ShellcodeExecuteVerifierEnumerate = ["windows", "windows-sys"]
+ShellcodeExecuteEnumChildWindows = ["windows", "windows-sys"]
+ShellcodeExecuteEnumDesktopWindows = ["windows", "windows-sys"]
+ShellcodeExecuteEnumSystemLocales = ["windows", "windows-sys"]
+ShellcodeExecuteCertEnumSystemStoreLocation = ["windows", "windows-sys"]
+ShellcodeExecuteEnumWindowStations = ["windows", "windows-sys"]
+ShellcodeExecuteEnumDisplayMonitors = ["windows", "windows-sys"]
+ShellcodeExecuteImageGetDigestStream = ["windows", "windows-sys"]
 InjectionDefaultLocal = []
 TinyAES = ["cc"]
 CTAES = ["cc"]

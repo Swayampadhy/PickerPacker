@@ -10,6 +10,26 @@ pub enum ExecutionMethod {
     Default,
     #[value(name = "fiber")]
     Fiber,
+    #[value(name = "createtimerqueuetimer")]
+    CreateTimerQueueTimer,
+    #[value(name = "enumuilanguages")]
+    EnumUILanguages,
+    #[value(name = "verifierenumerate")]
+    VerifierEnumerate,
+    #[value(name = "enumchildwindows")]
+    EnumChildWindows,
+    #[value(name = "enumdesktopwindows")]
+    EnumDesktopWindows,
+    #[value(name = "enumsystemlocales")]
+    EnumSystemLocales,
+    #[value(name = "certenumsystemstorelocation")]
+    CertEnumSystemStoreLocation,
+    #[value(name = "enumwindowstations")]
+    EnumWindowStations,
+    #[value(name = "enumdisplaymonitors")]
+    EnumDisplayMonitors,
+    #[value(name = "imagegetdigeststream")]
+    ImageGetDigestStream,
 }
 
 impl ExecutionMethod {
@@ -17,6 +37,16 @@ impl ExecutionMethod {
         match self {
             ExecutionMethod::Default => "ShellcodeExecuteDefault",
             ExecutionMethod::Fiber => "ShellcodeExecuteFiber",
+            ExecutionMethod::CreateTimerQueueTimer => "ShellcodeExecuteCreateTimerQueueTimer",
+            ExecutionMethod::EnumUILanguages => "ShellcodeExecuteEnumUILanguages",
+            ExecutionMethod::VerifierEnumerate => "ShellcodeExecuteVerifierEnumerate",
+            ExecutionMethod::EnumChildWindows => "ShellcodeExecuteEnumChildWindows",
+            ExecutionMethod::EnumDesktopWindows => "ShellcodeExecuteEnumDesktopWindows",
+            ExecutionMethod::EnumSystemLocales => "ShellcodeExecuteEnumSystemLocales",
+            ExecutionMethod::CertEnumSystemStoreLocation => "ShellcodeExecuteCertEnumSystemStoreLocation",
+            ExecutionMethod::EnumWindowStations => "ShellcodeExecuteEnumWindowStations",
+            ExecutionMethod::EnumDisplayMonitors => "ShellcodeExecuteEnumDisplayMonitors",
+            ExecutionMethod::ImageGetDigestStream => "ShellcodeExecuteImageGetDigestStream",
         }
     }
 
@@ -24,6 +54,16 @@ impl ExecutionMethod {
         match self {
             ExecutionMethod::Default => "Default Execution (Syscalls)",
             ExecutionMethod::Fiber => "Fiber Execution",
+            ExecutionMethod::CreateTimerQueueTimer => "CreateTimerQueueTimer Callback Execution",
+            ExecutionMethod::EnumUILanguages => "EnumUILanguages Callback Execution",
+            ExecutionMethod::VerifierEnumerate => "VerifierEnumerateResource Callback Execution",
+            ExecutionMethod::EnumChildWindows => "EnumChildWindows Callback Execution",
+            ExecutionMethod::EnumDesktopWindows => "EnumDesktopWindows Callback Execution",
+            ExecutionMethod::EnumSystemLocales => "EnumSystemLocalesEx Callback Execution",
+            ExecutionMethod::CertEnumSystemStoreLocation => "CertEnumSystemStoreLocation Callback Execution",
+            ExecutionMethod::EnumWindowStations => "EnumWindowStationsW Callback Execution",
+            ExecutionMethod::EnumDisplayMonitors => "EnumDisplayMonitors Callback Execution",
+            ExecutionMethod::ImageGetDigestStream => "ImageGetDigestStream Callback Execution",
         }
     }
 }
