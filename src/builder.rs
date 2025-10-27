@@ -197,10 +197,7 @@ pub fn compile_loader(compile_command: &str) -> Result<(), Box<dyn std::error::E
         eprintln!("[-] Compilation failed!\n");
         eprintln!("{}", String::from_utf8_lossy(&output.stderr));
         let error_message = String::from_utf8_lossy(&output.stderr);
-        Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            error_message.to_string()
-        )))
+        Err(Box::new(std::io::Error::other(error_message.to_string())))
     }
 }
 

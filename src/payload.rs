@@ -54,6 +54,11 @@ pub fn process_payload(data: Vec<u8>, config: &PackerConfig) -> Vec<u8> {
 }
 
 pub fn embed_payload(loader_stub: &mut String, payload: &[u8], _config: &PackerConfig) {
+    let placeholder = "const ENCPAYLOAD: &[u8] = &[];";
     let replacement = format!("const ENCPAYLOAD: &[u8] = &{:?};", payload);
-    *loader_stub = loader_stub.replace("const ENCPAYLOAD: &[u8] = &[];", &replacement);
+    
+    // More efficient single-pass replacement
+    if let Some(pos) = loader_stub.find(placeholder) {
+        loader_stub.replace_range(pos..pos + placeholder.len(), &replacement);
+    }
 }
