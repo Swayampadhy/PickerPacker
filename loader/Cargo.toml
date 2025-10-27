@@ -51,6 +51,7 @@ features = [
     "Win32_System_Diagnostics_Debug",
     "Win32_Security",
     "Win32_UI_Input_Ime",
+    "Win32_UI_WindowsAndMessaging",
 ]
 
 [features]
@@ -59,6 +60,8 @@ calculation = []
 payloadFile = []
 messagebox = ["windows"]
 embedded = []
+TinyAES = ["cc"]
+CTAES = ["cc"]
 ShellcodeExecuteDefault = ["windows"]
 ShellcodeExecuteFiber = ["windows"]
 ShellcodeExecuteCreateTimerQueueTimer = ["windows", "windows-sys"]
@@ -76,5 +79,3 @@ ShellcodeExecuteEnumTimeFormats = ["windows", "windows-sys"]
 ShellcodeExecuteCryptEnumOIDInfo = ["windows", "windows-sys"]
 ShellcodeExecuteImmEnumInputContext = ["windows", "windows-sys"]
 InjectionDefaultLocal = []
-TinyAES = ["cc"]
-CTAES = ["cc"]
