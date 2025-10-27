@@ -1,5 +1,3 @@
-use windows::Win32::UI::WindowsAndMessaging::{MessageBoxA, MB_OK};
-use windows::core::{PSTR, s};
 use std::ffi::c_void;
 mod execution;
 
@@ -102,16 +100,6 @@ fn main() {
         let (aes_key, aes_iv) = parse_and_validate_aes_args();
 
         //Benign Stuff
-        #[cfg(feature = "messagebox")]
-        unsafe {
-            MessageBoxA(
-                None,
-                s!("Hello World"),
-                s!("Hello"),
-                MB_OK,
-            );
-        }
-
         #[cfg(feature = "calculation")]
         fn calculate()
         {

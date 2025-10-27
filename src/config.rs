@@ -153,10 +153,6 @@ pub struct PackerConfig {
     #[arg(long, value_enum)]
     pub encrypt: Option<EncryptionMethod>,
 
-    /// Enable MessageBox feature in loader
-    #[arg(long)]
-    pub message_box: bool,
-
     /// Enable random calculation feature in loader
     #[arg(long)]
     pub random_calculation: bool,

@@ -73,9 +73,6 @@ pub const ADDITIONAL_FILES: &[AdditionalFile] = &[
 pub fn build_compile_command(config: &PackerConfig) -> String {
     let mut compile_command = " build --release ".to_string();
     
-    if config.message_box {
-        compile_command.push_str("--features messagebox ");
-    }
     if config.random_calculation {
         compile_command.push_str("--features calculation ");
     }
@@ -142,9 +139,6 @@ pub fn display_feature_summary(config: &PackerConfig) {
     
     let mut features = Vec::new();
     
-    if config.message_box {
-        features.push("MessageBox");
-    }
     if config.random_calculation {
         features.push("Random Calculation");
     }
