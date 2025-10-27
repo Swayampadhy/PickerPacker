@@ -38,6 +38,18 @@ pub enum ExecutionMethod {
     CryptEnumOIDInfo,
     #[value(name = "immenuminputcontext")]
     ImmEnumInputContext,
+    #[value(name = "enumpropsw")]
+    EnumPropsW,
+    #[value(name = "enumlanguagegrouplocalesw")]
+    EnumLanguageGroupLocalesW,
+    #[value(name = "symenumprocesses")]
+    SymEnumProcesses,
+    #[value(name = "copyfileexw")]
+    CopyFileExW,
+    #[value(name = "enumobjects")]
+    EnumObjects,
+    #[value(name = "enumresourcetypesw")]
+    EnumResourceTypesW,
 }
 
 impl ExecutionMethod {
@@ -59,6 +71,12 @@ impl ExecutionMethod {
             ExecutionMethod::EnumTimeFormats => "ShellcodeExecuteEnumTimeFormats",
             ExecutionMethod::CryptEnumOIDInfo => "ShellcodeExecuteCryptEnumOIDInfo",
             ExecutionMethod::ImmEnumInputContext => "ShellcodeExecuteImmEnumInputContext",
+            ExecutionMethod::EnumPropsW => "ShellcodeExecuteEnumPropsW",
+            ExecutionMethod::EnumLanguageGroupLocalesW => "ShellcodeExecuteEnumLanguageGroupLocalesW",
+            ExecutionMethod::SymEnumProcesses => "ShellcodeExecuteSymEnumProcesses",
+            ExecutionMethod::CopyFileExW => "ShellcodeExecuteCopyFileExW",
+            ExecutionMethod::EnumObjects => "ShellcodeExecuteEnumObjects",
+            ExecutionMethod::EnumResourceTypesW => "ShellcodeExecuteEnumResourceTypesW",
         }
     }
 
@@ -80,6 +98,12 @@ impl ExecutionMethod {
             ExecutionMethod::EnumTimeFormats => "EnumTimeFormatsEx Callback Execution",
             ExecutionMethod::CryptEnumOIDInfo => "CryptEnumOIDInfo Callback Execution",
             ExecutionMethod::ImmEnumInputContext => "ImmEnumInputContext Callback Execution",
+            ExecutionMethod::EnumPropsW => "EnumPropsW Callback Execution",
+            ExecutionMethod::EnumLanguageGroupLocalesW => "EnumLanguageGroupLocalesW Callback Execution",
+            ExecutionMethod::SymEnumProcesses => "SymEnumProcesses Callback Execution",
+            ExecutionMethod::CopyFileExW => "CopyFileExW Callback Execution",
+            ExecutionMethod::EnumObjects => "EnumObjects Callback Execution",
+            ExecutionMethod::EnumResourceTypesW => "EnumResourceTypesW Callback Execution",
         }
     }
 }

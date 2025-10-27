@@ -48,3 +48,21 @@ pub use execution::shellcode_execute_cryptenumoidinfo;
 
 #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
 pub use execution::shellcode_execute_immenuminputcontext;
+
+#[cfg(feature = "ShellcodeExecuteEnumPropsW")]
+pub use execution::shellcode_execute_enumpropsw;
+
+#[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
+pub use execution::shellcode_execute_enumlanguagegrouplocalesw;
+
+#[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
+pub use execution::shellcode_execute_symenumprocesses;
+
+#[cfg(feature = "ShellcodeExecuteCopyFileExW")]
+pub use execution::shellcode_execute_copyfileexw;
+
+#[cfg(feature = "ShellcodeExecuteEnumObjects")]
+pub use execution::shellcode_execute_enumobjects;
+
+#[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
+pub use execution::shellcode_execute_enumresourcetypesw;

