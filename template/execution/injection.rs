@@ -1,9 +1,11 @@
-use rust_syscalls::syscall;
 use std::ffi::c_void;
 
 // =======================================================================================================
 // INJECTION METHOD: DEFAULT LOCAL
 // =======================================================================================================
+
+#[cfg(feature = "InjectionDefaultLocal")]
+use rust_syscalls::syscall;
 
 #[cfg(feature = "InjectionDefaultLocal")]
 pub fn inject_default_local(bytes_to_load: &[u8]) -> Result<*mut c_void, i32> {

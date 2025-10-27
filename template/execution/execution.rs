@@ -1,5 +1,4 @@
 use std::ffi::c_void;
-use rust_syscalls::syscall;
 use std::ptr::{null_mut, null};
 use std::mem::{transmute, size_of};
 

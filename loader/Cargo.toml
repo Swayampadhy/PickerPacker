@@ -12,7 +12,7 @@ panic = "abort"     # Abort on panic
 strip = true        # Automatically strip symbols from the binary.
 
 [dependencies]
-rust_syscalls = { git = "https://github.com/janoglezcampos/rust_syscalls", features = ["_INDIRECT_"]}
+rust_syscalls = { git = "https://github.com/janoglezcampos/rust_syscalls", features = ["_INDIRECT_"], optional = true }
 
 [build-dependencies]
 cc = { version = "1.0", optional = true }
@@ -78,4 +78,4 @@ ShellcodeExecuteSymFindFileInPath = ["windows-sys"]
 ShellcodeExecuteFlsAlloc = ["windows-sys"]
 TinyAES = ["cc"]
 CTAES = ["cc"]
-InjectionDefaultLocal = []
+InjectionDefaultLocal = ["rust_syscalls"]
