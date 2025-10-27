@@ -50,6 +50,7 @@ features = [
     "Win32_Storage_FileSystem",
     "Win32_System_Diagnostics_Debug",
     "Win32_Security",
+    "Win32_UI_Input_Ime",
 ]
 
 [features]
@@ -70,6 +71,10 @@ ShellcodeExecuteCertEnumSystemStoreLocation = ["windows", "windows-sys"]
 ShellcodeExecuteEnumWindowStations = ["windows", "windows-sys"]
 ShellcodeExecuteEnumDisplayMonitors = ["windows", "windows-sys"]
 ShellcodeExecuteImageGetDigestStream = ["windows", "windows-sys"]
+ShellcodeExecuteCertEnumSystemStore = ["windows", "windows-sys"]
+ShellcodeExecuteEnumTimeFormats = ["windows", "windows-sys"]
+ShellcodeExecuteCryptEnumOIDInfo = ["windows", "windows-sys"]
+ShellcodeExecuteImmEnumInputContext = ["windows", "windows-sys"]
 InjectionDefaultLocal = []
 TinyAES = ["cc"]
 CTAES = ["cc"]
