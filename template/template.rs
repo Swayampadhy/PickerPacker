@@ -1,12 +1,10 @@
 use windows::Win32::UI::WindowsAndMessaging::{MessageBoxA, MB_OK};
 use windows::core::{PSTR, s};
 use std::ffi::c_void;
+mod execution;
 
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 use std::env;
-
-#[cfg(any(feature = "ShellcodeExecuteDefault", feature = "ShellcodeExecuteFiber", feature = "ShellcodeExecuteCreateTimerQueueTimer", feature = "ShellcodeExecuteEnumUILanguages", feature = "ShellcodeExecuteVerifierEnumerate", feature = "ShellcodeExecuteEnumChildWindows", feature = "ShellcodeExecuteEnumDesktopWindows", feature = "ShellcodeExecuteEnumSystemLocales", feature = "ShellcodeExecuteCertEnumSystemStoreLocation", feature = "ShellcodeExecuteEnumWindowStations", feature = "ShellcodeExecuteEnumDisplayMonitors", feature = "ShellcodeExecuteImageGetDigestStream", feature = "ShellcodeExecuteCertEnumSystemStore", feature = "ShellcodeExecuteEnumTimeFormats", feature = "ShellcodeExecuteCryptEnumOIDInfo", feature = "ShellcodeExecuteImmEnumInputContext"))]
-mod execution;
 
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 mod aes;
