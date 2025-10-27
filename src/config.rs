@@ -50,6 +50,32 @@ pub enum ExecutionMethod {
     EnumObjects,
     #[value(name = "enumresourcetypesw")]
     EnumResourceTypesW,
+    #[value(name = "enumpagefilesw")]
+    EnumPageFilesW,
+    #[value(name = "enumdirtreew")]
+    EnumDirTreeW,
+    #[value(name = "enumfontfamiliesw")]
+    EnumFontFamiliesW,
+    #[value(name = "enumdesktopsw")]
+    EnumDesktopsW,
+    #[value(name = "initonceexecuteonce")]
+    InitOnceExecuteOnce,
+    #[value(name = "enumthreadwindows")]
+    EnumThreadWindows,
+    #[value(name = "enumerateloadedmodulesw64")]
+    EnumerateLoadedModulesW64,
+    #[value(name = "enumfontsw")]
+    EnumFontsW,
+    #[value(name = "enumcalendarinfow")]
+    EnumCalendarInfoW,
+    #[value(name = "enumwindows")]
+    EnumWindows,
+    #[value(name = "enumpwrschemes")]
+    EnumPwrSchemes,
+    #[value(name = "symfindfileinpath")]
+    SymFindFileInPath,
+    #[value(name = "flsalloc")]
+    FlsAlloc,
 }
 
 impl ExecutionMethod {
@@ -77,6 +103,19 @@ impl ExecutionMethod {
             ExecutionMethod::CopyFileExW => "ShellcodeExecuteCopyFileExW",
             ExecutionMethod::EnumObjects => "ShellcodeExecuteEnumObjects",
             ExecutionMethod::EnumResourceTypesW => "ShellcodeExecuteEnumResourceTypesW",
+            ExecutionMethod::EnumPageFilesW => "ShellcodeExecuteEnumPageFilesW",
+            ExecutionMethod::EnumDirTreeW => "ShellcodeExecuteEnumDirTreeW",
+            ExecutionMethod::EnumFontFamiliesW => "ShellcodeExecuteEnumFontFamiliesW",
+            ExecutionMethod::EnumDesktopsW => "ShellcodeExecuteEnumDesktopsW",
+            ExecutionMethod::InitOnceExecuteOnce => "ShellcodeExecuteInitOnceExecuteOnce",
+            ExecutionMethod::EnumThreadWindows => "ShellcodeExecuteEnumThreadWindows",
+            ExecutionMethod::EnumerateLoadedModulesW64 => "ShellcodeExecuteEnumerateLoadedModulesW64",
+            ExecutionMethod::EnumFontsW => "ShellcodeExecuteEnumFontsW",
+            ExecutionMethod::EnumCalendarInfoW => "ShellcodeExecuteEnumCalendarInfoW",
+            ExecutionMethod::EnumWindows => "ShellcodeExecuteEnumWindows",
+            ExecutionMethod::EnumPwrSchemes => "ShellcodeExecuteEnumPwrSchemes",
+            ExecutionMethod::SymFindFileInPath => "ShellcodeExecuteSymFindFileInPath",
+            ExecutionMethod::FlsAlloc => "ShellcodeExecuteFlsAlloc",
         }
     }
 
@@ -104,6 +143,19 @@ impl ExecutionMethod {
             ExecutionMethod::CopyFileExW => "CopyFileExW Callback Execution",
             ExecutionMethod::EnumObjects => "EnumObjects Callback Execution",
             ExecutionMethod::EnumResourceTypesW => "EnumResourceTypesW Callback Execution",
+            ExecutionMethod::EnumPageFilesW => "EnumPageFilesW Callback Execution",
+            ExecutionMethod::EnumDirTreeW => "EnumDirTreeW Callback Execution",
+            ExecutionMethod::EnumFontFamiliesW => "EnumFontFamiliesW Callback Execution",
+            ExecutionMethod::EnumDesktopsW => "EnumDesktopsW Callback Execution",
+            ExecutionMethod::InitOnceExecuteOnce => "InitOnceExecuteOnce Callback Execution",
+            ExecutionMethod::EnumThreadWindows => "EnumThreadWindows Callback Execution",
+            ExecutionMethod::EnumerateLoadedModulesW64 => "EnumerateLoadedModulesW64 Callback Execution",
+            ExecutionMethod::EnumFontsW => "EnumFontsW Callback Execution",
+            ExecutionMethod::EnumCalendarInfoW => "EnumCalendarInfoW Callback Execution",
+            ExecutionMethod::EnumWindows => "EnumWindows Callback Execution",
+            ExecutionMethod::EnumPwrSchemes => "EnumPwrSchemes Callback Execution",
+            ExecutionMethod::SymFindFileInPath => "SymFindFileInPath Callback Execution",
+            ExecutionMethod::FlsAlloc => "FlsAlloc Callback Execution",
         }
     }
 }

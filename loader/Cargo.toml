@@ -33,6 +33,8 @@ features = [
     "Win32_System_Diagnostics_Debug",
     "Win32_Security",
     "Win32_UI_Input_Ime",
+    "Win32_System_ProcessStatus",
+    "Win32_System_Power",
 ]
 
 [features]
@@ -61,6 +63,19 @@ ShellcodeExecuteSymEnumProcesses = ["windows-sys"]
 ShellcodeExecuteCopyFileExW = ["windows-sys"]
 ShellcodeExecuteEnumObjects = ["windows-sys"]
 ShellcodeExecuteEnumResourceTypesW = ["windows-sys"]
+ShellcodeExecuteEnumPageFilesW = ["windows-sys"]
+ShellcodeExecuteEnumDirTreeW = ["windows-sys"]
+ShellcodeExecuteEnumFontFamiliesW = ["windows-sys"]
+ShellcodeExecuteEnumDesktopsW = ["windows-sys"]
+ShellcodeExecuteInitOnceExecuteOnce = ["windows-sys"]
+ShellcodeExecuteEnumThreadWindows = ["windows-sys"]
+ShellcodeExecuteEnumerateLoadedModulesW64 = ["windows-sys"]
+ShellcodeExecuteEnumFontsW = ["windows-sys"]
+ShellcodeExecuteEnumCalendarInfoW = ["windows-sys"]
+ShellcodeExecuteEnumWindows = ["windows-sys"]
+ShellcodeExecuteEnumPwrSchemes = ["windows-sys"]
+ShellcodeExecuteSymFindFileInPath = ["windows-sys"]
+ShellcodeExecuteFlsAlloc = ["windows-sys"]
 TinyAES = ["cc"]
 CTAES = ["cc"]
 InjectionDefaultLocal = []
