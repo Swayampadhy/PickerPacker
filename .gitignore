@@ -36,3 +36,5 @@ loader/TinyAES.c
 PickerPacker_Packed.exe
 test_shellcode.bin
 loader/CtAes.c
+comprehensive_test.ps1
+hello_world.bin

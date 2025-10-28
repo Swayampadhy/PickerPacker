@@ -15,7 +15,7 @@ unsafe extern "C" {
 }
 
 pub fn hex_to_bytes(hex_str: &str) -> Result<Vec<u8>, String> {
-    if hex_str.len() % 2 != 0 {
+    if !hex_str.len().is_multiple_of(2) {
         return Err("Hex string must have even length".to_string());
     }
     
@@ -40,7 +40,7 @@ pub fn aes_encrypt_payload(raw_data_buffer: &[u8], aes_key: &[u8], aes_iv: &[u8]
     let mut new_buffer_size = raw_buffer_size;
 
     // Add PKCS#7 padding
-    if raw_buffer_size % 16 != 0 {
+    if !raw_buffer_size.is_multiple_of(16) {
         new_buffer_size = raw_buffer_size + 16 - (raw_buffer_size % 16);
         new_buffer.resize(new_buffer_size, 0);
     }
@@ -92,7 +92,7 @@ pub fn ctaes_encrypt_payload(raw_data_buffer: &[u8], aes_key: &[u8], aes_iv: &[u
     let raw_buffer_size = raw_data_buffer.len();
     let mut new_buffer_size = raw_buffer_size;
 
-    if raw_buffer_size % 16 != 0 {
+    if !raw_buffer_size.is_multiple_of(16) {
         new_buffer_size = raw_buffer_size + 16 - (raw_buffer_size % 16);
         new_buffer.resize(new_buffer_size, 0);
     }
