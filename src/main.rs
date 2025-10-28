@@ -52,9 +52,9 @@ fn main() {
         }
     };
 
-    let processed_payload = process_payload(payload_data, &config);
+    let (processed_payload, payload_type) = process_payload(payload_data, &config);
 
-    embed_payload(&mut loader_stub, &processed_payload, &config);
+    embed_payload(&mut loader_stub, &processed_payload, &config, &payload_type);
 
     let compile_command = build_compile_command(&config);
 
