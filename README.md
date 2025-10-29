@@ -52,7 +52,8 @@ cargo build --release
 ### Sample Output
 
 ```
-PS E:\Projects\PickerPacker> .\target\release\PickerPacker.exe --input shellcode.bin --execution-method enumresourcetypesw
+PS E:\Projects\PickerPacker> .\target\release\PickerPacker.exe
+--input shellcode.bin --execution-method enumresourcetypesw
 
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      ⠀⢀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ⢀⣠⡶⠿⠿⠿⠭⢤⣀⣀⠉⣩⡟⠒⠦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -98,7 +99,10 @@ PS E:\Projects\PickerPacker> .\target\release\PickerPacker.exe --input shellcode
 [+] Payload read successfully (276 bytes)
 [*] Writing loader stub...
 [*] Compiling loader...
-[*] Compile command: cargo build --release --features ShellcodeExecuteEnumResourceTypesW --features InjectionDefaultLocal --features embedded  --manifest-path ./loader/Cargo.toml --target x86_64-pc-windows-msvc
+[*] Compile command: cargo build --release --features
+ShellcodeExecuteEnumResourceTypesW --features InjectionDefaultLocal
+--features embedded  --manifest-path ./loader/Cargo.toml --target
+x86_64-pc-windows-msvc
 [+] Compilation successful!
 [*] Moving executable to root directory...
 [+] Packed executable created: ./PickerPacker_Packed.exe
@@ -115,6 +119,13 @@ The packer supports 35+ different execution techniques including:
 ## License
 
 See [LICENSE](LICENSE) file for details.
+
+## Credits
+- [rtecCyberSec/Packer_Development](https://github.com/rtecCyberSec/Packer_Development)
+- [Maldev Academy](https://maldevacademy.com/)
+- [janoglezcampos/Rust_Syscalls](https://github.com/janoglezcampos/rust_syscalls)
+- [Whitecat18/Rust-For-Malware-Development](https://github.com/Whitecat18/Rust-for-Malware-Development)
+- [joaoviictorti/RustRedOps](https://github.com/joaoviictorti/RustRedOps)
 
 ---
 
