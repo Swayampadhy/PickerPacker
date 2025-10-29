@@ -17,9 +17,9 @@ Designed to provide the operator with granular feature selection support i.e. Us
   - No encryption option
 - **Multi-Format Payload Support**:
   - Raw shellcode (`.bin`)
-  - PE executables (`.exe`)
-  - PE DLLs (`.dll`)
-  - C# .NET assemblies (automatic detection)
+  - PE executables (`.exe`) (Under Construction)
+  - PE DLLs (`.dll`) (Under Construction)
+  - C# .NET assemblies (Under Construction)
 - **Optional Syscalls**: Feature-gated `rust_syscalls` support for injection techniques
 - **Embedded Payload**: Compile-time payload embedding with runtime decryption
 
