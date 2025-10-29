@@ -208,9 +208,9 @@ impl EncryptionMethod {
 #[command(
     name = "PickerPacker",
     author = "Swayam Tejas Padhy (@Leek0gg)",
-    version = "1.0",
     about = "A customizable payload packer",
-    long_about = None
+    long_about = None,
+    disable_version_flag = true
 )]
 pub struct PackerConfig {
     /// Input shellcode file to pack
@@ -219,7 +219,7 @@ pub struct PackerConfig {
 
     /// Shellcode execution method to use
     #[arg(long, value_enum, default_value = "default")]
-    pub execution_method: ExecutionMethod,
+    pub execution_shellcode: ExecutionMethod,
 
     /// Shellcode injection method to use
     #[arg(long, value_enum, default_value = "default")]

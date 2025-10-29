@@ -6,6 +6,7 @@ use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use crate::config::PackerConfig;
+use crate::payload::PayloadType;
 
 /// Represents a template module that can be included in the loader
 #[derive(Debug)]
@@ -70,15 +71,18 @@ pub const ADDITIONAL_FILES: &[AdditionalFile] = &[
     },
 ];
 
-pub fn build_compile_command(config: &PackerConfig) -> String {
+pub fn build_compile_command(config: &PackerConfig, payload_type: &PayloadType) -> String {
     let mut compile_command = " build --release ".to_string();
     
     if config.random_calculation {
         compile_command.push_str("--features calculation ");
     }
     
-    compile_command.push_str(&format!("--features {} ", config.execution_method.feature_name()));
-    compile_command.push_str(&format!("--features {} ", config.injection_method.feature_name()));
+    // Only include shellcode execution features for actual shellcode payloads
+    if matches!(payload_type, PayloadType::Shellcode) {
+        compile_command.push_str(&format!("--features {} ", config.execution_shellcode.feature_name()));
+        compile_command.push_str(&format!("--features {} ", config.injection_method.feature_name()));
+    }
     
     if let Some(encryption) = config.encrypt {
         compile_command.push_str(&format!("--features {} ", encryption.feature_name()));
@@ -143,7 +147,7 @@ pub fn display_feature_summary(config: &PackerConfig) {
         features.push("Random Calculation");
     }
     
-    features.push(config.execution_method.display_name());
+    features.push(config.execution_shellcode.display_name());
     features.push(config.injection_method.display_name());
     
     if let Some(encryption) = config.encrypt {

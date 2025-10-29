@@ -54,9 +54,39 @@ fn main() {
 
     let (processed_payload, payload_type) = process_payload(payload_data, &config);
 
+    // Validate that shellcode execution methods are only used for shellcode payloads
+    use payload::PayloadType;
+    use config::ExecutionMethod;
+    
+    match payload_type {
+        PayloadType::PEExe | PayloadType::PEDll | PayloadType::CSharpAssembly => {
+            let payload_type_name = match payload_type {
+                PayloadType::PEExe => "PE Executable",
+                PayloadType::PEDll => "PE DLL",
+                PayloadType::CSharpAssembly => "C# Assembly",
+                _ => "Unknown"
+            };
+            
+            println!("[*] Detected payload type: {}", payload_type_name);
+            
+            // Check if a non-default execution method was specified
+            if config.execution_shellcode != ExecutionMethod::Default {
+                eprintln!("\n[-] ERROR: Shellcode execution method '{}' cannot be used with {} payloads!", 
+                         config.execution_shellcode.display_name(), payload_type_name);
+                std::process::exit(1);
+            }
+            
+            println!("[*] PE/DLL/Assembly payloads will be embedded and executed directly");
+        }
+        PayloadType::Shellcode => {
+            println!("[*] Detected payload type: Shellcode");
+            println!("[*] Using execution method: {}", config.execution_shellcode.display_name());
+        }
+    }
+
     embed_payload(&mut loader_stub, &processed_payload, &config, &payload_type);
 
-    let compile_command = build_compile_command(&config);
+    let compile_command = build_compile_command(&config, &payload_type);
 
     if let Err(e) = setup_loader_directory() {
         eprintln!("[-] Failed to setup loader directory: {}", e);

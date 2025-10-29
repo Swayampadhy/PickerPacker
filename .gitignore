@@ -38,3 +38,8 @@ test_shellcode.bin
 loader/CtAes.c
 comprehensive_test.ps1
 hello_world.bin
+testing files/Decryptor.exe
+testing files/imm32.dll
+testttt/imm32.dll
+testttt/Decryptor.exe
+test_pe.exe
