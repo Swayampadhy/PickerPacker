@@ -1,10 +1,20 @@
-#pragma once
-
 #ifndef CTAES_H
 #define CTAES_H
 
-#include <Windows.h>
-#include <stdint.h> 
+#include <stdint.h>
+#include <string.h>
+
+#if defined(_WIN32) || defined(_WIN64)
+    #include <Windows.h>
+#else
+    // For non-Windows platforms, define Windows-specific macros as empty
+    #ifndef IN
+        #define IN
+    #endif
+    #ifndef OUT
+        #define OUT
+    #endif
+#endif 
 
 typedef struct {
     uint16_t slice[8];

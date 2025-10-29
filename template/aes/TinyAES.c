@@ -1,10 +1,16 @@
-#include <string.h> 
-
 #ifndef _AES_H_
 #define _AES_H_
 
 #include <stdint.h>
 #include <stddef.h>
+#include <string.h>
+
+#if defined(_WIN32) || defined(_WIN64)
+    // Windows platform
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+#endif
 
 #define AES256          1
 #define AES_BLOCKLEN    16 
