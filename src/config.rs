@@ -189,6 +189,26 @@ impl InjectionMethod {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum UtilityMethod {
+    #[value(name = "selfdelete")]
+    SelfDelete,
+}
+
+impl UtilityMethod {
+    pub fn feature_name(&self) -> &'static str {
+        match self {
+            UtilityMethod::SelfDelete => "UtilitySelfDeletion",
+        }
+    }
+
+    pub fn display_name(&self) -> &'static str {
+        match self {
+            UtilityMethod::SelfDelete => "Self Deletion",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum EncryptionMethod {
     #[value(name = "tinyaes")]
     TinyAES,
@@ -232,6 +252,10 @@ pub struct PackerConfig {
     /// Shellcode injection method to use
     #[arg(long, value_enum, default_value = "default")]
     pub injection_method: InjectionMethod,
+
+    /// Utility methods to enable (can specify multiple)
+    #[arg(long, value_enum)]
+    pub utils: Vec<UtilityMethod>,
 
     /// Encryption method to use (optional)
     #[arg(long, value_enum)]

