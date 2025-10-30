@@ -195,12 +195,12 @@ pub fn anti_dbg_nt_process_debug_flags() -> Result<bool, i32> {
             return Err(status);
         }
 
-        Ok(debug_flags != 0)
+        Ok(debug_flags == 0)
     }
 }
 
 // =======================================================================================================
-// ANTI-DEBUG CHECK: NTSystemDebugControl
+// ANTI-DEBUG CHECK: NTSystemDebugControl (Admin Privileges Required)
 // =======================================================================================================
 
 #[cfg(feature = "CheckAntiDebugSystemDebugControl")]
@@ -345,7 +345,7 @@ pub fn anti_dbg_check_remote_debugger_present() -> Result<bool, i32> {
 }
 
 // =======================================================================================================
-// ANTI-DEBUG CHECK: NtGlobalFlag (PEB)
+// ANTI-DEBUG CHECK: NtGlobalFlag (PEB) (Admin Privileges Required)
 // =======================================================================================================
 
 #[cfg(feature = "CheckAntiDebugNtGlobalFlag")]
