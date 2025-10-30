@@ -285,12 +285,12 @@ pub struct PackerConfig {
     #[arg(long, value_enum, default_value = "default")]
     pub injection_method: InjectionMethod,
 
-    /// Utility methods to enable 
-    #[arg(long, value_enum)]
+    /// Utility methods to enable (comma-separated or multiple --utils flags)
+    #[arg(long, value_enum, value_delimiter = ',')]
     pub utils: Vec<UtilityMethod>,
 
-    /// Check methods to enable
-    #[arg(long, value_enum)]
+    /// Check methods to enable (comma-separated or multiple --checks flags)
+    #[arg(long, value_enum, value_delimiter = ',')]
     pub checks: Vec<CheckMethod>,
 
     /// Encryption method to use (optional)
