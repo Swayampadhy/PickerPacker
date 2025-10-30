@@ -49,6 +49,9 @@ cargo build --release
 .\PickerPacker_Packed.exe --key <hex_key> --iv <hex_iv>
 ```
 
+*NOTE: You can add or change code in the "template\benign.rs" folder to modify how the "benign" part of the packer works.*
+*Refer to "template\benign.rs" for more instructions*
+
 ### Sample Output
 
 ```

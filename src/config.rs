@@ -209,6 +209,26 @@ impl UtilityMethod {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum CheckMethod {
+    #[value(name = "adprocessdebugflags")]
+    AntiDebugProcessDebugFlags,
+}
+
+impl CheckMethod {
+    pub fn feature_name(&self) -> &'static str {
+        match self {
+            CheckMethod::AntiDebugProcessDebugFlags => "CheckAntiDebugProcessDebugFlags",
+        }
+    }
+
+    pub fn display_name(&self) -> &'static str {
+        match self {
+            CheckMethod::AntiDebugProcessDebugFlags => "Anti-Debug: ProcessDebugFlags",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum EncryptionMethod {
     #[value(name = "tinyaes")]
     TinyAES,
@@ -253,17 +273,17 @@ pub struct PackerConfig {
     #[arg(long, value_enum, default_value = "default")]
     pub injection_method: InjectionMethod,
 
-    /// Utility methods to enable (can specify multiple)
+    /// Utility methods to enable 
     #[arg(long, value_enum)]
     pub utils: Vec<UtilityMethod>,
+
+    /// Check methods to enable
+    #[arg(long, value_enum)]
+    pub checks: Vec<CheckMethod>,
 
     /// Encryption method to use (optional)
     #[arg(long, value_enum)]
     pub encrypt: Option<EncryptionMethod>,
-
-    /// Enable random calculation feature in loader
-    #[arg(long)]
-    pub random_calculation: bool,
 
     /// AES encryption key (64 hex characters / 32 bytes)
     #[arg(
