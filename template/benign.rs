@@ -16,7 +16,7 @@ use std::time::Duration;
 fn benign_wrapper_internal() {
     calculate();
     // Add more benign functions here as needed
-
+    //
 
 }
 
@@ -25,7 +25,6 @@ pub fn start_benign_thread() {
     thread::spawn(move || {
         loop {
             benign_wrapper_internal();
-            
             // Small delay to prevent excessive CPU usage
             thread::sleep(Duration::from_millis(100));
         }

