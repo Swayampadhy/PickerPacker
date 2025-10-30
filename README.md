@@ -1,12 +1,11 @@
 # PickerPacker
 
 **This project is currently under construction** 
-
 This is a pre-release version.
 
-A customizable lightweight packer written in Rust with multiple execution methods and encryption capabilities.
+A customizable lightweight packer written in Rust with multiple execution methods and encryption capabilities. Designed to provide the operator with granular feature selection support i.e. Users can mix and match any attack chain they want with the payload. 
 
-Designed to provide the operator with granular feature selection support i.e. Users can mix and match any attack chain they want with the payload. 
+NOTE: **You can add or change code in the "template\benign.rs" folder to modify how the "benign" part of the packer works. Refer to "template\benign.rs" for more instructions**
 
 ## Features
 
@@ -48,9 +47,6 @@ cargo build --release
 # Run packed executable with encryption
 .\PickerPacker_Packed.exe --key <hex_key> --iv <hex_iv>
 ```
-
-*NOTE: You can add or change code in the "template\benign.rs" folder to modify how the "benign" part of the packer works.*
-*Refer to "template\benign.rs" for more instructions*
 
 ### Sample Output
 
