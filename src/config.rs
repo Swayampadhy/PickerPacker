@@ -166,6 +166,8 @@ pub enum InjectionMethod {
     Default,
     #[value(name = "mapping")]
     Mapping,
+    #[value(name = "stomping")]
+    FunctionStomping,
 }
 
 impl InjectionMethod {
@@ -173,6 +175,7 @@ impl InjectionMethod {
         match self {
             InjectionMethod::Default => "InjectionDefaultLocal",
             InjectionMethod::Mapping => "InjectionMappingLocal",
+            InjectionMethod::FunctionStomping => "InjectionFunctionStomping",
         }
     }
 
@@ -180,6 +183,7 @@ impl InjectionMethod {
         match self {
             InjectionMethod::Default => "Default Local Injection",
             InjectionMethod::Mapping => "Mapping Local Injection",
+            InjectionMethod::FunctionStomping => "Function Stomping Injection",
         }
     }
 }

