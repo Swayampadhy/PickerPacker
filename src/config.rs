@@ -164,18 +164,22 @@ impl ExecutionMethod {
 pub enum InjectionMethod {
     #[value(name = "default")]
     Default,
+    #[value(name = "mapping")]
+    Mapping,
 }
 
 impl InjectionMethod {
     pub fn feature_name(&self) -> &'static str {
         match self {
             InjectionMethod::Default => "InjectionDefaultLocal",
+            InjectionMethod::Mapping => "InjectionMappingLocal",
         }
     }
 
     pub fn display_name(&self) -> &'static str {
         match self {
             InjectionMethod::Default => "Default Local Injection",
+            InjectionMethod::Mapping => "Mapping Local Injection",
         }
     }
 }

@@ -43,3 +43,5 @@ testing files/imm32.dll
 testttt/imm32.dll
 testttt/Decryptor.exe
 test_pe.exe
+loader/Cargo.toml
+loader/Cargo.toml

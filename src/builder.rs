@@ -96,9 +96,30 @@ pub fn build_compile_command(config: &PackerConfig, payload_type: &PayloadType) 
 }
 
 pub fn setup_loader_directory() -> Result<(), std::io::Error> {
+    // Check if loader directory exists, create if not
+    let loader_exists = std::path::Path::new("loader").exists();
+    
+    if !loader_exists {
+        println!("[*] Loader directory not found, creating...");
+    }
+    
     std::fs::create_dir_all("loader")?;
     std::fs::create_dir_all("loader/src")?;
     std::fs::create_dir_all("loader/src/execution")?;
+    
+    // Copy Cargo.toml from template to loader directory
+    let template_cargo = "template/Cargo.toml";
+    let loader_cargo = "loader/Cargo.toml";
+    
+    if std::path::Path::new(template_cargo).exists() {
+        if !loader_exists {
+            println!("[*] Copying Cargo.toml from template to loader directory...");
+        }
+        std::fs::copy(template_cargo, loader_cargo)?;
+    } else {
+        eprintln!("[-] Warning: template/Cargo.toml not found");
+    }
+    
     Ok(())
 }
 
