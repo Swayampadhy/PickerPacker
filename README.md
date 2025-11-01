@@ -14,13 +14,14 @@ NOTE: **You can add or change code in the "template\benign.rs" folder to modify 
   - TinyAES encryption
   - CTAES (Constant-Time AES) encryption
   - No encryption option
-- **Multi-Format Payload Support**:
-  - Raw shellcode (`.bin`)
-  - C# .NET assemblies (Planned)
-  - PE executables (`.exe`) (Planned)
-  - PE DLLs (`.dll`) (Planned)
 - **Optional Syscalls**: Feature-gated `rust_syscalls` support for injection techniques
 - **Embedded Payload**: Compile-time payload embedding with runtime decryption
+
+NOTE: PickerPacker only supports shellcode payloads. If you want to use any other payload type such as PEs/C# Assemblies/ DLLs, convert them to shellcode first using the following -
+
+ - [Donut](https://github.com/TheWover/donut) - For .NET assemblies and DLLs
+ - [pe_to_shellcode](https://github.com/hasherezade/pe_to_shellcode) - Generates a polymorphic PE+shellcode hybrids.
+ - [sRDI](https://github.com/monoxgas/sRDI) - For native DLLs.
 
 ## Project Status
 
