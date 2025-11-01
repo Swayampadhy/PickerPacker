@@ -195,6 +195,7 @@ pub fn anti_dbg_nt_process_debug_flags() -> Result<bool, i32> {
             return Err(status);
         }
 
+        // ProcessDebugFlags returns 0 when debugger IS attached, non-zero when not attached
         Ok(debug_flags == 0)
     }
 }
@@ -293,8 +294,10 @@ pub fn anti_dbg_nt_system_debug_control() -> Result<bool, i32> {
             std::ptr::null_mut(),
         );
 
-        // Returns true if debugging detected (status != STATUS_DEBUGGER_INACTIVE)
-        Ok(status != STATUS_DEBUGGER_INACTIVE)
+        // STATUS_DEBUGGER_INACTIVE (0xC0000354) = No debugger
+        // STATUS_ACCESS_DENIED (0xC0000022) = No admin privileges
+        // Return false (no debugger) for both INACTIVE and ACCESS_DENIED
+        Ok(status != STATUS_DEBUGGER_INACTIVE && status != 0xC0000022u32 as i32)
     }
 }
 // =======================================================================================================
@@ -359,6 +362,10 @@ const FLG_HEAP_VALIDATE_PARAMETERS: u32 = 0x40;
 pub fn anti_dbg_nt_global_flag() -> bool {
     let peb = super::peb::get_peb();
     
-    // Returns true if debugger is detected
-    peb.NtGlobalFlag == (FLG_HEAP_ENABLE_TAIL_CHECK | FLG_HEAP_ENABLE_FREE_CHECK | FLG_HEAP_VALIDATE_PARAMETERS)
+    let flags_mask = FLG_HEAP_ENABLE_TAIL_CHECK | FLG_HEAP_ENABLE_FREE_CHECK | FLG_HEAP_VALIDATE_PARAMETERS;
+    let masked_value = peb.NtGlobalFlag & flags_mask;
+    
+    // When debugged, ALL three heap flags should be set (0x70)
+    // We check if the masked value equals the expected pattern
+    masked_value == flags_mask
 }
