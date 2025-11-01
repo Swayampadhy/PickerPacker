@@ -105,6 +105,16 @@ pub const TEMPLATE_MODULES: &[TemplateModule] = &[
         source_file: "./template/aes/aes.rs",
         dest_file: "./loader/src/aes.rs",
     },
+    TemplateModule {
+        name: "crypto",
+        source_file: "./template/crypto.rs",
+        dest_file: "./loader/src/crypto.rs",
+    },
+    TemplateModule {
+        name: "args",
+        source_file: "./template/args.rs",
+        dest_file: "./loader/src/args.rs",
+    },
 ];
 
 /// Additional files required for specific features
@@ -174,6 +184,7 @@ fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
         "execution_mod" | "execution_execution" | "execution_injection" => true,
         "benign" => true,
         "aes" => config.encrypt.is_some(),
+        "crypto" | "args" => config.encrypt.is_some(),
         "utilities_mod" | "utilities_utils" => !config.utils.is_empty(),
         "checks_mod" | "checks_antidebug" | "checks_antivm" | "checks_misc" | "checks_wrapper" | "checks_peb" => !config.checks.is_empty(),
         "evasion_mod" | "evasion_amsi" | "evasion_etw" => !config.evasion.is_empty(),
