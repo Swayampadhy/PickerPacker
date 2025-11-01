@@ -45,3 +45,4 @@ testttt/Decryptor.exe
 test_pe.exe
 loader/Cargo.toml
 loader/Cargo.toml
+loader/*

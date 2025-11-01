@@ -241,6 +241,30 @@ impl CheckMethod {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum EvasionMethod {
+    #[value(name = "amsisimple")]
+    AMSISimplePatch,
+    #[value(name = "etwsimple")]
+    ETWSimple,
+}
+
+impl EvasionMethod {
+    pub fn feature_name(&self) -> &'static str {
+        match self {
+            EvasionMethod::AMSISimplePatch => "EvasionAMSISimplePatch",
+            EvasionMethod::ETWSimple => "EvasionETWSimple",
+        }
+    }
+
+    pub fn display_name(&self) -> &'static str {
+        match self {
+            EvasionMethod::AMSISimplePatch => "AMSI Evasion: Simple Patch",
+            EvasionMethod::ETWSimple => "ETW Evasion: Simple Patch",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum EncryptionMethod {
     #[value(name = "tinyaes")]
     TinyAES,
@@ -292,6 +316,10 @@ pub struct PackerConfig {
     /// Check methods to enable (comma-separated or multiple --checks flags)
     #[arg(long, value_enum, value_delimiter = ',')]
     pub checks: Vec<CheckMethod>,
+
+    /// Evasion methods to enable (comma-separated or multiple --evasion flags)
+    #[arg(long, value_enum, value_delimiter = ',')]
+    pub evasion: Vec<EvasionMethod>,
 
     /// Encryption method to use (optional)
     #[arg(long, value_enum)]
