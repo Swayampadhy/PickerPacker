@@ -46,3 +46,6 @@ test_pe.exe
 loader/Cargo.toml
 loader/Cargo.toml
 loader/*
+test_all_combinations.ps1
+quick_test.ps1
+TESTING.md
