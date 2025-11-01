@@ -14,6 +14,11 @@ NOTE: **You can add or change code in the "template\benign.rs" folder to modify 
   - TinyAES encryption
   - CTAES (Constant-Time AES) encryption
   - No encryption option
+- **Multi-Format Payload Support**:
+  - Raw shellcode (`.bin`)
+  - C# .NET assemblies (Planned)
+  - PE executables (`.exe`) (Planned)
+  - PE DLLs (`.dll`) (Planned)
 - **Optional Syscalls**: Feature-gated `rust_syscalls` support for injection techniques
 - **Embedded Payload**: Compile-time payload embedding with runtime decryption
 
