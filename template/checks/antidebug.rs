@@ -251,21 +251,36 @@ use sysinfo::System;
 #[cfg(feature = "CheckAntiDebugProcessList")]
 pub fn anti_dbg_process_list() -> bool {
     let list = vec![
-        "x64dbg.exe",
-        "ida.exe",
-        "ida64.exe",
-        "VsDebugConsole.exe",
-        "msvsmon.exe",
-        "x32dbg.exe",
+        "x64dbg",
+        "x32dbg",
+        "ida",
+        "ida64",
+        "idag",
+        "idag64",
+        "idaw",
+        "idaw64",
+        "idaq",
+        "idaq64",
+        "windbg",
+        "ollydbg",
+        "OllyDbg",
+        "immunity debugger",
+        "VsDebugConsole",
+        "msvsmon",
+        "devenv",
     ];
 
     let mut system = System::new_all();
     system.refresh_all();
     
     for (_, process) in system.processes() {
-        for name in &list {
-            if process.name() == *name {
-                return true; // Debugger detected
+        // Convert OsStr to string and lowercase it
+        if let Some(proc_name) = process.name().to_str() {
+            let proc_name_lower = proc_name.to_lowercase();
+            for name in &list {
+                if proc_name_lower == name.to_lowercase() || proc_name_lower.contains(&name.to_lowercase()) {
+                    return true; // Debugger detected
+                }
             }
         }
     }
