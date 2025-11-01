@@ -234,6 +234,18 @@ pub enum CheckMethod {
     AntiDebugRemoteDebugger,
     #[value(name = "dbgntglobalflag")]
     AntiDebugNtGlobalFlag,
+    #[value(name = "dbgprocesslist")]
+    AntiDebugProcessList,
+    #[value(name = "dbghardwarebreakpoints")]
+    AntiDebugHardwareBreakpoints,
+    #[value(name = "vmcpu")]
+    AntiVMCPU,
+    #[value(name = "vmram")]
+    AntiVMRAM,
+    #[value(name = "vmusb")]
+    AntiVMUSB,
+    #[value(name = "vmprocesses")]
+    AntiVMProcesses,
     #[value(name = "domainjoined")]
     DomainJoined,
 }
@@ -245,6 +257,12 @@ impl CheckMethod {
             CheckMethod::AntiDebugSystemDebugControl => "CheckAntiDebugSystemDebugControl",
             CheckMethod::AntiDebugRemoteDebugger => "CheckAntiDebugRemoteDebugger",
             CheckMethod::AntiDebugNtGlobalFlag => "CheckAntiDebugNtGlobalFlag",
+            CheckMethod::AntiDebugProcessList => "CheckAntiDebugProcessList",
+            CheckMethod::AntiDebugHardwareBreakpoints => "CheckAntiDebugHardwareBreakpoints",
+            CheckMethod::AntiVMCPU => "CheckAntiVMCPU",
+            CheckMethod::AntiVMRAM => "CheckAntiVMRAM",
+            CheckMethod::AntiVMUSB => "CheckAntiVMUSB",
+            CheckMethod::AntiVMProcesses => "CheckAntiVMProcesses",
             CheckMethod::DomainJoined => "CheckDomainJoined",
         }
     }
@@ -255,6 +273,12 @@ impl CheckMethod {
             CheckMethod::AntiDebugSystemDebugControl => "Anti-Debug: SystemDebugControl",
             CheckMethod::AntiDebugRemoteDebugger => "Anti-Debug: CheckRemoteDebuggerPresent",
             CheckMethod::AntiDebugNtGlobalFlag => "Anti-Debug: NtGlobalFlag (PEB)",
+            CheckMethod::AntiDebugProcessList => "Anti-Debug: Debugger Process List",
+            CheckMethod::AntiDebugHardwareBreakpoints => "Anti-Debug: Hardware Breakpoints",
+            CheckMethod::AntiVMCPU => "Anti-VM: CPU Core Count",
+            CheckMethod::AntiVMRAM => "Anti-VM: RAM Size",
+            CheckMethod::AntiVMUSB => "Anti-VM: USB History",
+            CheckMethod::AntiVMProcesses => "Anti-VM: Process Count",
             CheckMethod::DomainJoined => "Environment Check: Domain Joined",
         }
     }

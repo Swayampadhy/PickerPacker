@@ -2,20 +2,23 @@
 // CHECKS WRAPPER
 // =======================================================================================================
 
-#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag"))]
+#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints"))]
 use crate::checks::antidebug;
+
+#[cfg(any(feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses"))]
+use crate::checks::antivm;
 
 #[cfg(feature = "CheckDomainJoined")]
 use crate::checks::misc;
 
-#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckDomainJoined"))]
+#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints", feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses", feature = "CheckDomainJoined"))]
 use windows_sys::Win32::{
     Foundation::HWND,
     UI::WindowsAndMessaging::{MessageBoxW, MB_OK, MB_ICONINFORMATION},
 };
 
 /// Runs all enabled checks
-#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckDomainJoined"))]
+#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints", feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses", feature = "CheckDomainJoined"))]
 pub fn run_all_checks() -> bool {
     let mut debugging_detected = false;
 
@@ -72,10 +75,58 @@ pub fn run_all_checks() -> bool {
         }
     }
 
+    #[cfg(feature = "CheckAntiDebugProcessList")]
+    {
+        if antidebug::anti_dbg_process_list() {
+            debugging_detected = true;
+        }
+    }
+
+    #[cfg(feature = "CheckAntiDebugHardwareBreakpoints")]
+    {
+        match antidebug::anti_dbg_hardware_breakpoints() {
+            Ok(debugger_detected) => {
+                if debugger_detected {
+                    debugging_detected = true;
+                }
+            }
+            Err(_) => {
+                debugging_detected = true;
+            }
+        }
+    }
+
     // ===================================================================
-    // Anti-VM Checks (currently empty)
+    // Anti-VM Checks
     // ===================================================================
-    // TODO: Add VM checks when implemented
+    
+    #[cfg(feature = "CheckAntiVMCPU")]
+    {
+        if antivm::anti_vm_cpu() {
+            debugging_detected = true;
+        }
+    }
+
+    #[cfg(feature = "CheckAntiVMRAM")]
+    {
+        if antivm::anti_vm_ram() {
+            debugging_detected = true;
+        }
+    }
+
+    #[cfg(feature = "CheckAntiVMUSB")]
+    {
+        if antivm::anti_vm_usb() {
+            debugging_detected = true;
+        }
+    }
+
+    #[cfg(feature = "CheckAntiVMProcesses")]
+    {
+        if antivm::anti_vm_processes() {
+            debugging_detected = true;
+        }
+    }
 
     // ===================================================================
     // Miscellaneous Checks
@@ -97,7 +148,7 @@ pub fn run_all_checks() -> bool {
 }
 
 /// Execute benign function to waste debugger's time
-#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckDomainJoined"))]
+#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints", feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses", feature = "CheckDomainJoined"))]
 fn execute_benign_function() {
     let mut result: u64 = 1;
     

@@ -239,3 +239,72 @@ pub fn anti_dbg_nt_global_flag() -> bool {
     // We check if the masked value equals the expected pattern
     masked_value == flags_mask
 }
+
+// =======================================================================================================
+// ANTI-DEBUG CHECK: Process List
+// =======================================================================================================
+
+#[cfg(feature = "CheckAntiDebugProcessList")]
+use sysinfo::System;
+
+/// Checks for known debugger processes running on the system
+#[cfg(feature = "CheckAntiDebugProcessList")]
+pub fn anti_dbg_process_list() -> bool {
+    let list = vec![
+        "x64dbg.exe",
+        "ida.exe",
+        "ida64.exe",
+        "VsDebugConsole.exe",
+        "msvsmon.exe",
+        "x32dbg.exe",
+    ];
+
+    let mut system = System::new_all();
+    system.refresh_all();
+    
+    for (_, process) in system.processes() {
+        for name in &list {
+            if process.name() == *name {
+                return true; // Debugger detected
+            }
+        }
+    }
+    
+    false
+}
+
+// =======================================================================================================
+// ANTI-DEBUG CHECK: Hardware Breakpoints
+// =======================================================================================================
+
+#[cfg(feature = "CheckAntiDebugHardwareBreakpoints")]
+use windows_sys::Win32::System::Diagnostics::Debug::{GetThreadContext, CONTEXT};
+
+#[cfg(feature = "CheckAntiDebugHardwareBreakpoints")]
+use windows_sys::Win32::System::Threading::GetCurrentThread;
+
+/// Checks hardware debug registers (Dr0, Dr1, Dr2, Dr3) for breakpoints.
+/// 
+/// This function retrieves the current thread's context using GetThreadContext
+/// and inspects the debug registers to detect any hardware breakpoints.
+#[cfg(feature = "CheckAntiDebugHardwareBreakpoints")]
+pub fn anti_dbg_hardware_breakpoints() -> Result<bool, i32> {
+    unsafe {
+        let mut ctx: CONTEXT = std::mem::zeroed();
+        // CONTEXT_DEBUG_REGISTERS is 0x00000010 on x64
+        ctx.ContextFlags = 0x00100010; // CONTEXT_AMD64 | CONTEXT_DEBUG_REGISTERS
+
+        let result = GetThreadContext(GetCurrentThread(), &mut ctx);
+        
+        if result == 0 {
+            return Err(-1); // GetThreadContext failed
+        }
+
+        // Check if any debug register is set
+        if ctx.Dr0 != 0 || ctx.Dr1 != 0 || ctx.Dr2 != 0 || ctx.Dr3 != 0 {
+            return Ok(true); // Hardware breakpoint detected
+        }
+
+        Ok(false)
+    }
+}

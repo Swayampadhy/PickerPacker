@@ -1,6 +1,140 @@
 // =======================================================================================================
 // ANTI-VM CHECKS
 // Techniques to detect if the process is running in a virtual machine
-// Currently empty - add VM detection techniques here
 // =======================================================================================================
 
+use std::mem::size_of;
+
+#[cfg(feature = "CheckAntiVMCPU")]
+use windows_sys::Win32::System::SystemInformation::{GetSystemInfo, SYSTEM_INFO};
+
+#[cfg(feature = "CheckAntiVMRAM")]
+use windows_sys::Win32::System::SystemInformation::{GlobalMemoryStatusEx, MEMORYSTATUSEX};
+
+#[cfg(feature = "CheckAntiVMUSB")]
+use windows_sys::Win32::System::Registry::{
+    RegCloseKey, RegOpenKeyExA, RegQueryInfoKeyA, HKEY, HKEY_LOCAL_MACHINE, KEY_READ,
+};
+
+#[cfg(feature = "CheckAntiVMProcesses")]
+use sysinfo::System;
+
+// =======================================================================================================
+// ANTI-VM CHECK: CPU Count
+// =======================================================================================================
+
+/// Function that performs a check on the CPU to find out how many processors the computer contains.
+/// Virtual machines often have fewer than 2 processors.
+#[cfg(feature = "CheckAntiVMCPU")]
+pub fn anti_vm_cpu() -> bool {
+    unsafe {
+        let mut info: SYSTEM_INFO = std::mem::zeroed();
+        GetSystemInfo(&mut info);
+
+        // Access dwNumberOfProcessors through the union
+        let processor_count = info.dwNumberOfProcessors;
+        
+        if processor_count < 2 {
+            return true; // Possibly a virtualised environment
+        }
+    }
+
+    false
+}
+
+// =======================================================================================================
+// ANTI-VM CHECK: RAM Size
+// =======================================================================================================
+
+/// Function that performs a check of the current physical memory in bytes.
+/// Checking if it is less than or equal to two gigabytes (common in VMs).
+#[cfg(feature = "CheckAntiVMRAM")]
+pub fn anti_vm_ram() -> bool {
+    unsafe {
+        let mut info: MEMORYSTATUSEX = std::mem::zeroed();
+        info.dwLength = size_of::<MEMORYSTATUSEX>() as u32;
+
+        if GlobalMemoryStatusEx(&mut info) != 0 {
+            // Check if RAM is less than or equal to 2GB (2 * 1073741824 bytes)
+            if info.ullTotalPhys <= 2147483648 {
+                return true; // Possibly a virtualised environment
+            }
+        }
+    }
+
+    false
+}
+
+// =======================================================================================================
+// ANTI-VM CHECK: USB History
+// =======================================================================================================
+
+/// The SYSTEM\ControlSet001\Enum\USBSTOR directory in the Windows Registry is a specific location where the operating system
+/// stores information about USB storage devices that have been connected to the computer.
+/// 
+/// Possibly if the computer didn't have 2 USB devices mounted, it may be in a virtualised environment.
+#[cfg(feature = "CheckAntiVMUSB")]
+pub fn anti_vm_usb() -> bool {
+    unsafe {
+        let mut h_key: HKEY = std::ptr::null_mut();
+        let mut usb_number: u32 = 0;
+        let mut class_name_buffer = [0u8; 256];
+        let mut class_name_length: u32 = class_name_buffer.len() as u32;
+
+        let registry_path = b"SYSTEM\\ControlSet001\\Enum\\USBSTOR\0";
+
+        let result = RegOpenKeyExA(
+            HKEY_LOCAL_MACHINE,
+            registry_path.as_ptr(),
+            0,
+            KEY_READ,
+            &mut h_key,
+        );
+
+        if result != 0 {
+            return false; // Could not open key, assume not VM
+        }
+
+        let query_result = RegQueryInfoKeyA(
+            h_key,
+            class_name_buffer.as_mut_ptr(),
+            &mut class_name_length,
+            std::ptr::null_mut(),
+            &mut usb_number,
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+        );
+
+        RegCloseKey(h_key);
+
+        if query_result == 0 && usb_number < 2 {
+            return true; // Possibly a virtualised environment
+        }
+    }
+
+    false
+}
+
+// =======================================================================================================
+// ANTI-VM CHECK: Process Count
+// =======================================================================================================
+
+/// Check if the environment can be sandboxed through the number of processes running.
+/// Sandbox environments typically have fewer than 50 processes.
+#[cfg(feature = "CheckAntiVMProcesses")]
+pub fn anti_vm_processes() -> bool {
+    let mut system = System::new_all();
+    system.refresh_all();
+
+    let number_processes = system.processes().len();
+    if number_processes <= 50 {
+        return true; // Possibly a sandbox environment
+    }
+
+    false
+}
