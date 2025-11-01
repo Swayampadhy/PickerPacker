@@ -49,3 +49,5 @@ loader/*
 test_all_combinations.ps1
 quick_test.ps1
 TESTING.md
+test_comprehensive_20251101_153240.log
+test_comprehensive.ps1
