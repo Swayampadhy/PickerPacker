@@ -175,14 +175,10 @@ pub fn inject_function_stomping(shellcode: &[u8]) -> Result<*mut c_void, i32> {
 use std::ptr::copy_nonoverlapping;
 
 #[cfg(feature = "InjectionModuleStomping")]
-use windows_sys::Win32::{
-    Foundation::{BOOL, HANDLE},
-    System::{
-        Diagnostics::Debug::IMAGE_NT_HEADERS64,
-        LibraryLoader::{LoadLibraryExA, DONT_RESOLVE_DLL_REFERENCES},
-        SystemServices::{IMAGE_DOS_HEADER, IMAGE_DOS_SIGNATURE, IMAGE_NT_SIGNATURE},
-        Threading::{CreateThread, THREAD_CREATION_FLAGS},
-    },
+use windows_sys::Win32::System::{
+    Diagnostics::Debug::IMAGE_NT_HEADERS64,
+    LibraryLoader::{LoadLibraryExA, DONT_RESOLVE_DLL_REFERENCES},
+    SystemServices::{IMAGE_DOS_HEADER, IMAGE_NT_SIGNATURE},
 };
 
 #[cfg(feature = "InjectionModuleStomping")]

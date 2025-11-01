@@ -32,7 +32,7 @@ pub fn patch_etw() -> bool {
     }
     
     let mut protectaddress_to_protect: *mut c_void = unsafe {
-        std::mem::transmute(nt_traceevent.expect("NtTraceEvent was None"))
+        std::mem::transmute(nt_traceevent.unwrap())
     };
 
     let mut size_to_set = patch.len(); 

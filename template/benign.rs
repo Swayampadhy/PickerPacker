@@ -17,7 +17,7 @@ use rand::{thread_rng, Rng};
 fn benign_wrapper_internal() {
     calculate();
     calc_primes(3000);
-    api_hammering(2000).expect("Error during API hammering");
+    let _ = api_hammering(2000);
     // Add more benign functions here as needed
     //
 
@@ -44,6 +44,7 @@ fn calculate() {
         result += i;
     }
     println!("Result: {}", result);
+    println!("Square root of result: {}", (result as f64).sqrt());
 }
 
 fn calc_primes(iterations: usize) {
@@ -54,6 +55,7 @@ fn calc_primes(iterations: usize) {
             i += 1;
         }
         prime += 1;
+        println!("Current prime: {}", prime);
     }
 }
 
@@ -68,7 +70,7 @@ fn api_hammering(num: usize) -> io::Result<()> {
         let mut rng = thread_rng();
         let data: Vec<u8> = (0..size).map(|_| rng.r#gen()).collect();
         file.write_all(&data)?;
-
+        println!("[*] Written {} bytes to {:?}", size, path);
         // Read written data
         let mut file = File::open(&path)?;
         let mut buffer = vec![0; size];
