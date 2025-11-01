@@ -307,11 +307,11 @@ pub struct PackerConfig {
 
     /// Shellcode execution method to use
     #[arg(long, value_enum, default_value = "default")]
-    pub execution_shellcode: ExecutionMethod,
+    pub execution: ExecutionMethod,
 
     /// Shellcode injection method to use
     #[arg(long, value_enum, default_value = "default")]
-    pub injection_method: InjectionMethod,
+    pub injection: InjectionMethod,
 
     /// Utility methods to enable (comma-separated or multiple --utils flags)
     #[arg(long, value_enum, value_delimiter = ',')]

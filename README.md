@@ -121,9 +121,10 @@ The packer supports 35+ different execution techniques including:
 See [LICENSE](LICENSE) file for details.
 
 ## Credits
-- [rtecCyberSec/Packer_Development](https://github.com/rtecCyberSec/Packer_Development)
+- [rtecCyberSec/Packer_Development](https://github.com/rtecCyberSec/Packer_Development) - The inspiration for this project
+- [janoglezcampos/Rust_Syscalls](https://github.com/janoglezcampos/rust_syscalls) - This Project implements indirect syscalls from this repository
+This project borrows code from these repositories -
 - [Maldev Academy](https://maldevacademy.com/)
-- [janoglezcampos/Rust_Syscalls](https://github.com/janoglezcampos/rust_syscalls)
 - [Whitecat18/Rust-For-Malware-Development](https://github.com/Whitecat18/Rust-for-Malware-Development)
 - [joaoviictorti/RustRedOps](https://github.com/joaoviictorti/RustRedOps)
 
