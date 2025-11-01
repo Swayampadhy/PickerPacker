@@ -56,9 +56,24 @@ pub const TEMPLATE_MODULES: &[TemplateModule] = &[
         dest_file: "./loader/src/checks/mod.rs",
     },
     TemplateModule {
-        name: "checks_checks",
-        source_file: "./template/checks/checks.rs",
-        dest_file: "./loader/src/checks/checks.rs",
+        name: "checks_antidebug",
+        source_file: "./template/checks/antidebug.rs",
+        dest_file: "./loader/src/checks/antidebug.rs",
+    },
+    TemplateModule {
+        name: "checks_antivm",
+        source_file: "./template/checks/antivm.rs",
+        dest_file: "./loader/src/checks/antivm.rs",
+    },
+    TemplateModule {
+        name: "checks_misc",
+        source_file: "./template/checks/misc.rs",
+        dest_file: "./loader/src/checks/misc.rs",
+    },
+    TemplateModule {
+        name: "checks_wrapper",
+        source_file: "./template/checks/wrapper.rs",
+        dest_file: "./loader/src/checks/wrapper.rs",
     },
     TemplateModule {
         name: "checks_peb",
@@ -160,7 +175,7 @@ fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
         "benign" => true,
         "aes" => config.encrypt.is_some(),
         "utilities_mod" | "utilities_utils" => !config.utils.is_empty(),
-        "checks_mod" | "checks_checks" | "checks_peb" => !config.checks.is_empty(),
+        "checks_mod" | "checks_antidebug" | "checks_antivm" | "checks_misc" | "checks_wrapper" | "checks_peb" => !config.checks.is_empty(),
         "evasion_mod" | "evasion_amsi" | "evasion_etw" => !config.evasion.is_empty(),
         _ => false,
     }

@@ -1,3 +1,8 @@
+// =======================================================================================================
+// PEB (Process Environment Block) STRUCTURES
+// Structures for accessing PEB to perform anti-debug checks
+// =======================================================================================================
+
 #[repr(C)]
 #[allow(non_snake_case, clippy::upper_case_acronyms)]
 pub struct PEB {

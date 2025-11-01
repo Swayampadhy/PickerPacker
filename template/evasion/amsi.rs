@@ -1,3 +1,7 @@
+// =======================================================================================================
+// AMSI EVASION Techniques
+// =======================================================================================================
+
 #[cfg(feature = "EvasionAMSISimplePatch")]
 use windows_sys::Win32::Foundation::HANDLE;
 #[cfg(feature = "EvasionAMSISimplePatch")]
