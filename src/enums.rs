@@ -294,6 +294,8 @@ pub enum EvasionMethod {
     AMSISimplePatch,
     #[value(name = "etwsimple")]
     ETWSimple,
+    #[value(name = "ntdllunhook")]
+    NtdllUnhooking,
 }
 
 impl EvasionMethod {
@@ -301,6 +303,7 @@ impl EvasionMethod {
         match self {
             EvasionMethod::AMSISimplePatch => "EvasionAMSISimplePatch",
             EvasionMethod::ETWSimple => "EvasionETWSimple",
+            EvasionMethod::NtdllUnhooking => "EvasionNtdllUnhooking",
         }
     }
 
@@ -308,6 +311,7 @@ impl EvasionMethod {
         match self {
             EvasionMethod::AMSISimplePatch => "AMSI Evasion: Simple Patch",
             EvasionMethod::ETWSimple => "ETW Evasion: Simple Patch",
+            EvasionMethod::NtdllUnhooking => "NTDLL Unhooking",
         }
     }
 }
