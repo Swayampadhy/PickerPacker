@@ -1,13 +1,14 @@
 // ============================================================================
-// Payload Processing Module
+// Payload Processing Module - Handles encryption and embedding
 // ============================================================================
 
 use crate::aes::{hex_to_bytes, aes_encrypt_payload, ctaes_encrypt_payload};
-use crate::config::{PackerConfig, EncryptionMethod};
+use crate::config::PackerConfig;
+use crate::enums::EncryptionMethod;
 
 /// Process the raw shellcode input and return (possibly encrypted) bytes
 pub fn process_payload(data: Vec<u8>, config: &PackerConfig) -> Vec<u8> {
-    let output = match config.encrypt {
+    match config.encrypt {
         Some(EncryptionMethod::TinyAES) => {
             let key_bytes = hex_to_bytes(&config.aes_key()).expect("Invalid key format");
             let iv_bytes = hex_to_bytes(&config.aes_iv()).expect("Invalid IV format");
@@ -51,9 +52,7 @@ pub fn process_payload(data: Vec<u8>, config: &PackerConfig) -> Vec<u8> {
             }
         }
         None => data,
-    };
-
-    output
+    }
 }
 
 pub fn embed_payload(loader_stub: &mut String, payload: &[u8], _config: &PackerConfig) {

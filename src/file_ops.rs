@@ -1,11 +1,11 @@
 // ============================================================================
-// Builder Module - Handles compilation and file operations
+// File Operations Module - Handle template and file copying
 // ============================================================================
 
-use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use crate::config::PackerConfig;
+use crate::enums::*;
 
 /// Represents a template module that can be included in the loader
 #[derive(Debug)]
@@ -13,6 +13,14 @@ pub struct TemplateModule {
     pub name: &'static str,
     pub source_file: &'static str,
     pub dest_file: &'static str,
+}
+
+/// Represents an additional file needed for specific features
+#[derive(Debug)]
+pub struct AdditionalFile {
+    pub feature: &'static str,
+    pub source: &'static str,
+    pub dest: &'static str,
 }
 
 /// Registry of all available template modules
@@ -84,14 +92,7 @@ pub const TEMPLATE_MODULES: &[TemplateModule] = &[
     },
 ];
 
-/// Additional files that need to be copied for specific features
-#[derive(Debug)]
-pub struct AdditionalFile {
-    pub feature: &'static str,
-    pub source: &'static str,
-    pub dest: &'static str,
-}
-
+/// Additional files required for specific features
 pub const ADDITIONAL_FILES: &[AdditionalFile] = &[
     AdditionalFile {
         feature: "tinyaes",
@@ -115,40 +116,8 @@ pub const ADDITIONAL_FILES: &[AdditionalFile] = &[
     },
 ];
 
-pub fn build_compile_command(config: &PackerConfig) -> String {
-    let mut compile_command = "build --release ".to_string();
-    
-    // Always include shellcode execution and injection features
-    compile_command.push_str(&format!("--features {} ", config.execution.feature_name()));
-    compile_command.push_str(&format!("--features {} ", config.injection.feature_name()));
-    
-    // Add utility features
-    for utility in &config.utils {
-        compile_command.push_str(&format!("--features {} ", utility.feature_name()));
-    }
-    
-    // Add check features
-    for check in &config.checks {
-        compile_command.push_str(&format!("--features {} ", check.feature_name()));
-    }
-    
-    // Add evasion features
-    for evasion in &config.evasion {
-        compile_command.push_str(&format!("--features {} ", evasion.feature_name()));
-    }
-    
-    if let Some(encryption) = config.encrypt {
-        compile_command.push_str(&format!("--features {} ", encryption.feature_name()));
-    }
-    
-    compile_command.push_str("--manifest-path ./loader/Cargo.toml");
-    compile_command.push_str(" --target x86_64-pc-windows-msvc");
-    
-    compile_command
-}
-
+/// Setup the loader directory structure
 pub fn setup_loader_directory() -> Result<(), std::io::Error> {
-    // Check if loader directory exists, create if not
     let loader_exists = std::path::Path::new("loader").exists();
     
     if !loader_exists {
@@ -188,7 +157,7 @@ fn copy_template_module(module: &TemplateModule) -> Result<(), std::io::Error> {
 fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
     match module_name {
         "execution_mod" | "execution_execution" | "execution_injection" => true,
-        "benign" => true,  // Always include benign code
+        "benign" => true,
         "aes" => config.encrypt.is_some(),
         "utilities_mod" | "utilities_utils" => !config.utils.is_empty(),
         "checks_mod" | "checks_checks" | "checks_peb" => !config.checks.is_empty(),
@@ -199,15 +168,13 @@ fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
 
 /// Copy all required template modules based on enabled features
 pub fn copy_template_files(config: &PackerConfig) -> Result<(), std::io::Error> {
-    
-    // Copy modules based on configuration
     for module in TEMPLATE_MODULES {
         if should_include_module(module.name, config) {
             copy_template_module(module)?;
         }
     }
     
-    // Copy additional files (like C source, build scripts)
+    // Copy additional files (TinyAES.c, CtAes.c, build.rs) if needed
     for file in ADDITIONAL_FILES {
         if should_copy_additional_file(file.feature, config) {
             std::fs::copy(file.source, file.dest)?;
@@ -217,49 +184,8 @@ pub fn copy_template_files(config: &PackerConfig) -> Result<(), std::io::Error> 
     Ok(())
 }
 
-/// Display summary of enabled features and modules
-pub fn display_feature_summary(config: &PackerConfig) {
-    println!("\n[*] ===== Feature Summary =====");
-    
-    let mut features = Vec::new();
-    
-    // Add utility features first
-    for utility in &config.utils {
-        features.push(utility.display_name());
-    }
-    
-    // Add check features
-    for check in &config.checks {
-        features.push(check.display_name());
-    }
-    
-    // Add evasion features
-    for evasion in &config.evasion {
-        features.push(evasion.display_name());
-    }
-    
-    features.push(config.execution.display_name());
-    features.push(config.injection.display_name());
-    
-    if let Some(encryption) = config.encrypt {
-        features.push(encryption.display_name());
-    }
-    
-    if features.is_empty() {
-        println!("[*] No additional features enabled");
-    } else {
-        for feature in features {
-            println!("[+] {}", feature);
-        }
-    }
-    
-    println!("[*] ============================\n");
-}
-
 /// Check if additional files should be copied based on feature
 fn should_copy_additional_file(feature: &str, config: &PackerConfig) -> bool {
-    use crate::config::EncryptionMethod;
-    
     match feature {
         "tinyaes" => config.encrypt == Some(EncryptionMethod::TinyAES),
         "ctaes" => config.encrypt == Some(EncryptionMethod::CTAES),
@@ -267,37 +193,9 @@ fn should_copy_additional_file(feature: &str, config: &PackerConfig) -> bool {
     }
 }
 
+/// Write the loader stub (main.rs) to the loader directory
 pub fn write_loader_stub(loader_stub: &str) -> Result<(), std::io::Error> {
     let mut file = File::create("./loader/src/main.rs")?;
     file.write_all(loader_stub.as_bytes())?;
     Ok(())
-}
-
-pub fn compile_loader(compile_command: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let path_to_cargo_project = env::current_dir()?;
-    env::set_current_dir(&path_to_cargo_project)?;
-    
-    let output = std::process::Command::new("cargo")
-        .env("CFLAGS", "-lrt")
-        .env("LDFLAGS", "-lrt")
-        .env("RUSTFLAGS", "-C target-feature=+crt-static")
-        .env("RUSTFLAGS", "-A warnings")
-        .args(compile_command.split_whitespace())
-        .output()?;
-    
-    if output.status.success() {
-        Ok(())
-    } else {
-        eprintln!("[-] Compilation failed!\n");
-        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
-        let error_message = String::from_utf8_lossy(&output.stderr);
-        Err(Box::new(std::io::Error::other(error_message.to_string())))
-    }
-}
-
-pub fn move_and_rename_executable() -> Result<String, std::io::Error> {
-    let source_path = "./loader/target/x86_64-pc-windows-msvc/release/PickerPacker.exe";
-    let dest_path = "./PickerPacker_Packed.exe";
-    std::fs::copy(source_path, dest_path)?;
-    Ok(dest_path.to_string())
 }

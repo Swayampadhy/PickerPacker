@@ -6,18 +6,19 @@
 
 mod aes;
 mod config;
+mod enums;
 mod utils;
 mod payload;
-mod builder;
+mod features;
+mod file_ops;
+mod compiler;
 
 use config::PackerConfig;
 use utils::{print_banner, load_template, read_payload_file};
 use payload::{process_payload, embed_payload};
-use builder::{
-    build_compile_command, setup_loader_directory, copy_template_files, 
-    write_loader_stub, compile_loader, move_and_rename_executable,
-    display_feature_summary
-};
+use features::display_feature_summary;
+use file_ops::{setup_loader_directory, copy_template_files, write_loader_stub};
+use compiler::{build_compile_command, compile_loader, move_and_rename_executable};
 
 // ============================================================================
 // Main Function

