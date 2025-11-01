@@ -5,7 +5,7 @@ use std::ffi::c_void;
 // =======================================================================================================
 
 // Common imports
-#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag"))]
+#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckDomainJoined"))]
 use windows_sys::Win32::{
     Foundation::{BOOL, HANDLE, HWND, NTSTATUS},
     System::{
@@ -15,12 +15,20 @@ use windows_sys::Win32::{
     UI::WindowsAndMessaging::{MessageBoxW, MB_OK, MB_ICONINFORMATION},
 };
 
+// Domain join check imports
+#[cfg(feature = "CheckDomainJoined")]
+use windows_sys::Win32::NetworkManagement::NetManagement::{
+    NetGetJoinInformation,
+    NetApiBufferFree,
+    NETSETUP_JOIN_STATUS,
+};
+
 // =======================================================================================================
 // CHECKING FUNCTIONS WRAPPER
 // =======================================================================================================
 
 /// Runs all enabled checks
-#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag"))]
+#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckDomainJoined"))]
 pub fn run_all_checks() -> bool {
     let mut debugging_detected = false;
 
@@ -76,6 +84,13 @@ pub fn run_all_checks() -> bool {
         }
     }
 
+    #[cfg(feature = "CheckDomainJoined")]
+    {
+        if !is_domain_joined() {
+            debugging_detected = true;
+        }
+    }
+
     // Add more checks here as they are implemented
 
     // If any check detected debugging, execute benign function
@@ -86,7 +101,7 @@ pub fn run_all_checks() -> bool {
     debugging_detected
 }
 
-#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag"))]
+#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckDomainJoined"))]
 fn execute_benign_function() {
     // Perform heavy calculations to waste debugger's time
     let mut result: u64 = 1;
@@ -368,4 +383,35 @@ pub fn anti_dbg_nt_global_flag() -> bool {
     // When debugged, ALL three heap flags should be set (0x70)
     // We check if the masked value equals the expected pattern
     masked_value == flags_mask
+}
+
+// =======================================================================================================
+// DOMAIN JOIN CHECK
+// =======================================================================================================
+
+/// Check if the machine is joined to a domain
+#[cfg(feature = "CheckDomainJoined")]
+pub fn is_domain_joined() -> bool {
+    const NetSetupUnknownStatus: NETSETUP_JOIN_STATUS = 0;
+    const NetSetupDomainName: NETSETUP_JOIN_STATUS = 3;
+    
+    let mut join_status = NetSetupUnknownStatus;
+    let mut name_buffer = std::ptr::null_mut::<u16>();
+
+    // Check the domain join information
+    if unsafe {
+        NetGetJoinInformation(
+            std::ptr::null(),
+            &mut name_buffer,
+            &mut join_status
+        )
+    } != 0 {
+        return false;
+    }
+
+    // Free the buffer that `NetGetJoinInformation` allocated
+    unsafe { NetApiBufferFree(name_buffer as *const _) };
+
+    // Return true if the machine is joined to a domain
+    join_status == NetSetupDomainName
 }

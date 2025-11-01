@@ -36,6 +36,7 @@ features = [
     "Win32_System_ProcessStatus",
     "Win32_System_Power",
     "Win32_System_Memory",
+    "Win32_NetworkManagement_NetManagement",
 ]
 
 [features]
@@ -86,5 +87,6 @@ CheckAntiDebugProcessDebugFlags = ["windows-sys"]
 CheckAntiDebugSystemDebugControl = ["windows-sys"]
 CheckAntiDebugRemoteDebugger = ["windows-sys"]
 CheckAntiDebugNtGlobalFlag = ["windows-sys"]
+CheckDomainJoined = ["windows-sys"]
 EvasionAMSISimplePatch = ["windows-sys", "rust_syscalls"]
 EvasionETWSimple = ["windows-sys", "rust_syscalls"]

@@ -218,6 +218,8 @@ pub enum CheckMethod {
     AntiDebugRemoteDebugger,
     #[value(name = "dbgntglobalflag")]
     AntiDebugNtGlobalFlag,
+    #[value(name = "domainjoined")]
+    DomainJoined,
 }
 
 impl CheckMethod {
@@ -227,6 +229,7 @@ impl CheckMethod {
             CheckMethod::AntiDebugSystemDebugControl => "CheckAntiDebugSystemDebugControl",
             CheckMethod::AntiDebugRemoteDebugger => "CheckAntiDebugRemoteDebugger",
             CheckMethod::AntiDebugNtGlobalFlag => "CheckAntiDebugNtGlobalFlag",
+            CheckMethod::DomainJoined => "CheckDomainJoined",
         }
     }
 
@@ -236,6 +239,7 @@ impl CheckMethod {
             CheckMethod::AntiDebugSystemDebugControl => "Anti-Debug: SystemDebugControl",
             CheckMethod::AntiDebugRemoteDebugger => "Anti-Debug: CheckRemoteDebuggerPresent",
             CheckMethod::AntiDebugNtGlobalFlag => "Anti-Debug: NtGlobalFlag (PEB)",
+            CheckMethod::DomainJoined => "Environment Check: Domain Joined",
         }
     }
 }

