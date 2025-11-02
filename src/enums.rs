@@ -230,6 +230,8 @@ pub enum CheckMethod {
     AntiVMHyperV,
     #[value(name = "vmresolution")]
     AntiVMResolution,
+    #[value(name = "vmfan")]
+    AntiVMFan,
     #[value(name = "domainjoined")]
     DomainJoined,
 }
@@ -249,6 +251,7 @@ impl CheckMethod {
             CheckMethod::AntiVMProcesses => "CheckAntiVMProcesses",
             CheckMethod::AntiVMHyperV => "CheckAntiVMHyperV",
             CheckMethod::AntiVMResolution => "CheckAntiVMResolution",
+            CheckMethod::AntiVMFan => "CheckAntiVMFan",
             CheckMethod::DomainJoined => "CheckDomainJoined",
         }
     }
@@ -267,6 +270,7 @@ impl CheckMethod {
             CheckMethod::AntiVMProcesses => "Anti-VM: Process Count",
             CheckMethod::AntiVMHyperV => "Anti-VM: Hyper-V Detection",
             CheckMethod::AntiVMResolution => "Anti-VM: Screen Resolution",
+            CheckMethod::AntiVMFan => "Anti-VM: CPU Fan Detection",
             CheckMethod::DomainJoined => "Check: Domain Joined",
         }
     }

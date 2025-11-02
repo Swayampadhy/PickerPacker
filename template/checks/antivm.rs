@@ -238,3 +238,35 @@ unsafe extern "system" fn resolution_callback(
 
     1 // Continue enumeration
 }
+
+// =======================================================================================================
+// ANTI-VM CHECK: CPU Fan Detection
+// =======================================================================================================
+
+/// Check if the environment is virtual by detecting CPU fans using WMI.
+/// Virtual machines typically don't have physical fan instances.
+#[cfg(feature = "CheckAntiVMFan")]
+use std::collections::HashMap;
+#[cfg(feature = "CheckAntiVMFan")]
+use wmi::{COMLibrary, WMIConnection, Variant};
+
+#[cfg(feature = "CheckAntiVMFan")]
+pub fn anti_vm_fan() -> bool {
+    match check_fan_instances() {
+        Ok(is_vm) => is_vm,
+        Err(_) => false, // On error, assume not a VM
+    }
+}
+
+#[cfg(feature = "CheckAntiVMFan")]
+fn check_fan_instances() -> Result<bool, Box<dyn std::error::Error>> {
+    // Initialize COM library and WMI connection
+    let com_lib = COMLibrary::new()?;
+    let wmi_con = WMIConnection::new(com_lib)?;
+
+    // Execute raw WMI query for Win32_Fan
+    let results: Vec<HashMap<String, Variant>> = wmi_con.raw_query("SELECT * FROM Win32_Fan")?;
+    
+    // If no fan instances found, likely running in a VM
+    Ok(results.is_empty())
+}
