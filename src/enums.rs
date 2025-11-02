@@ -280,6 +280,8 @@ pub enum EvasionMethod {
     AMSIHwbp,
     #[value(name = "etwsimple")]
     ETWSimple,
+    #[value(name = "etwwinapi")]
+    ETWWinAPI,
     #[value(name = "ntdllunhook")]
     NtdllUnhooking,
     #[value(name = "selfdelete")]
@@ -292,6 +294,7 @@ impl EvasionMethod {
             EvasionMethod::AMSISimplePatch => "EvasionAMSISimplePatch",
             EvasionMethod::AMSIHwbp => "EvasionAMSIHwbp",
             EvasionMethod::ETWSimple => "EvasionETWSimple",
+            EvasionMethod::ETWWinAPI => "EvasionETWWinAPI",
             EvasionMethod::NtdllUnhooking => "EvasionNtdllUnhooking",
             EvasionMethod::SelfDeletion => "EvasionSelfDeletion",
         }
@@ -302,6 +305,7 @@ impl EvasionMethod {
             EvasionMethod::AMSISimplePatch => "AMSI Evasion: Simple Patch",
             EvasionMethod::AMSIHwbp => "AMSI Evasion: Hardware Breakpoint",
             EvasionMethod::ETWSimple => "ETW Evasion: Simple Patch",
+            EvasionMethod::ETWWinAPI => "ETW Evasion: WinAPI Event Write",
             EvasionMethod::NtdllUnhooking => "NTDLL Unhooking",
             EvasionMethod::SelfDeletion => "Self Deletion",
         }
