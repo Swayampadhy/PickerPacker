@@ -237,10 +237,9 @@ $iv = -join ((1..32) | ForEach-Object { '{0:x}' -f (Get-Random -Maximum 16) })
 ## Sample Output
 
 ```powershell
-PS E:\Projects\PickerPacker> .\target\release\PickerPacker.exe
---input shellcode.bin  --encrypt ctaes --key
-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef --iv
-0123456789abcdef0123456789abcdef --execution enumdesktopwindows
+PS E:\Projects\PickerPacker> PickerPacker.exe --input shellcode.bin
+--encrypt ctaes --key 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+--iv 0123456789abcdef0123456789abcdef --execution enumdesktopwindows
 --injection functionstomping --evasion etwsimple,amsisimple,
 ntdllunhook --checks dbgprocessdebugflags,dbgsystemdebugcontrol,
 dbgremotedebugger,dbgntglobalflag,dbgprocesslist,dbghardwarebreakpoints     
