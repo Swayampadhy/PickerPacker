@@ -138,3 +138,30 @@ pub fn anti_vm_processes() -> bool {
 
     false
 }
+
+// =======================================================================================================
+// ANTI-VM CHECK: Hyper-V Detection
+// =======================================================================================================
+
+/// Check if the code is running in a Hyper-V virtual machine using CPUID.
+/// The hypervisor presence bit (bit 31 of ECX) indicates if a hypervisor is present.
+#[cfg(feature = "CheckAntiVMHyperV")]
+pub fn anti_vm_hyperv() -> bool {
+    is_virtual_machine()
+}
+
+#[cfg(feature = "CheckAntiVMHyperV")]
+fn is_virtual_machine() -> bool {
+    let mut eax = 0x1;
+    let mut ecx = 0;
+
+    unsafe {
+        core::arch::asm!(
+            "cpuid",
+            inout("eax") eax,
+            out("ecx") ecx,
+        );
+    }
+
+    (ecx >> 31) & 0x1 == 1
+}

@@ -226,6 +226,8 @@ pub enum CheckMethod {
     AntiVMUSB,
     #[value(name = "vmprocesses")]
     AntiVMProcesses,
+    #[value(name = "vmhyperv")]
+    AntiVMHyperV,
     #[value(name = "domainjoined")]
     DomainJoined,
 }
@@ -243,6 +245,7 @@ impl CheckMethod {
             CheckMethod::AntiVMRAM => "CheckAntiVMRAM",
             CheckMethod::AntiVMUSB => "CheckAntiVMUSB",
             CheckMethod::AntiVMProcesses => "CheckAntiVMProcesses",
+            CheckMethod::AntiVMHyperV => "CheckAntiVMHyperV",
             CheckMethod::DomainJoined => "CheckDomainJoined",
         }
     }
@@ -259,6 +262,7 @@ impl CheckMethod {
             CheckMethod::AntiVMRAM => "Anti-VM: RAM Size",
             CheckMethod::AntiVMUSB => "Anti-VM: USB History",
             CheckMethod::AntiVMProcesses => "Anti-VM: Process Count",
+            CheckMethod::AntiVMHyperV => "Anti-VM: Hyper-V Detection",
             CheckMethod::DomainJoined => "Environment Check: Domain Joined",
         }
     }
