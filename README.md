@@ -237,7 +237,13 @@ $iv = -join ((1..32) | ForEach-Object { '{0:x}' -f (Get-Random -Maximum 16) })
 ## Sample Output
 
 ```powershell
-PS E:\Projects\PickerPacker> .\target\release\PickerPacker.exe --input shellcode.bin  --encrypt ctaes --key 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef --iv 0123456789abcdef0123456789abcdef --execution enumdesktopwindows --injection functionstomping --evasion etwsimple,amsisimple,ntdllunhook --checks dbgprocessdebugflags,dbgsystemdebugcontrol,dbgremotedebugger,dbgntglobalflag,dbgprocesslist,dbghardwarebreakpoints     
+PS E:\Projects\PickerPacker> .\target\release\PickerPacker.exe
+--input shellcode.bin  --encrypt ctaes --key
+0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef --iv
+0123456789abcdef0123456789abcdef --execution enumdesktopwindows
+--injection functionstomping --evasion etwsimple,amsisimple,
+ntdllunhook --checks dbgprocessdebugflags,dbgsystemdebugcontrol,
+dbgremotedebugger,dbgntglobalflag,dbgprocesslist,dbghardwarebreakpoints     
                   
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      ⠀⢀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ⢀⣠⡶⠿⠿⠿⠭⢤⣀⣀⠉⣩⡟⠒⠦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -294,17 +300,29 @@ PS E:\Projects\PickerPacker> .\target\release\PickerPacker.exe --input shellcode
 [+] Payload read successfully (276 bytes)
 [+] Payload encrypted with CTAES (288 bytes)
 [!] IMPORTANT: The final executable will require --key and --iv arguments:
-    Usage: PickerPacker_Packed.exe --key 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef --iv 0123456789abcdef0123456789abcdef
+    Usage: PickerPacker_Packed.exe --key
+0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+--iv 0123456789abcdef0123456789abcdef
 [*] Detected payload type: Shellcode
 [*] Using execution method: EnumDesktopWindows Callback Execution
 [*] Writing loader stub...
 [*] Compiling loader...
-[*] Compile command: cargobuild --release --features ShellcodeExecuteEnumDesktopWindows --features InjectionFunctionStomping --features CheckAntiDebugProcessDebugFlags --features CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger --features CheckAntiDebugNtGlobalFlag --features CheckAntiDebugProcessList --features CheckAntiDebugHardwareBreakpoints --features EvasionETWSimple --features EvasionAMSISimplePatch --features EvasionNtdllUnhooking --features CTAES --manifest-path ./loader/Cargo.toml --target x86_64-pc-windows-msvc
+[*] Compile command: cargobuild --release --features
+ShellcodeExecuteEnumDesktopWindows --features InjectionFunctionStomping
+ --features CheckAntiDebugProcessDebugFlags --features
+CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger
+ --features CheckAntiDebugNtGlobalFlag --features CheckAntiDebugProcessList
+ --features CheckAntiDebugHardwareBreakpoints --features EvasionETWSimple
+ --features EvasionAMSISimplePatch --features EvasionNtdllUnhooking
+--features CTAES --manifest-path ./loader/Cargo.toml
+--target x86_64-pc-windows-msvc
 [+] Compilation successful!
 [*] Moving executable to root directory...
 [+] Packed executable created: PickerPacker_Packed.exe
 
-[!] Remember to run with: PickerPacker_Packed.exe --key 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef --iv 0123456789abcdef0123456789abcdef
+[!] Remember to run with: PickerPacker_Packed.exe --key
+ 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+--iv 0123456789abcdef0123456789abcdef
 ```
 
 ---
