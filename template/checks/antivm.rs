@@ -165,3 +165,76 @@ fn is_virtual_machine() -> bool {
 
     (ecx >> 31) & 0x1 == 1
 }
+
+// =======================================================================================================
+// ANTI-VM CHECK: Screen Resolution
+// =======================================================================================================
+
+/// Check if the environment is virtual by examining screen resolution.
+/// Virtual machines often have lower screen resolutions (below 1080x900).
+#[cfg(feature = "CheckAntiVMResolution")]
+use windows_sys::Win32::Foundation::{BOOL, LPARAM, RECT};
+#[cfg(feature = "CheckAntiVMResolution")]
+use windows_sys::Win32::Graphics::Gdi::{EnumDisplayMonitors, GetMonitorInfoW, HDC, HMONITOR, MONITORINFO};
+
+#[cfg(feature = "CheckAntiVMResolution")]
+pub fn anti_vm_resolution() -> bool {
+    is_virtual_env_resolution_check()
+}
+
+#[cfg(feature = "CheckAntiVMResolution")]
+fn is_virtual_env_resolution_check() -> bool {
+    let mut result: BOOL = 0;
+
+    unsafe {
+        let success = EnumDisplayMonitors(
+            std::ptr::null_mut(), // HDC
+            std::ptr::null(),
+            Some(resolution_callback),
+            &mut result as *mut BOOL as isize, // LPARAM is isize
+        );
+
+        if success == 0 {
+            return false; // Failed to enumerate monitors
+        }
+    }
+
+    result != 0
+}
+
+#[cfg(feature = "CheckAntiVMResolution")]
+unsafe extern "system" fn resolution_callback(
+    monitor_handle: HMONITOR,
+    _monitor_hdc: HDC,
+    _rect: *mut RECT,
+    data: isize, // LPARAM is isize in windows-sys
+) -> BOOL {
+    let result_ptr = data as *mut BOOL;
+    
+    let mut monitor_info = MONITORINFO {
+        cbSize: std::mem::size_of::<MONITORINFO>() as u32,
+        rcMonitor: RECT { left: 0, top: 0, right: 0, bottom: 0 },
+        rcWork: RECT { left: 0, top: 0, right: 0, bottom: 0 },
+        dwFlags: 0,
+    };
+
+    unsafe {
+        if GetMonitorInfoW(monitor_handle, &mut monitor_info) == 0 {
+            return 1; // Continue enumeration even if this monitor fails
+        }
+    }
+
+    // Calculate the X coordinates of the display
+    let x = monitor_info.rcMonitor.right - monitor_info.rcMonitor.left;
+    // Calculate the Y coordinates of the display
+    let y = monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top;
+
+    // If resolution is below 1080x900, likely a VM
+    if x.abs() < 1080 || y.abs() < 900 {
+        unsafe {
+            *result_ptr = 1; // Set to true (VM detected)
+        }
+    }
+
+    1 // Continue enumeration
+}
