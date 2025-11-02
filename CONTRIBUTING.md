@@ -217,4 +217,4 @@ By contributing, you agree that your code will be used in accordance with the pr
 **Thank you for helping make PickerPacker better!**
 
 *Created by: Swayam Tejas Padhy (@Leek0gg)*  
-*GitHub: https://github.com/Swayampadhy/PickerPacker*
+*GitHub: https://github.com/Swayampadhy*

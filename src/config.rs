@@ -9,7 +9,7 @@ use crate::enums::*;
 #[command(
     name = "PickerPacker",
     author = "Swayam Tejas Padhy (@Leek0gg)",
-    about = "A customizable payload packer",
+    about = "A customizable payload packer written in rust",
     long_about = None,
     disable_version_flag = true
 )]
@@ -19,23 +19,52 @@ pub struct PackerConfig {
     pub input: String,
 
     /// Shellcode execution method to use
-    #[arg(long, value_enum, default_value = "default")]
+    #[arg(
+        long, 
+        value_enum, 
+        default_value = "default",
+        hide_possible_values = true,
+        help = "Shellcode execution method to use\n                       Examples: default, fiber, enumchildwindows, enumwindows, copyfileexw, ...\n                       Total: 35 methods. See FEATURES.md for complete list\n"
+    )]
     pub execution: ExecutionMethod,
 
     /// Shellcode injection method to use
-    #[arg(long, value_enum, default_value = "default")]
+    #[arg(
+        long, 
+        value_enum, 
+        default_value = "default",
+        hide_possible_values = true,
+        help = "Shellcode injection method to use\n                       [possible values: default, mapping, functionstomping, modulestomping]\n"
+    )]
     pub injection: InjectionMethod,
 
-    /// Check methods to enable (comma-separated or multiple --checks flags)
-    #[arg(long, value_enum, value_delimiter = ',')]
+    /// Check methods to enable (comma-separated)
+    #[arg(
+        long, 
+        value_enum, 
+        value_delimiter = ',',
+        hide_possible_values = true,
+        help = "Check methods to enable (comma-separated)\n                       Examples: dbgprocesslist, vmcpu, vmcomprehensive, domainjoined, ...\n                       Total: 15 methods. See FEATURES.md for complete list\n"
+    )]
     pub checks: Vec<CheckMethod>,
 
-    /// Evasion methods to enable (comma-separated or multiple --evasion flags)
-    #[arg(long, value_enum, value_delimiter = ',')]
+    /// Evasion methods to enable (comma-separated)
+    #[arg(
+        long, 
+        value_enum, 
+        value_delimiter = ',',
+        hide_possible_values = true,
+        help = "Evasion methods to enable (comma-separated)\n                       Examples: amsisimple, etwsimple, ntdllunhook, selfdelete, ...\n                       Total: 8 methods (only 1 AMSI + 1 ETW allowed). See FEATURES.md\n"
+    )]
     pub evasion: Vec<EvasionMethod>,
 
     /// Encryption method to use (optional)
-    #[arg(long, value_enum)]
+    #[arg(
+        long, 
+        value_enum,
+        hide_possible_values = true,
+        help = "Encryption method to use (optional)\n                       [possible values: tinyaes, ctaes]\n"
+    )]
     pub encrypt: Option<EncryptionMethod>,
 
     /// AES encryption key (64 hex characters / 32 bytes)

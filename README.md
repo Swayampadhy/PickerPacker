@@ -10,11 +10,6 @@
 PickerPacker allows you to mix and match 64+ different features to create custom attack chains tailored to your specific needs. From stealthy callback-based execution to comprehensive VM detection and multi-layer evasion, PickerPacker gives you the flexibility to bypass modern security controls. 
 
 ---
-## Disclaimer
-
-This tool is provided for educational purposes and authorized security testing only. Users are responsible for compliance with all applicable laws and regulations.
-
----
 
 ##  Key Features
 - **35+ execution techniques** including WinAPI callbacks, Fiber execution and many more...
@@ -65,8 +60,9 @@ To use other payload types, convert them to shellcode first:
 #### Prerequisites
 - **Rust 1.70+** ([Install Rust](https://www.rust-lang.org/tools/install))
 - **Windows 10/11** (x64)
-- **Visual Studio Build Tools** or equivalent (for linking) (Example - `x86_64-pc-windows-msvc`)
-
+- **Visual Studio Build Tools** or equivalent (for linking) 
+    - **Linux** - `rustup target add x86_64-pc-windows-msvc` for linux
+    - **Windows** - [MSVC Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe)
 ### Installation
 
 #### From Source
@@ -330,6 +326,5 @@ This project incorporates techniques and code snippets from:
 - **[Maldev Academy](https://maldevacademy.com/)** - Malware development educational resources
 - **[Whitecat18/Rust-for-Malware-Development](https://github.com/Whitecat18/Rust-for-Malware-Development)** - Rust malware development examples
 - **[joaoviictorti/RustRedOps](https://github.com/joaoviictorti/RustRedOps)** - Offensive Rust techniques
----
-
-**If you find PickerPacker useful, please consider giving it a star!** ⭐
+-------
+**Disclaimer** - This tool is provided for educational purposes and authorized security testing only. Users are responsible for compliance with all applicable laws and regulations.
