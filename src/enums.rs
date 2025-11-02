@@ -284,6 +284,8 @@ pub enum EvasionMethod {
     ETWWinAPI,
     #[value(name = "etwpeventwrite")]
     ETWpEventWrite,
+    #[value(name = "etwpeventwrite2")]
+    ETWpEventWrite2,
     #[value(name = "ntdllunhook")]
     NtdllUnhooking,
     #[value(name = "selfdelete")]
@@ -298,6 +300,7 @@ impl EvasionMethod {
             EvasionMethod::ETWSimple => "EvasionETWSimple",
             EvasionMethod::ETWWinAPI => "EvasionETWWinAPI",
             EvasionMethod::ETWpEventWrite => "EvasionETWpEventWrite",
+            EvasionMethod::ETWpEventWrite2 => "EvasionETWpEventWrite2",
             EvasionMethod::NtdllUnhooking => "EvasionNtdllUnhooking",
             EvasionMethod::SelfDeletion => "EvasionSelfDeletion",
         }
@@ -310,6 +313,7 @@ impl EvasionMethod {
             EvasionMethod::ETWSimple => "ETW Evasion: Simple Patch",
             EvasionMethod::ETWWinAPI => "ETW Evasion: WinAPI Event Write",
             EvasionMethod::ETWpEventWrite => "ETW Evasion: Internal EtwpEventWrite Patch",
+            EvasionMethod::ETWpEventWrite2 => "ETW Evasion: NOP Call to EtwpEventWrite",
             EvasionMethod::NtdllUnhooking => "NTDLL Unhooking",
             EvasionMethod::SelfDeletion => "Self Deletion",
         }

