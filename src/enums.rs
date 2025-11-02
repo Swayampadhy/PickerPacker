@@ -296,6 +296,8 @@ impl CheckMethod {
 pub enum EvasionMethod {
     #[value(name = "amsisimple")]
     AMSISimplePatch,
+    #[value(name = "amsihwbp")]
+    AMSIHwbp,
     #[value(name = "etwsimple")]
     ETWSimple,
     #[value(name = "ntdllunhook")]
@@ -306,6 +308,7 @@ impl EvasionMethod {
     pub fn feature_name(&self) -> &'static str {
         match self {
             EvasionMethod::AMSISimplePatch => "EvasionAMSISimplePatch",
+            EvasionMethod::AMSIHwbp => "EvasionAMSIHwbp",
             EvasionMethod::ETWSimple => "EvasionETWSimple",
             EvasionMethod::NtdllUnhooking => "EvasionNtdllUnhooking",
         }
@@ -314,6 +317,7 @@ impl EvasionMethod {
     pub fn display_name(&self) -> &'static str {
         match self {
             EvasionMethod::AMSISimplePatch => "AMSI Evasion: Simple Patch",
+            EvasionMethod::AMSIHwbp => "AMSI Evasion: Hardware Breakpoint",
             EvasionMethod::ETWSimple => "ETW Evasion: Simple Patch",
             EvasionMethod::NtdllUnhooking => "NTDLL Unhooking",
         }

