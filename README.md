@@ -10,60 +10,24 @@
 PickerPacker allows you to mix and match 64+ different features to create custom attack chains tailored to your specific needs. From stealthy callback-based execution to comprehensive VM detection and multi-layer evasion, PickerPacker gives you the flexibility to bypass modern security controls. 
 
 ---
+## Disclaimer
+
+This tool is provided for educational purposes and authorized security testing only. Users are responsible for compliance with all applicable laws and regulations.
+
+---
 
 ##  Key Features
+- **35+ execution techniques** including WinAPI callbacks, Fiber execution and many more...
+- Injection Methods such as memory mapping and function/module stomping.
+- Multiple Anti-VM and Anti-Debug checks.
+- Multiple AMSI and ETW bypasses and other evasion techniques.
+- Payload encryption using TinyAES and CTAES.
 
-### Execution Methods (35 techniques)
-- **Default syscall-based execution**
-- **Fiber-based execution**
-- **35+ callback-based techniques** including:
-  - Timer Queue callbacks
-  - Window enumeration callbacks
-  - Certificate store callbacks
-  - Font enumeration callbacks
-  - And many more...
-
-### Injection Methods (4 techniques)
-- Default local injection
-- Memory mapping injection
-- **Function stomping**
-- **Module stomping**
-
-### Anti-Debug Checks (6 techniques)
-- Process debug flags detection
-- Remote debugger detection
-- PEB NtGlobalFlag check
-- Hardware breakpoint detection
-- Debugger process list enumeration
-- System kernel debugger check
-
-### Anti-VM Checks (8 techniques)
-- CPU core count check
-- RAM size verification
-- USB device history
-- Process count detection
-- Hyper-V CPUID detection
-- Screen resolution check
-- **CPU fan detection via WMI**
-- **Comprehensive multi-vector VM detection** (registry, files, processes, MAC, CPUID)
-
-### Evasion Techniques (8 techniques)
-- **AMSI bypass** (2 methods: simple patch, hardware breakpoint)
-- **ETW bypass** (4 methods: simple, WinAPI, internal patch, NOP call)
-- **NTDLL unhooking**
-- **Self-deletion**
-
-### Encryption (2 algorithms)
-- **TinyAES** - Lightweight AES implementation
-- **CTAES** - Constant-time AES for side-channel resistance
-
-### Additional Features
-- **Compile-time payload embedding**
-- **Runtime AES decryption**
-- **Modular Cargo feature system** - enable only what you need
-- **Indirect syscalls** via rust_syscalls
-- **Benign thread simulation** - customizable in `template/benign.rs`
-
+##### Additional Features
+- Compile-time payload embedding
+- Modular Cargo feature system - enable only what you need
+- Indirect syscalls via rust_syscalls
+- Benign thread simulation customization
 ---
 
 ## 📊 Feature Statistics
@@ -83,9 +47,7 @@ For detailed documentation of all features, see **[FEATURES.md](FEATURES.md)**
 
 ---
 
-## Important Notes
-
-### Payload Support
+## Payload Support
 **PickerPacker currently supports shellcode payloads only.** Multi-payload support (PE, DLL, .NET) is planned for future releases.
 
 To use other payload types, convert them to shellcode first:
@@ -93,14 +55,14 @@ To use other payload types, convert them to shellcode first:
 - **[pe_to_shellcode](https://github.com/hasherezade/pe_to_shellcode)** - For PE files
 - **[sRDI](https://github.com/monoxgas/sRDI)** - For native DLLs
 
-### Customization
+
 **You can customize the benign behavior of the packer by modifying `template/benign.rs`. See inline comments in that file for instructions.**
 
 ---
 
-## 🎯 Quick Start
+## Quick Start
 
-### Prerequisites
+#### Prerequisites
 - **Rust 1.70+** ([Install Rust](https://www.rust-lang.org/tools/install))
 - **Windows 10/11** (x64)
 - **Visual Studio Build Tools** or equivalent (for linking) (Example - `x86_64-pc-windows-msvc`)
@@ -212,13 +174,13 @@ $iv = -join ((1..32) | ForEach-Object { '{0:x}' -f (Get-Random -Maximum 16) })
 
 ## Feature Compatibility
 
-### ✅ Valid Combinations
+#### ✅ Valid Combinations
 - Any execution method + any injection method
 - Multiple check methods together
 - **One AMSI method + one ETW method** + other evasions
 - Any encryption method with other features
 
-### ❌ Invalid Combinations
+#### ❌ Invalid Combinations
 - **Multiple AMSI methods** together (choose only one: `amsisimple` OR `amsihwbp`)
 - **Multiple ETW methods** together (choose only one: `etwsimple` OR `etwwinapi` OR `etwpeventwrite` OR `etwpeventwrite2`)
 
@@ -330,44 +292,40 @@ CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger
 
 - **[FEATURES.md](FEATURES.md)** - Complete feature documentation with all 64 features categorized
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for contributing new features
-- **[LICENSE](LICENSE)** - License information
+- **[LICENSE](LICENSE)** - License information. This project is licensed under the MIT License.
 
 ---
 
-## Contributing
+## 🗺️ Roadmap
 
-We welcome contributions! PickerPacker is designed to be modular and extensible. You can contribute by:
+- [ ] **Multi-Payload Support** - Native PE, DLL, .NET assembly support
+- [ ] **Sleep Obfuscation Methods** (Such as EKKO/Zilean/Foilage)
+- [ ] **Delta Timing Checks**
+- [ ] **More Anti-vm and Anti-Debug Checks**
+- [ ] **APC queue execution**
+- [ ] **Remote Process Injection And Execution Methods**
+- [ ] **More Callback Execution Methods**
+- [ ] **More Payload Encryption Schemes**
+- [ ] **Payload Compression** (For example - UPX)
+- [ ] **String obfuscation**
+- [ ] **IAT Spoofing**
+- [ ] **More Syscall Manipulation Techniques**
+- [ ] **Control Flow Flattening** - Obfuscate execution flow
 
-- 🚀 Adding new execution methods
-- 💉 Implementing injection techniques
-- 🐛 Creating anti-debug checks
-- 🖥️ Developing anti-VM detection
-- 🛡️ Building evasion techniques
-- 🔐 Integrating encryption methods
+### Future Considerations
+- [ ] **Linux Support** - Cross-platform packer for Linux payloads
+- [ ] **Custom Obfuscators** - Pluggable obfuscation engine
+- [ ] **GUI Interface** - Graphical frontend for easier configuration
 
-See **[CONTRIBUTING.md](CONTRIBUTING.md)** for detailed guidelines on how to add features.
+**Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md) to add these features or propose new ones!
 
----
-
-## Disclaimer
-
-This tool is provided for educational purposes and authorized security testing only. Users are responsible for compliance with all applicable laws and regulations.
-
----
-
-## License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) file for details.
-
----
+--------------------
 
 ## Credits & Acknowledgments
 
-### Inspiration & Core Libraries
 - **[rtecCyberSec/Packer_Development](https://github.com/rtecCyberSec/Packer_Development)** - Primary inspiration for this project
 - **[janoglezcampos/rust_syscalls](https://github.com/janoglezcampos/rust_syscalls)** - Indirect syscall implementation
 
-### Code References & Techniques
 This project incorporates techniques and code snippets from:
 - **[Maldev Academy](https://maldevacademy.com/)** - Malware development educational resources
 - **[Whitecat18/Rust-for-Malware-Development](https://github.com/Whitecat18/Rust-for-Malware-Development)** - Rust malware development examples
