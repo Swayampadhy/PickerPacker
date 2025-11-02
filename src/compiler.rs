@@ -13,11 +13,6 @@ pub fn build_compile_command(config: &PackerConfig) -> String {
     compile_command.push_str(&format!("--features {} ", config.execution.feature_name()));
     compile_command.push_str(&format!("--features {} ", config.injection.feature_name()));
     
-    // Add utility features
-    for utility in &config.utils {
-        compile_command.push_str(&format!("--features {} ", utility.feature_name()));
-    }
-    
     // Add check features
     for check in &config.checks {
         compile_command.push_str(&format!("--features {} ", check.feature_name()));

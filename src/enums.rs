@@ -201,30 +201,6 @@ impl InjectionMethod {
 }
 
 // ============================================================================
-// Utility Methods
-// ============================================================================
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
-pub enum UtilityMethod {
-    #[value(name = "selfdelete")]
-    SelfDelete,
-}
-
-impl UtilityMethod {
-    pub fn feature_name(&self) -> &'static str {
-        match self {
-            UtilityMethod::SelfDelete => "UtilitySelfDeletion",
-        }
-    }
-
-    pub fn display_name(&self) -> &'static str {
-        match self {
-            UtilityMethod::SelfDelete => "Self Deletion",
-        }
-    }
-}
-
-// ============================================================================
 // Check Methods
 // ============================================================================
 
@@ -302,6 +278,8 @@ pub enum EvasionMethod {
     ETWSimple,
     #[value(name = "ntdllunhook")]
     NtdllUnhooking,
+    #[value(name = "selfdelete")]
+    SelfDeletion,
 }
 
 impl EvasionMethod {
@@ -311,6 +289,7 @@ impl EvasionMethod {
             EvasionMethod::AMSIHwbp => "EvasionAMSIHwbp",
             EvasionMethod::ETWSimple => "EvasionETWSimple",
             EvasionMethod::NtdllUnhooking => "EvasionNtdllUnhooking",
+            EvasionMethod::SelfDeletion => "EvasionSelfDeletion",
         }
     }
 
@@ -320,6 +299,7 @@ impl EvasionMethod {
             EvasionMethod::AMSIHwbp => "AMSI Evasion: Hardware Breakpoint",
             EvasionMethod::ETWSimple => "ETW Evasion: Simple Patch",
             EvasionMethod::NtdllUnhooking => "NTDLL Unhooking",
+            EvasionMethod::SelfDeletion => "Self Deletion",
         }
     }
 }

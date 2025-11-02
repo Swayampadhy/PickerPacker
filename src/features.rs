@@ -12,10 +12,6 @@ pub fn display_feature_summary(config: &PackerConfig) {
     
     let mut features = Vec::new();
     
-    for utility in &config.utils {
-        features.push(utility.display_name());
-    }
-    
     for check in &config.checks {
         features.push(check.display_name());
     }

