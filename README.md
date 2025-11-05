@@ -9,6 +9,7 @@
 
 PickerPacker allows you to mix and match 64+ different features to create custom attack chains tailored to your specific needs. From stealthy callback-based execution to comprehensive VM detection and multi-layer evasion, PickerPacker gives you the flexibility to bypass modern security controls. 
 
+For more info, Check out my [Blog Post](https://swayam-padhy.gitbook.io/root/projects/pickerpacker).
 ---
 
 ##  Key Features
