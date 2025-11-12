@@ -296,7 +296,6 @@ CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger
 ## 🗺️ Roadmap
 
 - [ ] **Multi-Payload Support** - Native PE, DLL, .NET assembly support
-- [ ] **Sleep Obfuscation Methods** (Such as EKKO/Zilean/Foilage)
 - [ ] **Delta Timing Checks**
 - [ ] **More Anti-vm and Anti-Debug Checks**
 - [ ] **APC queue execution**
