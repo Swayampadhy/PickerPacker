@@ -80,6 +80,8 @@ pub enum ExecutionMethod {
     SymFindFileInPath,
     #[value(name = "flsalloc")]
     FlsAlloc,
+    #[value(name = "waitformultipleobjectsexapc")]
+    WaitForMultipleObjectsExAPC,
 }
 
 impl ExecutionMethod {
@@ -120,6 +122,7 @@ impl ExecutionMethod {
             ExecutionMethod::EnumPwrSchemes => "ShellcodeExecuteEnumPwrSchemes",
             ExecutionMethod::SymFindFileInPath => "ShellcodeExecuteSymFindFileInPath",
             ExecutionMethod::FlsAlloc => "ShellcodeExecuteFlsAlloc",
+            ExecutionMethod::WaitForMultipleObjectsExAPC => "ShellcodeExecuteWaitForMultipleObjectsExAPC",
         }
     }
 
@@ -160,6 +163,7 @@ impl ExecutionMethod {
             ExecutionMethod::EnumPwrSchemes => "EnumPwrSchemes Callback Execution",
             ExecutionMethod::SymFindFileInPath => "SymFindFileInPath Callback Execution",
             ExecutionMethod::FlsAlloc => "FlsAlloc Callback Execution",
+            ExecutionMethod::WaitForMultipleObjectsExAPC => "WaitForMultipleObjectsEx APC Execution",
         }
     }
 }

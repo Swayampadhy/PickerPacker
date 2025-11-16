@@ -109,3 +109,6 @@ pub use execution::shellcode_execute_symfindfileinpath;
 
 #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
 pub use execution::shellcode_execute_flsalloc;
+
+#[cfg(feature = "ShellcodeExecuteWaitForMultipleObjectsExAPC")]
+pub use execution::shellcode_execute_waitformultipleobjectsexapc;

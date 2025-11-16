@@ -57,6 +57,7 @@ Shellcode execution techniques that leverage various Windows API callbacks and e
 | **EnumPwrSchemes** | `enumpwrschemes` | Power scheme enumeration callback |
 | **SymFindFileInPath** | `symfindfileinpath` | Symbol file search callback |
 | **FlsAlloc** | `flsalloc` | Fiber local storage callback |
+| **WaitForMultipleObjectsEx APC** | `waitformultipleobjectsexapc` | APC-based execution via alertable wait state |
 
 ---
 

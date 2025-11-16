@@ -12,7 +12,7 @@ PickerPacker allows you to mix and match 64+ different features to create custom
 ---
 
 ##  Key Features
-- **35+ execution techniques** including WinAPI callbacks, Fiber execution and many more...
+- **36+ execution techniques** including WinAPI callbacks, Fiber execution, APC execution and many more...
 - Injection Methods such as memory mapping and function/module stomping.
 - Multiple Anti-VM and Anti-Debug checks.
 - Multiple AMSI and ETW bypasses and other evasion techniques.
@@ -29,14 +29,14 @@ PickerPacker allows you to mix and match 64+ different features to create custom
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Execution Methods** | 35 | Callback-based and alternative execution primitives |
+| **Execution Methods** | 36 | Callback-based and alternative execution primitives |
 | **Injection Methods** | 4 | Memory injection and stomping techniques |
 | **Anti-Debug** | 6 | Debugger detection mechanisms |
 | **Anti-VM** | 8 | Virtual machine and sandbox detection |
 | **Evasion** | 8 | AMSI, ETW, and unhooking techniques |
 | **Encryption** | 2 | AES encryption variants |
 | **Other Checks** | 1 | Domain joined verification |
-| **TOTAL** | **64** | **Complete feature set** |
+| **TOTAL** | **65** | **Complete feature set** |
 
 For detailed documentation of all features, see **[FEATURES.md](FEATURES.md)**
 
@@ -295,23 +295,14 @@ CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger
 ## 🗺️ Roadmap
 
 - [ ] **Multi-Payload Support** - Native PE, DLL, .NET assembly support
-- [ ] **Sleep Obfuscation Methods** (Such as EKKO/Zilean/Foilage)
 - [ ] **Delta Timing Checks**
 - [ ] **More Anti-vm and Anti-Debug Checks**
 - [ ] **APC queue execution**
-- [ ] **Remote Process Injection And Execution Methods**
-- [ ] **More Callback Execution Methods**
-- [ ] **More Payload Encryption Schemes**
-- [ ] **Payload Compression** (For example - UPX)
+- [ ] **Payload Compression**
 - [ ] **String obfuscation**
 - [ ] **IAT Spoofing**
-- [ ] **More Syscall Manipulation Techniques**
-- [ ] **Control Flow Flattening** - Obfuscate execution flow
-
-### Future Considerations
-- [ ] **Linux Support** - Cross-platform packer for Linux payloads
-- [ ] **Custom Obfuscators** - Pluggable obfuscation engine
-- [ ] **GUI Interface** - Graphical frontend for easier configuration
+- [ ] **Control Flow Flattening**
+- [ ] **GUI Interface**
 
 **Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md) to add these features or propose new ones!
 

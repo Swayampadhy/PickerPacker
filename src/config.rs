@@ -24,7 +24,7 @@ pub struct PackerConfig {
         value_enum, 
         default_value = "default",
         hide_possible_values = true,
-        help = "Shellcode execution method to use\n                       Examples: default, fiber, enumchildwindows, enumwindows, copyfileexw, ...\n                       Total: 35 methods. See FEATURES.md for complete list\n"
+        help = "Shellcode execution method to use\n                       Examples: default, fiber, enumchildwindows, enumwindows, copyfileexw, ...\n                       Total: 36 methods. See FEATURES.md for complete list\n"
     )]
     pub execution: ExecutionMethod,
 
