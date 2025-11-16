@@ -12,7 +12,7 @@ PickerPacker allows you to mix and match 64+ different features to create custom
 ---
 
 ##  Key Features
-- **36+ execution techniques** including WinAPI callbacks, Fiber execution, APC execution and many more...
+- **40 execution techniques** including WinAPI callbacks, Fiber execution, APC execution and many more...
 - Injection Methods such as memory mapping and function/module stomping.
 - Multiple Anti-VM and Anti-Debug checks.
 - Multiple AMSI and ETW bypasses and other evasion techniques.
@@ -29,14 +29,14 @@ PickerPacker allows you to mix and match 64+ different features to create custom
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Execution Methods** | 36 | Callback-based and alternative execution primitives |
+| **Execution Methods** | 40 | Callback-based and alternative execution primitives |
 | **Injection Methods** | 4 | Memory injection and stomping techniques |
 | **Anti-Debug** | 6 | Debugger detection mechanisms |
 | **Anti-VM** | 8 | Virtual machine and sandbox detection |
 | **Evasion** | 8 | AMSI, ETW, and unhooking techniques |
 | **Encryption** | 2 | AES encryption variants |
 | **Other Checks** | 1 | Domain joined verification |
-| **TOTAL** | **65** | **Complete feature set** |
+| **TOTAL** | **69** | **Complete feature set** |
 
 For detailed documentation of all features, see **[FEATURES.md](FEATURES.md)**
 
@@ -297,12 +297,10 @@ CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger
 - [ ] **Multi-Payload Support** - Native PE, DLL, .NET assembly support
 - [ ] **Delta Timing Checks**
 - [ ] **More Anti-vm and Anti-Debug Checks**
-- [ ] **APC queue execution**
 - [ ] **Payload Compression**
 - [ ] **String obfuscation**
 - [ ] **IAT Spoofing**
-- [ ] **Control Flow Flattening**
-- [ ] **GUI Interface**
+- [ ] **Control Flow Flattening (Anti-Disassembly)**
 
 **Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md) to add these features or propose new ones!
 

