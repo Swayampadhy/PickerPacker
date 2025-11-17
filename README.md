@@ -40,6 +40,8 @@ PickerPacker allows you to mix and match 64+ different features to create custom
 
 For detailed documentation of all features, see **[FEATURES.md](FEATURES.md)**
 
+**Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md) to add these features or propose new ones!
+
 ---
 
 ## Payload Support
@@ -301,8 +303,6 @@ CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger
 - [ ] **String obfuscation**
 - [ ] **IAT Spoofing**
 - [ ] **Control Flow Flattening (Anti-Disassembly)**
-
-**Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md) to add these features or propose new ones!
 
 --------------------
 
