@@ -3,7 +3,7 @@
 [![Rust](https://img.shields.io/badge/Rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows-blue.svg)](https://www.microsoft.com/windows) ![Linux](https://img.shields.io/badge/Linux-FCC624)
-[![Release](https://img.shields.io/badge/Release-v1.0-green.svg)](https://github.com/Swayampadhy/PickerPacker/releases)
+[![Release](https://img.shields.io/badge/Release-v1.1-green.svg)](https://github.com/Swayampadhy/PickerPacker/releases)
 
 **A modular and customizable shellcode packer written in Rust** that provides operators with granular control over execution, evasion, and obfuscation techniques.
 
