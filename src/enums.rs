@@ -80,6 +80,16 @@ pub enum ExecutionMethod {
     SymFindFileInPath,
     #[value(name = "flsalloc")]
     FlsAlloc,
+    #[value(name = "waitformultipleobjectsexapc")]
+    WaitForMultipleObjectsExAPC,
+    #[value(name = "msgwaitformultipleobjectsexapc")]
+    MsgWaitForMultipleObjectsExAPC,
+    #[value(name = "sleepexapc")]
+    SleepExAPC,
+    #[value(name = "waitforsingleobjectexapc")]
+    WaitForSingleObjectExAPC,
+    #[value(name = "signalobjectandwaitapc")]
+    SignalObjectAndWaitAPC,
 }
 
 impl ExecutionMethod {
@@ -120,6 +130,11 @@ impl ExecutionMethod {
             ExecutionMethod::EnumPwrSchemes => "ShellcodeExecuteEnumPwrSchemes",
             ExecutionMethod::SymFindFileInPath => "ShellcodeExecuteSymFindFileInPath",
             ExecutionMethod::FlsAlloc => "ShellcodeExecuteFlsAlloc",
+            ExecutionMethod::WaitForMultipleObjectsExAPC => "ShellcodeExecuteWaitForMultipleObjectsExAPC",
+            ExecutionMethod::MsgWaitForMultipleObjectsExAPC => "ShellcodeExecuteMsgWaitForMultipleObjectsExAPC",
+            ExecutionMethod::SleepExAPC => "ShellcodeExecuteSleepExAPC",
+            ExecutionMethod::WaitForSingleObjectExAPC => "ShellcodeExecuteWaitForSingleObjectExAPC",
+            ExecutionMethod::SignalObjectAndWaitAPC => "ShellcodeExecuteSignalObjectAndWaitAPC",
         }
     }
 
@@ -160,6 +175,11 @@ impl ExecutionMethod {
             ExecutionMethod::EnumPwrSchemes => "EnumPwrSchemes Callback Execution",
             ExecutionMethod::SymFindFileInPath => "SymFindFileInPath Callback Execution",
             ExecutionMethod::FlsAlloc => "FlsAlloc Callback Execution",
+            ExecutionMethod::WaitForMultipleObjectsExAPC => "WaitForMultipleObjectsEx APC Execution",
+            ExecutionMethod::MsgWaitForMultipleObjectsExAPC => "MsgWaitForMultipleObjectsEx APC Execution",
+            ExecutionMethod::SleepExAPC => "SleepEx APC Execution",
+            ExecutionMethod::WaitForSingleObjectExAPC => "WaitForSingleObjectEx APC Execution",
+            ExecutionMethod::SignalObjectAndWaitAPC => "SignalObjectAndWait APC Execution",
         }
     }
 }

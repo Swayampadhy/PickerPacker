@@ -3,7 +3,7 @@
 [![Rust](https://img.shields.io/badge/Rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows-blue.svg)](https://www.microsoft.com/windows) ![Linux](https://img.shields.io/badge/Linux-FCC624)
-[![Release](https://img.shields.io/badge/Release-v1.0-green.svg)](https://github.com/Swayampadhy/PickerPacker/releases)
+[![Release](https://img.shields.io/badge/Release-v1.1-green.svg)](https://github.com/Swayampadhy/PickerPacker/releases)
 
 **A modular and customizable shellcode packer written in Rust** that provides operators with granular control over execution, evasion, and obfuscation techniques.
 
@@ -13,7 +13,7 @@ For more info, Check out my [Blog Post](https://swayam-padhy.gitbook.io/root/pro
 ---
 
 ##  Key Features
-- **35+ execution techniques** including WinAPI callbacks, Fiber execution and many more...
+- **40 execution techniques** including WinAPI callbacks, Fiber execution, APC execution and many more...
 - Injection Methods such as memory mapping and function/module stomping.
 - Multiple Anti-VM and Anti-Debug checks.
 - Multiple AMSI and ETW bypasses and other evasion techniques.
@@ -30,16 +30,18 @@ For more info, Check out my [Blog Post](https://swayam-padhy.gitbook.io/root/pro
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Execution Methods** | 35 | Callback-based and alternative execution primitives |
+| **Execution Methods** | 40 | Callback-based and alternative execution primitives |
 | **Injection Methods** | 4 | Memory injection and stomping techniques |
 | **Anti-Debug** | 6 | Debugger detection mechanisms |
 | **Anti-VM** | 8 | Virtual machine and sandbox detection |
 | **Evasion** | 8 | AMSI, ETW, and unhooking techniques |
 | **Encryption** | 2 | AES encryption variants |
 | **Other Checks** | 1 | Domain joined verification |
-| **TOTAL** | **64** | **Complete feature set** |
+| **TOTAL** | **69** | **Complete feature set** |
 
 For detailed documentation of all features, see **[FEATURES.md](FEATURES.md)**
+
+**Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md) to add these features or propose new ones!
 
 ---
 
@@ -298,22 +300,10 @@ CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger
 - [ ] **Multi-Payload Support** - Native PE, DLL, .NET assembly support
 - [ ] **Delta Timing Checks**
 - [ ] **More Anti-vm and Anti-Debug Checks**
-- [ ] **APC queue execution**
-- [ ] **Remote Process Injection And Execution Methods**
-- [ ] **More Callback Execution Methods**
-- [ ] **More Payload Encryption Schemes**
-- [ ] **Payload Compression** (For example - UPX)
+- [ ] **Payload Compression**
 - [ ] **String obfuscation**
 - [ ] **IAT Spoofing**
-- [ ] **More Syscall Manipulation Techniques**
-- [ ] **Control Flow Flattening** - Obfuscate execution flow
-
-### Future Considerations
-- [ ] **Linux Support** - Cross-platform packer for Linux payloads
-- [ ] **Custom Obfuscators** - Pluggable obfuscation engine
-- [ ] **GUI Interface** - Graphical frontend for easier configuration
-
-**Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md) to add these features or propose new ones!
+- [ ] **Control Flow Flattening (Anti-Disassembly)**
 
 --------------------
 

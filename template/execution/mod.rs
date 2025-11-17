@@ -109,3 +109,18 @@ pub use execution::shellcode_execute_symfindfileinpath;
 
 #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
 pub use execution::shellcode_execute_flsalloc;
+
+#[cfg(feature = "ShellcodeExecuteWaitForMultipleObjectsExAPC")]
+pub use execution::shellcode_execute_waitformultipleobjectsexapc;
+
+#[cfg(feature = "ShellcodeExecuteMsgWaitForMultipleObjectsExAPC")]
+pub use execution::shellcode_execute_msgwaitformultipleobjectsexapc;
+
+#[cfg(feature = "ShellcodeExecuteSleepExAPC")]
+pub use execution::shellcode_execute_sleepexapc;
+
+#[cfg(feature = "ShellcodeExecuteWaitForSingleObjectExAPC")]
+pub use execution::shellcode_execute_waitforsingleobjectexapc;
+
+#[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
+pub use execution::shellcode_execute_signalobjectandwaitapc;

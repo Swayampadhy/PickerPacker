@@ -214,6 +214,21 @@ fn main() {
 
         #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
         execution::shellcode_execute_flsalloc(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteWaitForMultipleObjectsExAPC")]
+        execution::shellcode_execute_waitformultipleobjectsexapc(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteMsgWaitForMultipleObjectsExAPC")]
+        execution::shellcode_execute_msgwaitformultipleobjectsexapc(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteSleepExAPC")]
+        execution::shellcode_execute_sleepexapc(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteWaitForSingleObjectExAPC")]
+        execution::shellcode_execute_waitforsingleobjectexapc(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
+        execution::shellcode_execute_signalobjectandwaitapc(shellcode.clone());
     }
 
     // =======================================================================
@@ -327,6 +342,21 @@ fn main() {
 
             #[cfg(feature = "ShellcodeExecuteFlsAlloc")]
             execution::shellcode_execute_flsalloc(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteWaitForMultipleObjectsExAPC")]
+            execution::shellcode_execute_waitformultipleobjectsexapc(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteMsgWaitForMultipleObjectsExAPC")]
+            execution::shellcode_execute_msgwaitformultipleobjectsexapc(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteSleepExAPC")]
+            execution::shellcode_execute_sleepexapc(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteWaitForSingleObjectExAPC")]
+            execution::shellcode_execute_waitforsingleobjectexapc(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
+            execution::shellcode_execute_signalobjectandwaitapc(decrypted_shellcode.clone());
         }
     }
 }
