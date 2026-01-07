@@ -87,6 +87,7 @@ ShellcodeExecuteMsgWaitForMultipleObjectsExAPC = ["windows-sys", "rust_syscalls"
 ShellcodeExecuteSleepExAPC = ["windows-sys", "rust_syscalls"]
 ShellcodeExecuteWaitForSingleObjectExAPC = ["windows-sys", "rust_syscalls"]
 ShellcodeExecuteSignalObjectAndWaitAPC = ["windows-sys", "rust_syscalls"]
+ShellcodeExecuteEnumSystemGeoID = ["windows-sys"]
 default = []
 InjectionDefaultLocal = ["rust_syscalls"]
 InjectionMappingLocal = ["rust_syscalls"]

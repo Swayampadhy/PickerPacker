@@ -22,7 +22,6 @@ Implement new shellcode injection techniques:
 - Process injection variants
 - Memory mapping techniques
 - Code stomping methods (function/module/section)
-- APC injection
 - Thread hijacking
 - Remote injection techniques
 - Remote stomping techniques

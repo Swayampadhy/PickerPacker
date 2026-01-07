@@ -90,6 +90,8 @@ pub enum ExecutionMethod {
     WaitForSingleObjectExAPC,
     #[value(name = "signalobjectandwaitapc")]
     SignalObjectAndWaitAPC,
+    #[value(name = "enumsystemgeoid")]
+    EnumSystemGeoID,
 }
 
 impl ExecutionMethod {
@@ -135,6 +137,7 @@ impl ExecutionMethod {
             ExecutionMethod::SleepExAPC => "ShellcodeExecuteSleepExAPC",
             ExecutionMethod::WaitForSingleObjectExAPC => "ShellcodeExecuteWaitForSingleObjectExAPC",
             ExecutionMethod::SignalObjectAndWaitAPC => "ShellcodeExecuteSignalObjectAndWaitAPC",
+            ExecutionMethod::EnumSystemGeoID => "ShellcodeExecuteEnumSystemGeoID",
         }
     }
 
@@ -180,6 +183,7 @@ impl ExecutionMethod {
             ExecutionMethod::SleepExAPC => "SleepEx APC Execution",
             ExecutionMethod::WaitForSingleObjectExAPC => "WaitForSingleObjectEx APC Execution",
             ExecutionMethod::SignalObjectAndWaitAPC => "SignalObjectAndWait APC Execution",
+            ExecutionMethod::EnumSystemGeoID => "EnumSystemGeoID Callback Execution",
         }
     }
 }

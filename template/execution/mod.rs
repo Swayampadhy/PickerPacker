@@ -124,3 +124,6 @@ pub use execution::shellcode_execute_waitforsingleobjectexapc;
 
 #[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
 pub use execution::shellcode_execute_signalobjectandwaitapc;
+
+#[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
+pub use execution::shellcode_execute_enumsystemgeoid;

