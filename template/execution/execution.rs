@@ -1707,7 +1707,7 @@ fn exec_payload_via_callback_func_enumsystemgeoid(start_address: *mut c_void) ->
     if result > 0 {
         Ok(())
     } else {
-        Err(String::from("EnumSystemGeoID failed"))
+        Err(String::from(""))
     }
 }
 
