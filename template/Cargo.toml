@@ -40,6 +40,8 @@ features = [
     "Win32_System_ProcessStatus",
     "Win32_System_Power",
     "Win32_System_Memory",
+    "Win32_System_Com",
+    "Win32_UI_Shell",
     "Win32_NetworkManagement_NetManagement",
     "Win32_System_SystemInformation",
     "Win32_System_Registry",
@@ -89,6 +91,7 @@ ShellcodeExecuteWaitForSingleObjectExAPC = ["windows-sys", "rust_syscalls"]
 ShellcodeExecuteSignalObjectAndWaitAPC = ["windows-sys", "rust_syscalls"]
 ShellcodeExecuteEnumSystemGeoID = ["windows-sys"]
 ShellcodeExecuteThreadpoolWait = ["windows-sys"]
+ShellcodeExecuteCDefFolderMenu = ["windows-sys"]
 default = []
 InjectionDefaultLocal = ["rust_syscalls"]
 InjectionMappingLocal = ["rust_syscalls"]

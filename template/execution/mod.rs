@@ -130,3 +130,6 @@ pub use execution::shellcode_execute_enumsystemgeoid;
 
 #[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
 pub use execution::shellcode_execute_threadpoolwait;
+
+#[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+pub use execution::shellcode_execute_cdeffoldermenu;

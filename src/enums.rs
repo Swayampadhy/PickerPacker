@@ -94,6 +94,8 @@ pub enum ExecutionMethod {
     EnumSystemGeoID,
     #[value(name = "threadpoolwait")]
     ThreadpoolWait,
+    #[value(name = "cdeffoldermenu")]
+    CDefFolderMenu,
 }
 
 impl ExecutionMethod {
@@ -141,6 +143,7 @@ impl ExecutionMethod {
             ExecutionMethod::SignalObjectAndWaitAPC => "ShellcodeExecuteSignalObjectAndWaitAPC",
             ExecutionMethod::EnumSystemGeoID => "ShellcodeExecuteEnumSystemGeoID",
             ExecutionMethod::ThreadpoolWait => "ShellcodeExecuteThreadpoolWait",
+            ExecutionMethod::CDefFolderMenu => "ShellcodeExecuteCDefFolderMenu",
         }
     }
 
@@ -188,6 +191,7 @@ impl ExecutionMethod {
             ExecutionMethod::SignalObjectAndWaitAPC => "SignalObjectAndWait APC Execution",
             ExecutionMethod::EnumSystemGeoID => "EnumSystemGeoID Callback Execution",
             ExecutionMethod::ThreadpoolWait => "ThreadpoolWait Callback Execution",
+            ExecutionMethod::CDefFolderMenu => "CDefFolderMenu_Create2 Callback Execution",
         }
     }
 }
