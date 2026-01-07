@@ -46,6 +46,7 @@ features = [
     "Win32_System_SystemInformation",
     "Win32_System_Registry",
     "Win32_System_Kernel",
+    "Win32_System_WindowsProgramming",
 ]
 
 [features]
@@ -116,6 +117,7 @@ CheckAntiVMComprehensive = ["windows-sys"]
 CheckDomainJoined = ["windows-sys"]
 EvasionAMSISimplePatch = ["windows-sys", "rust_syscalls"]
 EvasionAMSIHwbp = ["windows-sys"]
+EvasionAMSIPageGuard = ["windows-sys"]
 EvasionSelfDeletion = ["windows-sys"]
 EvasionETWSimple = ["windows-sys", "rust_syscalls"]
 EvasionETWWinAPI = ["windows-sys", "rust_syscalls"]

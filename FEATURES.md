@@ -124,6 +124,7 @@ Security product bypass and evasion mechanisms.
 |-------------|----------|-------------|
 | **AMSI Simple Patch** | `amsisimple` | Patch AmsiScanBuffer using syscalls |
 | **AMSI Hardware Breakpoint** | `amsihwbp` | Use hardware breakpoint to bypass AMSI |
+| **AMSI Page Guard Exception** | `amsipageguard` | Use page guard exceptions with VEH to bypass AMSI |
 
 ### ETW Evasion
 
@@ -178,10 +179,10 @@ Additional environmental and security checks.
 | **Injection Methods** | 4 | Memory injection methods |
 | **Anti-Debug Checks** | 6 | Debugger detection |
 | **Anti-VM Checks** | 8 | Virtual machine detection |
-| **Evasion Techniques** | 8 | Security product bypass (2 AMSI + 4 ETW + 2 other) |
+| **Evasion Techniques** | 9 | Security product bypass (3 AMSI + 4 ETW + 2 other) |
 | **Encryption Methods** | 2 | Payload encryption |
 | **Miscellaneous Checks** | 1 | Environmental checks |
-| **TOTAL** | **72** | **Total features** |
+| **TOTAL** | **73** | **Total features** |
 
 ---
 

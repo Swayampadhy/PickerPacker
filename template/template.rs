@@ -46,6 +46,11 @@ fn run_evasion_techniques() {
         let _ = evasion::amsi::patch_amsi_hwbp();
     }
 
+    #[cfg(feature = "EvasionAMSIPageGuard")]
+    {
+        let _ = evasion::amsi::patch_amsi_page_guard();
+    }
+
     #[cfg(feature = "EvasionETWSimple")]
     {
         let _ = evasion::etw::patch_etw();

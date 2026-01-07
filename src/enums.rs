@@ -322,6 +322,8 @@ pub enum EvasionMethod {
     AMSISimplePatch,
     #[value(name = "amsihwbp")]
     AMSIHwbp,
+    #[value(name = "amsipageguard")]
+    AMSIPageGuard,
     #[value(name = "etwsimple")]
     ETWSimple,
     #[value(name = "etwwinapi")]
@@ -341,6 +343,7 @@ impl EvasionMethod {
         match self {
             EvasionMethod::AMSISimplePatch => "EvasionAMSISimplePatch",
             EvasionMethod::AMSIHwbp => "EvasionAMSIHwbp",
+            EvasionMethod::AMSIPageGuard => "EvasionAMSIPageGuard",
             EvasionMethod::ETWSimple => "EvasionETWSimple",
             EvasionMethod::ETWWinAPI => "EvasionETWWinAPI",
             EvasionMethod::ETWpEventWrite => "EvasionETWpEventWrite",
@@ -354,6 +357,7 @@ impl EvasionMethod {
         match self {
             EvasionMethod::AMSISimplePatch => "AMSI Evasion: Simple Patch",
             EvasionMethod::AMSIHwbp => "AMSI Evasion: Hardware Breakpoint",
+            EvasionMethod::AMSIPageGuard => "AMSI Evasion: Page Guard Exception",
             EvasionMethod::ETWSimple => "ETW Evasion: Simple Patch",
             EvasionMethod::ETWWinAPI => "ETW Evasion: WinAPI Event Write",
             EvasionMethod::ETWpEventWrite => "ETW Evasion: Internal EtwpEventWrite Patch",
