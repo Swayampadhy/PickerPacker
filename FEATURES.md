@@ -63,6 +63,7 @@ Shellcode execution techniques that leverage various Windows API callbacks and e
 | **WaitForSingleObjectEx APC** | `waitforsingleobjectexapc` | APC-based execution via single object wait alertable state |
 | **SignalObjectAndWait APC** | `signalobjectandwaitapc` | APC-based execution via signal and wait alertable state |
 | **EnumSystemGeoID** | `enumsystemgeoid` | Geographic location enumeration callback |
+| **ThreadpoolWait** | `threadpoolwait` | Threadpool wait callback execution (PTP_WAIT_CALLBACK) |
 
 ---
 
@@ -172,14 +173,14 @@ Additional environmental and security checks.
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Execution Methods** | 41 | Shellcode execution techniques |
+| **Execution Methods** | 42 | Shellcode execution techniques |
 | **Injection Methods** | 4 | Memory injection methods |
 | **Anti-Debug Checks** | 6 | Debugger detection |
 | **Anti-VM Checks** | 8 | Virtual machine detection |
 | **Evasion Techniques** | 8 | Security product bypass (2 AMSI + 4 ETW + 2 other) |
 | **Encryption Methods** | 2 | Payload encryption |
 | **Miscellaneous Checks** | 1 | Environmental checks |
-| **TOTAL** | **70** | **Total features** |
+| **TOTAL** | **71** | **Total features** |
 
 ---
 

