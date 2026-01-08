@@ -268,6 +268,8 @@ pub enum CheckMethod {
     AntiVMComprehensive,
     #[value(name = "vmicmp")]
     AntiVMICMP,
+    #[value(name = "vmtiming")]
+    AntiVMTimingDiscrepancy,
     #[value(name = "domainjoined")]
     DomainJoined,
 }
@@ -290,6 +292,7 @@ impl CheckMethod {
             CheckMethod::AntiVMFan => "CheckAntiVMFan",
             CheckMethod::AntiVMComprehensive => "CheckAntiVMComprehensive",
             CheckMethod::AntiVMICMP => "CheckAntiVMICMP",
+            CheckMethod::AntiVMTimingDiscrepancy => "CheckAntiVMTimingDiscrepancy",
             CheckMethod::DomainJoined => "CheckDomainJoined",
         }
     }
@@ -311,6 +314,7 @@ impl CheckMethod {
             CheckMethod::AntiVMFan => "Anti-VM: CPU Fan Detection",
             CheckMethod::AntiVMComprehensive => "Anti-VM: Comprehensive Detection",
             CheckMethod::AntiVMICMP => "Anti-VM: ICMP Timing Check",
+            CheckMethod::AntiVMTimingDiscrepancy => "Anti-VM: Time Source Discrepancy",
             CheckMethod::DomainJoined => "Check: Domain Joined",
         }
     }

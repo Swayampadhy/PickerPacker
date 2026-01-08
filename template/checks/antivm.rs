@@ -621,5 +621,71 @@ pub fn anti_vm_icmp_timing(delay_in_millis: u32) -> bool {
 }
 
 // =======================================================================================================
-// ANTI-VM CHECK: 
+// ANTI-VM CHECK: Time Source Discrepancy
 // =======================================================================================================
+/// Compares RDTSC (CPU timestamp counter) with QueryPerformanceCounter (OS timer).
+/// VMs may show discrepancies due to hypervisor overhead or TSC offsetting.
+/// Returns true if likely running in a VM (timing sources show significant discrepancy).
+/// 
+#[cfg(feature = "CheckAntiVMTimingDiscrepancy")]
+use windows_sys::Win32::System::Performance::{QueryPerformanceCounter, QueryPerformanceFrequency};
+#[cfg(feature = "CheckAntiVMTimingDiscrepancy")]
+use windows_sys::Win32::System::Threading::Sleep;
+
+#[cfg(feature = "CheckAntiVMTimingDiscrepancy")]
+pub fn anti_vm_timing_discrepancy() -> bool {
+    #[cfg(target_arch = "x86_64")]
+    {
+        unsafe {
+            let mut frequency: i64 = 0;
+            let mut start_qpc: i64 = 0;
+            let mut end_qpc: i64 = 0;
+
+            // Get the frequency of the high-resolution performance counter
+            QueryPerformanceFrequency(&mut frequency);
+            
+            if frequency == 0 {
+                // Failed to get frequency - might indicate VM
+                return true;
+            }
+
+            // Take initial readings
+            QueryPerformanceCounter(&mut start_qpc);
+            let start_tsc = core::arch::x86_64::_rdtsc();
+            Sleep(10000);
+
+            // Take final readings
+            let end_tsc = core::arch::x86_64::_rdtsc();
+            QueryPerformanceCounter(&mut end_qpc);
+
+            // Calculate time passed according to both sources            
+            let qpc_diff = end_qpc - start_qpc;
+            let qpc_duration_us = (qpc_diff as f64 * 1_000_000.0) / frequency as f64;
+
+            // Time passed according to TSC (CPU Cycles)
+            let tsc_delta = end_tsc.wrapping_sub(start_tsc);
+           
+            // Calculate expected TSC range based on QPC duration
+            let expected_min_cycles = (qpc_duration_us * 500.0) as u64; // ~0.5 GHz minimum
+            let expected_max_cycles = (qpc_duration_us * 6000.0) as u64; // ~6.0 GHz maximum
+            
+            // If TSC is outside reasonable bounds, likely VM interference
+            if tsc_delta < expected_min_cycles || tsc_delta > expected_max_cycles {
+                return true; // Timing discrepancy detected - likely VM
+            }
+
+            // Check for QPC duration significantly different from expected (should be close to 1000ms)
+            // Allow +/- 100ms tolerance for system overhead
+            if qpc_duration_us < 900_000.0 || qpc_duration_us > 1_100_000.0 {
+                return true; // QPC timing anomaly - might indicate VM
+            }
+
+            false // Timing sources appear consistent
+        }
+    }
+    
+    #[cfg(not(target_arch = "x86_64"))]
+    {
+        false
+    }
+}

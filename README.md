@@ -32,11 +32,11 @@ PickerPacker allows you to mix and match 64+ different features to create custom
 | **Execution Methods** | 43 | Callback-based and alternative execution primitives |
 | **Injection Methods** | 4 | Memory injection and stomping techniques |
 | **Anti-Debug** | 6 | Debugger detection mechanisms |
-| **Anti-VM** | 9 | Virtual machine and sandbox detection |
+| **Anti-VM** | 10 | Virtual machine and sandbox detection |
 | **Evasion** | 9 | AMSI, ETW, and unhooking techniques |
 | **Encryption** | 2 | AES encryption variants |
 | **Other Checks** | 1 | Domain joined verification |
-| **TOTAL** | **74** | **Complete feature set** |
+| **TOTAL** | **75** | **Complete feature set** |
 
 For detailed documentation of all features, see **[FEATURES.md](FEATURES.md)**
 
