@@ -110,6 +110,7 @@ Virtual machine and sandbox detection techniques.
 | **Screen Resolution** | `vmresolution` | Detect VM by screen resolution < 1080x900 |
 | **CPU Fan Detection** | `vmfan` | Query WMI for physical CPU fans (VMs lack these) |
 | **Comprehensive VM Check** | `vmcomprehensive` | Multi-vector VM detection combining:<br>• Registry artifacts (VMware, VirtualBox, QEMU)<br>• File system artifacts (VM drivers/DLLs)<br>• Running VM processes (vmtoolsd, vboxservice)<br>• MAC address vendor prefixes<br>• CPUID hypervisor strings |
+| **ICMP Timing Check** | `vmicmp` | Detect VM by testing ICMP echo behavior with multicast address |
 
 
 ---
@@ -178,11 +179,11 @@ Additional environmental and security checks.
 | **Execution Methods** | 43 | Shellcode execution techniques |
 | **Injection Methods** | 4 | Memory injection methods |
 | **Anti-Debug Checks** | 6 | Debugger detection |
-| **Anti-VM Checks** | 8 | Virtual machine detection |
+| **Anti-VM Checks** | 9 | Virtual machine detection |
 | **Evasion Techniques** | 9 | Security product bypass (3 AMSI + 4 ETW + 2 other) |
 | **Encryption Methods** | 2 | Payload encryption |
 | **Miscellaneous Checks** | 1 | Environmental checks |
-| **TOTAL** | **73** | **Total features** |
+| **TOTAL** | **74** | **Total features** |
 
 ---
 
