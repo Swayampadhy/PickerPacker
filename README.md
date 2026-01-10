@@ -40,7 +40,7 @@ PickerPacker allows you to mix and match 64+ different features to create custom
 
 For detailed documentation of all features, see **[FEATURES.md](FEATURES.md)**
 
-**Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md) to add these features or propose new ones!
+**Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
@@ -294,12 +294,10 @@ CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ To-do
 
 - [ ] **Multi-Payload Support** - Native PE, DLL, .NET assembly support
-- [ ] **Control Flow Flattening (Anti-Disassembly)**
 - [ ] **More Anti-vm and Anti-Debug Checks**
-- [ ] **String obfuscation**
 
 --------------------
 
