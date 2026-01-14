@@ -7,7 +7,7 @@
 
 **A modular and customizable shellcode packer written in Rust** that provides operators with granular control over execution, evasion, and obfuscation techniques.
 
-PickerPacker allows you to mix and match 64+ different features to create custom attack chains tailored to your specific needs. From stealthy callback-based execution to comprehensive VM detection and multi-layer evasion, PickerPacker gives you the flexibility to bypass modern security controls. 
+PickerPacker allows you to mix and match a smorgasboard of different features to create custom attack chains tailored to your specific needs. From stealthy callback-based execution to comprehensive VM detection and multi-layer evasion, PickerPacker gives you the flexibility to bypass modern security controls. 
 
 ---
 
@@ -40,7 +40,7 @@ PickerPacker allows you to mix and match 64+ different features to create custom
 
 For detailed documentation of all features, see **[FEATURES.md](FEATURES.md)**
 
-**Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md)
+**Want to contribute? or add new features?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
@@ -51,7 +51,6 @@ To use other payload types, convert them to shellcode first:
 - **[Donut](https://github.com/TheWover/donut)** - For .NET assemblies and DLLs
 - **[pe_to_shellcode](https://github.com/hasherezade/pe_to_shellcode)** - For PE files
 - **[sRDI](https://github.com/monoxgas/sRDI)** - For native DLLs
-
 
 **You can customize the benign behavior of the packer by modifying `template/benign.rs`. See inline comments in that file for instructions.**
 
@@ -293,13 +292,6 @@ CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger
 - **[LICENSE](LICENSE)** - License information. This project is licensed under the MIT License.
 
 ---
-
-## 🗺️ To-do
-
-- [ ] **Multi-Payload Support** - Native PE, DLL, .NET assembly support
-- [ ] **More Anti-vm and Anti-Debug Checks**
-
---------------------
 
 ## Credits & Acknowledgments
 
