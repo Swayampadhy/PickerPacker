@@ -90,6 +90,12 @@ pub enum ExecutionMethod {
     WaitForSingleObjectExAPC,
     #[value(name = "signalobjectandwaitapc")]
     SignalObjectAndWaitAPC,
+    #[value(name = "enumsystemgeoid")]
+    EnumSystemGeoID,
+    #[value(name = "threadpoolwait")]
+    ThreadpoolWait,
+    #[value(name = "cdeffoldermenu")]
+    CDefFolderMenu,
 }
 
 impl ExecutionMethod {
@@ -135,6 +141,9 @@ impl ExecutionMethod {
             ExecutionMethod::SleepExAPC => "ShellcodeExecuteSleepExAPC",
             ExecutionMethod::WaitForSingleObjectExAPC => "ShellcodeExecuteWaitForSingleObjectExAPC",
             ExecutionMethod::SignalObjectAndWaitAPC => "ShellcodeExecuteSignalObjectAndWaitAPC",
+            ExecutionMethod::EnumSystemGeoID => "ShellcodeExecuteEnumSystemGeoID",
+            ExecutionMethod::ThreadpoolWait => "ShellcodeExecuteThreadpoolWait",
+            ExecutionMethod::CDefFolderMenu => "ShellcodeExecuteCDefFolderMenu",
         }
     }
 
@@ -180,6 +189,9 @@ impl ExecutionMethod {
             ExecutionMethod::SleepExAPC => "SleepEx APC Execution",
             ExecutionMethod::WaitForSingleObjectExAPC => "WaitForSingleObjectEx APC Execution",
             ExecutionMethod::SignalObjectAndWaitAPC => "SignalObjectAndWait APC Execution",
+            ExecutionMethod::EnumSystemGeoID => "EnumSystemGeoID Callback Execution",
+            ExecutionMethod::ThreadpoolWait => "ThreadpoolWait Callback Execution",
+            ExecutionMethod::CDefFolderMenu => "CDefFolderMenu_Create2 Callback Execution",
         }
     }
 }
@@ -254,6 +266,10 @@ pub enum CheckMethod {
     AntiVMFan,
     #[value(name = "vmcomprehensive")]
     AntiVMComprehensive,
+    #[value(name = "vmicmp")]
+    AntiVMICMP,
+    #[value(name = "vmtiming")]
+    AntiVMTimingDiscrepancy,
     #[value(name = "domainjoined")]
     DomainJoined,
 }
@@ -275,6 +291,8 @@ impl CheckMethod {
             CheckMethod::AntiVMResolution => "CheckAntiVMResolution",
             CheckMethod::AntiVMFan => "CheckAntiVMFan",
             CheckMethod::AntiVMComprehensive => "CheckAntiVMComprehensive",
+            CheckMethod::AntiVMICMP => "CheckAntiVMICMP",
+            CheckMethod::AntiVMTimingDiscrepancy => "CheckAntiVMTimingDiscrepancy",
             CheckMethod::DomainJoined => "CheckDomainJoined",
         }
     }
@@ -295,6 +313,8 @@ impl CheckMethod {
             CheckMethod::AntiVMResolution => "Anti-VM: Screen Resolution",
             CheckMethod::AntiVMFan => "Anti-VM: CPU Fan Detection",
             CheckMethod::AntiVMComprehensive => "Anti-VM: Comprehensive Detection",
+            CheckMethod::AntiVMICMP => "Anti-VM: ICMP Timing Check",
+            CheckMethod::AntiVMTimingDiscrepancy => "Anti-VM: Time Source Discrepancy",
             CheckMethod::DomainJoined => "Check: Domain Joined",
         }
     }
@@ -310,6 +330,8 @@ pub enum EvasionMethod {
     AMSISimplePatch,
     #[value(name = "amsihwbp")]
     AMSIHwbp,
+    #[value(name = "amsipageguard")]
+    AMSIPageGuard,
     #[value(name = "etwsimple")]
     ETWSimple,
     #[value(name = "etwwinapi")]
@@ -329,6 +351,7 @@ impl EvasionMethod {
         match self {
             EvasionMethod::AMSISimplePatch => "EvasionAMSISimplePatch",
             EvasionMethod::AMSIHwbp => "EvasionAMSIHwbp",
+            EvasionMethod::AMSIPageGuard => "EvasionAMSIPageGuard",
             EvasionMethod::ETWSimple => "EvasionETWSimple",
             EvasionMethod::ETWWinAPI => "EvasionETWWinAPI",
             EvasionMethod::ETWpEventWrite => "EvasionETWpEventWrite",
@@ -342,6 +365,7 @@ impl EvasionMethod {
         match self {
             EvasionMethod::AMSISimplePatch => "AMSI Evasion: Simple Patch",
             EvasionMethod::AMSIHwbp => "AMSI Evasion: Hardware Breakpoint",
+            EvasionMethod::AMSIPageGuard => "AMSI Evasion: Page Guard Exception",
             EvasionMethod::ETWSimple => "ETW Evasion: Simple Patch",
             EvasionMethod::ETWWinAPI => "ETW Evasion: WinAPI Event Write",
             EvasionMethod::ETWpEventWrite => "ETW Evasion: Internal EtwpEventWrite Patch",

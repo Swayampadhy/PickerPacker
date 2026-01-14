@@ -62,6 +62,9 @@ Shellcode execution techniques that leverage various Windows API callbacks and e
 | **SleepEx APC** | `sleepexapc` | APC-based execution via SleepEx alertable state |
 | **WaitForSingleObjectEx APC** | `waitforsingleobjectexapc` | APC-based execution via single object wait alertable state |
 | **SignalObjectAndWait APC** | `signalobjectandwaitapc` | APC-based execution via signal and wait alertable state |
+| **EnumSystemGeoID** | `enumsystemgeoid` | Geographic location enumeration callback |
+| **ThreadpoolWait** | `threadpoolwait` | Threadpool wait callback execution (PTP_WAIT_CALLBACK) |
+| **CDefFolderMenu_Create2** | `cdeffoldermenu` | Shell folder menu callback execution |
 
 ---
 
@@ -107,6 +110,8 @@ Virtual machine and sandbox detection techniques.
 | **Screen Resolution** | `vmresolution` | Detect VM by screen resolution < 1080x900 |
 | **CPU Fan Detection** | `vmfan` | Query WMI for physical CPU fans (VMs lack these) |
 | **Comprehensive VM Check** | `vmcomprehensive` | Multi-vector VM detection combining:<br>• Registry artifacts (VMware, VirtualBox, QEMU)<br>• File system artifacts (VM drivers/DLLs)<br>• Running VM processes (vmtoolsd, vboxservice)<br>• MAC address vendor prefixes<br>• CPUID hypervisor strings |
+| **ICMP Timing Check** | `vmicmp` | Detect VM by testing ICMP echo behavior with multicast address |
+| **Time Source Discrepancy** | `vmtiming` | Compare RDTSC (CPU cycles) vs QueryPerformanceCounter (OS timer) for timing anomalies |
 
 
 ---
@@ -121,6 +126,7 @@ Security product bypass and evasion mechanisms.
 |-------------|----------|-------------|
 | **AMSI Simple Patch** | `amsisimple` | Patch AmsiScanBuffer using syscalls |
 | **AMSI Hardware Breakpoint** | `amsihwbp` | Use hardware breakpoint to bypass AMSI |
+| **AMSI Page Guard Exception** | `amsipageguard` | Use page guard exceptions with VEH to bypass AMSI |
 
 ### ETW Evasion
 
@@ -171,14 +177,14 @@ Additional environmental and security checks.
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Execution Methods** | 35 | Shellcode execution techniques |
+| **Execution Methods** | 43 | Shellcode execution techniques |
 | **Injection Methods** | 4 | Memory injection methods |
 | **Anti-Debug Checks** | 6 | Debugger detection |
-| **Anti-VM Checks** | 8 | Virtual machine detection |
-| **Evasion Techniques** | 8 | Security product bypass (2 AMSI + 4 ETW + 2 other) |
+| **Anti-VM Checks** | 10 | Virtual machine detection |
+| **Evasion Techniques** | 9 | Security product bypass (3 AMSI + 4 ETW + 2 other) |
 | **Encryption Methods** | 2 | Payload encryption |
 | **Miscellaneous Checks** | 1 | Environmental checks |
-| **TOTAL** | **64** | **Total features** |
+| **TOTAL** | **75** | **Total features** |
 
 ---
 

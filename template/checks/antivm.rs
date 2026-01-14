@@ -554,3 +554,138 @@ fn check_cpu_hypervisor() -> bool {
         hypervisor_present || is_known_vm
     }
 }
+
+// =======================================================================================================
+// ANTI-VM CHECK: ICMP Timing
+// =======================================================================================================
+
+/// Check for VM environment using ICMP echo timing.
+/// VMs may handle ICMP requests differently or fail to process them properly.
+/// Returns true if likely running in a VM (ICMP operations fail).
+#[cfg(feature = "CheckAntiVMICMP")]
+use windows_sys::Win32::Foundation::INVALID_HANDLE_VALUE;
+#[cfg(feature = "CheckAntiVMICMP")]
+use windows_sys::Win32::NetworkManagement::IpHelper::{
+    IcmpCloseHandle, IcmpCreateFile, IcmpSendEcho, ICMP_ECHO_REPLY,
+};
+#[cfg(feature = "CheckAntiVMICMP")]
+use std::alloc::{alloc, dealloc, Layout};
+
+#[cfg(feature = "CheckAntiVMICMP")]
+pub fn anti_vm_icmp_timing(delay_in_millis: u32) -> bool {
+    unsafe {
+        let h_icmp_file = IcmpCreateFile();
+        if h_icmp_file == INVALID_HANDLE_VALUE {
+            // Unable to open handle - might indicate VM
+            return true;
+        }
+
+        // Destination address: 224.0.0.0 (multicast address)
+        let destination_address: u32 = 0xE0000000; // Network byte order for 224.0.0.0
+
+        // Send data
+        let send_data = b"Data Buffer\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"; // 32 bytes
+        let send_data_size = 32;
+
+        // Calculate reply size: size of ICMP_ECHO_REPLY + send data size + 8 extra bytes
+        let reply_size = std::mem::size_of::<ICMP_ECHO_REPLY>() + send_data_size + 8;
+
+        // Allocate reply buffer
+        let layout = Layout::from_size_align_unchecked(reply_size, 8);
+        let reply_buffer = alloc(layout);
+        
+        if reply_buffer.is_null() {
+            IcmpCloseHandle(h_icmp_file);
+            return true; // Memory allocation failed - might indicate VM
+        }
+
+        // Send ICMP echo
+        let _result = IcmpSendEcho(
+            h_icmp_file,
+            destination_address,
+            send_data.as_ptr() as *const _,
+            send_data_size as u16,
+            std::ptr::null(),
+            reply_buffer as *mut _,
+            reply_size as u32,
+            delay_in_millis,
+        );
+
+        // Cleanup
+        IcmpCloseHandle(h_icmp_file);
+        dealloc(reply_buffer, layout);
+
+        // Return false (not VM) if operation completed successfully
+        false
+    }
+}
+
+// =======================================================================================================
+// ANTI-VM CHECK: Time Source Discrepancy
+// =======================================================================================================
+/// Compares RDTSC (CPU timestamp counter) with QueryPerformanceCounter (OS timer).
+/// VMs may show discrepancies due to hypervisor overhead or TSC offsetting.
+/// Returns true if likely running in a VM (timing sources show significant discrepancy).
+/// 
+#[cfg(feature = "CheckAntiVMTimingDiscrepancy")]
+use windows_sys::Win32::System::Performance::{QueryPerformanceCounter, QueryPerformanceFrequency};
+#[cfg(feature = "CheckAntiVMTimingDiscrepancy")]
+use windows_sys::Win32::System::Threading::Sleep;
+
+#[cfg(feature = "CheckAntiVMTimingDiscrepancy")]
+pub fn anti_vm_timing_discrepancy() -> bool {
+    #[cfg(target_arch = "x86_64")]
+    {
+        unsafe {
+            let mut frequency: i64 = 0;
+            let mut start_qpc: i64 = 0;
+            let mut end_qpc: i64 = 0;
+
+            // Get the frequency of the high-resolution performance counter
+            QueryPerformanceFrequency(&mut frequency);
+            
+            if frequency == 0 {
+                // Failed to get frequency - might indicate VM
+                return true;
+            }
+
+            // Take initial readings
+            QueryPerformanceCounter(&mut start_qpc);
+            let start_tsc = core::arch::x86_64::_rdtsc();
+            Sleep(10000);
+
+            // Take final readings
+            let end_tsc = core::arch::x86_64::_rdtsc();
+            QueryPerformanceCounter(&mut end_qpc);
+
+            // Calculate time passed according to both sources            
+            let qpc_diff = end_qpc - start_qpc;
+            let qpc_duration_us = (qpc_diff as f64 * 1_000_000.0) / frequency as f64;
+
+            // Time passed according to TSC (CPU Cycles)
+            let tsc_delta = end_tsc.wrapping_sub(start_tsc);
+           
+            // Calculate expected TSC range based on QPC duration
+            let expected_min_cycles = (qpc_duration_us * 500.0) as u64; // ~0.5 GHz minimum
+            let expected_max_cycles = (qpc_duration_us * 6000.0) as u64; // ~6.0 GHz maximum
+            
+            // If TSC is outside reasonable bounds, likely VM interference
+            if tsc_delta < expected_min_cycles || tsc_delta > expected_max_cycles {
+                return true; // Timing discrepancy detected - likely VM
+            }
+
+            // Check for QPC duration significantly different from expected (should be close to 1000ms)
+            // Allow +/- 100ms tolerance for system overhead
+            if qpc_duration_us < 900_000.0 || qpc_duration_us > 1_100_000.0 {
+                return true; // QPC timing anomaly - might indicate VM
+            }
+
+            false // Timing sources appear consistent
+        }
+    }
+    
+    #[cfg(not(target_arch = "x86_64"))]
+    {
+        false
+    }
+}

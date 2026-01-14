@@ -7,13 +7,13 @@
 
 **A modular and customizable shellcode packer written in Rust** that provides operators with granular control over execution, evasion, and obfuscation techniques.
 
-PickerPacker allows you to mix and match 64+ different features to create custom attack chains tailored to your specific needs. From stealthy callback-based execution to comprehensive VM detection and multi-layer evasion, PickerPacker gives you the flexibility to bypass modern security controls. 
+PickerPacker allows you to mix and match a smorgasboard of different features to create custom attack chains tailored to your specific needs. From stealthy callback-based execution to comprehensive VM detection and multi-layer evasion, PickerPacker gives you the flexibility to bypass modern security controls. 
 
 For more info, Check out my [Blog Post](https://swayam-padhy.gitbook.io/root/projects/pickerpacker).
 ---
 
 ##  Key Features
-- **40 execution techniques** including WinAPI callbacks, Fiber execution, APC execution and many more...
+- **43 execution techniques** including WinAPI callbacks, Fiber execution, APC execution and many more...
 - Injection Methods such as memory mapping and function/module stomping.
 - Multiple Anti-VM and Anti-Debug checks.
 - Multiple AMSI and ETW bypasses and other evasion techniques.
@@ -30,18 +30,18 @@ For more info, Check out my [Blog Post](https://swayam-padhy.gitbook.io/root/pro
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Execution Methods** | 40 | Callback-based and alternative execution primitives |
+| **Execution Methods** | 43 | Callback-based and alternative execution primitives |
 | **Injection Methods** | 4 | Memory injection and stomping techniques |
 | **Anti-Debug** | 6 | Debugger detection mechanisms |
-| **Anti-VM** | 8 | Virtual machine and sandbox detection |
-| **Evasion** | 8 | AMSI, ETW, and unhooking techniques |
+| **Anti-VM** | 10 | Virtual machine and sandbox detection |
+| **Evasion** | 9 | AMSI, ETW, and unhooking techniques |
 | **Encryption** | 2 | AES encryption variants |
 | **Other Checks** | 1 | Domain joined verification |
-| **TOTAL** | **69** | **Complete feature set** |
+| **TOTAL** | **75** | **Complete feature set** |
 
 For detailed documentation of all features, see **[FEATURES.md](FEATURES.md)**
 
-**Want to contribute?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md) to add these features or propose new ones!
+**Want to contribute? or add new features?** Check out  [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
@@ -52,7 +52,6 @@ To use other payload types, convert them to shellcode first:
 - **[Donut](https://github.com/TheWover/donut)** - For .NET assemblies and DLLs
 - **[pe_to_shellcode](https://github.com/hasherezade/pe_to_shellcode)** - For PE files
 - **[sRDI](https://github.com/monoxgas/sRDI)** - For native DLLs
-
 
 **You can customize the benign behavior of the packer by modifying `template/benign.rs`. See inline comments in that file for instructions.**
 
@@ -294,18 +293,6 @@ CheckAntiDebugSystemDebugControl --features CheckAntiDebugRemoteDebugger
 - **[LICENSE](LICENSE)** - License information. This project is licensed under the MIT License.
 
 ---
-
-## 🗺️ Roadmap
-
-- [ ] **Multi-Payload Support** - Native PE, DLL, .NET assembly support
-- [ ] **Delta Timing Checks**
-- [ ] **More Anti-vm and Anti-Debug Checks**
-- [ ] **Payload Compression**
-- [ ] **String obfuscation**
-- [ ] **IAT Spoofing**
-- [ ] **Control Flow Flattening (Anti-Disassembly)**
-
---------------------
 
 ## Credits & Acknowledgments
 

